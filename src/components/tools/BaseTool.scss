@@ -1,0 +1,63 @@
+.tool-wrapper {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  
+  /* 暗黑模式适配 */
+  :root.dark & {
+    background: var(--tool-card-bg);
+    border: 1px solid var(--tool-card-border);
+    box-shadow: var(--tool-card-shadow);
+  }
+}
+
+.tool-header {
+  margin-bottom: 1.5rem;
+  
+  .tool-title {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .tool-desc {
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+  }
+}
+
+.tool-content {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  
+  :root.dark & {
+    background: var(--editor-bg);
+    border: 1px solid var(--editor-border);
+  }
+}
+
+.action-bar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  
+  .action-button {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    :root.dark & {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      
+      &:hover {
+        background: var(--bg-overlay-hover);
+        border-color: var(--border-color-hover);
+      }
+    }
+  }
+} 

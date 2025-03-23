@@ -1,0 +1,99 @@
+.tool-wrapper {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-header {
+  margin-bottom: 1.5rem;
+}
+
+.tool-title {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.tool-desc {
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.tool-content {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.action-bar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.action-button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* 输入区域 */
+.input-area {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* 结果区域 */
+.result-area {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+/* 工具卡片 */
+.tool-card {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-md);
+}
+
+/* 分割线 */
+.divider {
+  border-top: 1px solid var(--border-color);
+  margin: 1rem 0;
+}
+
+/* 标签 */
+.label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+/* 提示文本 */
+.hint-text {
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* 错误提示 */
+.error-text {
+  color: var(--el-color-danger);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* 成功提示 */
+.success-text {
+  color: var(--el-color-success);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+} 

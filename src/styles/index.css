@@ -1,0 +1,350 @@
+:root {
+  /* 字体系统 */
+  --font-family-base: "Microsoft YaHei", -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-family-code: "Microsoft YaHei", Consolas, Monaco, monospace;
+  
+  /* 字体渲染 */
+  --font-smoothing: antialiased;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* 字体大小系统 */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+  
+  /* 行高系统 */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* 字间距 */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  
+  /* 亮色模式变量 */
+  --primary-color: #06c;
+  --primary-hover: #0052cc;
+  --secondary-color: #3b82f6;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  
+  /* 亮色模式文本颜色 */
+  --text-primary: #1d1d1f;
+  --text-secondary: #86868b;
+  --text-light: #a1a1a6;
+  
+  /* 亮色模式背景颜色 */
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f0f0f2;
+  --bg-overlay: rgba(255, 255, 255, 0.8);
+  --bg-overlay-hover: rgba(255, 255, 255, 0.95);
+  
+  /* 添加新的背景渐变变量 */
+  --bg-gradient: linear-gradient(
+    to bottom,
+    rgba(240, 240, 242, 0.8),
+    rgba(245, 245, 247, 0.95)
+  );
+  
+  /* 亮色模式边框和阴影 */
+  --border-color: rgba(0, 0, 0, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --backdrop-color: rgba(0, 0, 0, 0.2);
+  
+  /* 圆角大小 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px 0 var(--shadow-color);
+  --shadow-md: 0 4px 6px -1px var(--shadow-color);
+  --shadow-lg: 0 10px 15px -3px var(--shadow-color);
+  
+  /* 动画 */
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 将原来的 @media 查询改为 class 判断 */
+:root.dark {
+  /* 暗色模式文本颜色 */
+  --text-primary: #f5f5f7;
+  --text-secondary: #86868b;
+  --text-light: #6e6e73;
+  
+  /* 暗色模式背景颜色 */
+  --bg-primary: #161618;
+  --bg-secondary: #1d1d1f;
+  --bg-tertiary: #2d2d2f;
+  --bg-overlay: rgba(0, 0, 0, 0.6);
+  --bg-overlay-hover: rgba(0, 0, 0, 0.8);
+  
+  /* 暗色模式背景渐变 */
+  --bg-gradient: linear-gradient(
+    to bottom,
+    rgba(22, 22, 24, 0.8),
+    rgba(25, 25, 27, 0.95)
+  );
+  
+  /* 暗色模式边框和阴影 */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --backdrop-color: rgba(0, 0, 0, 0.5);
+  
+  /* 暗色模式主题色调整 */
+  --primary-color: #2997ff;
+  --primary-hover: #0071e3;
+  --secondary-color: #5e9eff;
+}
+
+/* 基础样式 */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--text-base);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: var(--font-smoothing);
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+  transition: background-color 0.3s ease;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+/* Element Plus 主题覆盖 */
+:root {
+  --el-color-primary: var(--primary-color);
+  --el-border-radius-base: var(--radius-sm);
+  --el-border-radius-small: var(--radius-sm);
+  --el-border-radius-round: 20px;
+  --el-box-shadow: var(--shadow-sm);
+  --el-transition-duration: 0.3s;
+  --el-transition-function: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Element Plus 暗色模式适配 */
+  --el-bg-color: var(--bg-primary);
+  --el-bg-color-overlay: var(--bg-overlay);
+  --el-text-color-primary: var(--text-primary);
+  --el-text-color-regular: var(--text-secondary);
+  --el-text-color-secondary: var(--text-light);
+  --el-border-color: var(--border-color);
+  --el-border-color-light: var(--border-color);
+  --el-mask-color: var(--backdrop-color);
+}
+
+/* 全局过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.scale-enter-active,
+.scale-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  transform: scale(0.95);
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* 为所有可滚动元素添加样式 */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* 确保页面仍然可以滚动 */
+html, body {
+  scroll-behavior: smooth;
+  overflow-y: auto;
+}
+
+/* 如果需要在特定元素上显示滚动条，可以这样覆盖 */
+.show-scrollbar::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+  height: 6px;
+}
+
+.show-scrollbar {
+  scrollbar-width: thin;
+}
+
+/* 添加代码字体样式 */
+code, pre, .monospace {
+  font-family: var(--font-family-code);
+  font-size: 0.9375em;
+}
+
+/* 添加标题样式 */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--text-4xl);
+}
+
+h2 {
+  font-size: var(--text-3xl);
+}
+
+h3 {
+  font-size: var(--text-2xl);
+}
+
+h4 {
+  font-size: var(--text-xl);
+}
+
+h5 {
+  font-size: var(--text-lg);
+}
+
+h6 {
+  font-size: var(--text-base);
+}
+
+/* 添加段落样式 */
+p {
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+}
+
+/* 添加小号文本样式 */
+small, .text-sm {
+  font-size: var(--text-sm);
+}
+
+/* 添加超小号文本样式 */
+.text-xs {
+  font-size: var(--text-xs);
+}
+
+/* 字重工具类 */
+.font-normal {
+  font-weight: var(--font-weight-normal);
+}
+
+.font-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.font-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+
+.font-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+/* 字间距工具类 */
+.tracking-tight {
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.tracking-normal {
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.tracking-wide {
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+/* 确保 Element Plus 组件使用相同的字体系统 */
+:root {
+  --el-font-family: var(--font-family-base);
+  --el-font-size-base: var(--text-base);
+  --el-font-weight-primary: var(--font-weight-normal);
+}
+
+/* 全局字体定义 */
+:root {
+  /* 主字体 */
+  --font-base: "Microsoft YaHei", -apple-system, "Helvetica Neue", sans-serif;
+  
+  /* 等宽字体 */
+  --font-mono: "Microsoft YaHei", "JetBrains Mono", Consolas, Monaco, monospace;
+    
+  /* Emoji字体 */
+  --font-emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+}
+
+/* 全局字体应用 */
+* {
+  /* 字体平滑 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* 字体渲染优化 */
+  text-rendering: optimizeLegibility;
+}
+
+/* 基础文本样式 */
+body {
+  font-family: var(--font-base);
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* 等宽字体应用 */
+pre, code, kbd, samp {
+  font-family: var(--font-mono);
+  font-feature-settings: "liga" 0, "tnum", "zero"; /* 禁用连字,等宽数字,零的样式 */
+}
+
+/* 中文标点优化 */
+:lang(zh-CN) {
+  text-align: justify;
+  text-justify: inter-ideograph;
+}
+
+/* 文本选择样式 */
+::selection {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* 输入框样式优化 */
+input, textarea {
+  font-family: var(--font-base);
+  font-size: 14px;
+}
+
+/* 标题样式 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-base);
+  font-weight: 600;
+  line-height: 1.25;
+} 

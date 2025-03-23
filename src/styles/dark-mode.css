@@ -1,0 +1,435 @@
+/* 暗黑模式变量 */
+:root.dark {
+  /* 背景色 */
+  --bg-primary: #1a1a1c;
+  --bg-secondary: rgba(35, 35, 38, 0.85);
+  --bg-tertiary: rgba(45, 45, 48, 0.95);
+  --bg-overlay: rgba(35, 35, 38, 0.95);
+  --bg-overlay-hover: rgba(40, 40, 44, 0.98);
+  
+  /* 文本颜色 */
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-tertiary: rgba(255, 255, 255, 0.45);
+  
+  /* 边框颜色 */
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-hover: rgba(255, 255, 255, 0.15);
+  
+  /* 阴影 */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
+  
+  /* 工具卡片 */
+  --tool-card-bg: rgba(35, 35, 38, 0.85);
+  --tool-card-border: rgba(255, 255, 255, 0.08);
+  --tool-card-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  
+  /* 编辑器 */
+  --editor-bg: rgba(30, 30, 33, 0.95);
+  --editor-border: rgba(255, 255, 255, 0.1);
+  --editor-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  /* 输入框 */
+  --el-input-bg-color: var(--bg-tertiary);
+  --el-input-border-color: var(--border-color);
+  --el-input-text-color: var(--text-primary);
+  --el-input-hover-border-color: var(--border-color-hover);
+  --el-input-focus-border-color: var(--primary-color);
+  
+  /* 文本域 */
+  --el-textarea-bg-color: var(--bg-tertiary);
+  --el-textarea-border-color: var(--border-color);
+  --el-textarea-text-color: var(--text-primary);
+  
+  /* 按钮 */
+  --el-button-bg-color: var(--bg-tertiary);
+  --el-button-border-color: var(--border-color);
+  --el-button-text-color: var(--text-primary);
+  --el-button-hover-bg-color: var(--bg-overlay-hover);
+  --el-button-hover-text-color: var(--text-primary);
+  
+  /* 卡片 */
+  --el-card-bg-color: var(--bg-secondary);
+  --el-card-border-color: var(--border-color);
+}
+
+/* 暗黑模式下的通用组件样式 */
+:root.dark .tool-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+:root.dark .editor-container {
+  background: var(--editor-bg);
+  border: 1px solid var(--editor-border);
+  box-shadow: var(--editor-shadow);
+}
+
+:root.dark .action-button {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+:root.dark .action-button:hover {
+  background: var(--bg-overlay-hover);
+  border-color: var(--border-color-hover);
+}
+
+:root.dark .input-field {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+:root.dark .input-field:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+:root.dark .dropdown-menu {
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+}
+
+:root.dark .dialog {
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+}
+
+:root.dark .tooltip {
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+/* 输入框暗黑模式 */
+:root.dark .el-input__wrapper,
+:root.dark .el-textarea__wrapper {
+  background-color: var(--bg-tertiary) !important;
+  box-shadow: 0 0 0 1px var(--border-color) !important;
+}
+
+:root.dark .el-input__wrapper:hover,
+:root.dark .el-textarea__wrapper:hover {
+  box-shadow: 0 0 0 1px var(--border-color-hover) !important;
+}
+
+:root.dark .el-input__wrapper.is-focus,
+:root.dark .el-textarea__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--primary-color) !important;
+}
+
+:root.dark .el-input__inner,
+:root.dark .el-textarea__inner {
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+}
+
+/* Monaco 编辑器暗黑模式 */
+:root.dark .monaco-editor {
+  background-color: var(--editor-bg) !important;
+}
+
+:root.dark .monaco-editor .margin {
+  background-color: var(--bg-tertiary) !important;
+}
+
+/* 工具特定样式 */
+/* 时间戳工具 */
+:root.dark .timestamp-tool {
+  background: var(--bg-secondary);
+}
+
+:root.dark .timestamp-result {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+/* Base64工具 */
+:root.dark .base64-tool {
+  background: var(--bg-secondary);
+}
+
+:root.dark .base64-preview {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+/* JSON工具 */
+:root.dark .json-tool {
+  background: var(--bg-secondary);
+}
+
+:root.dark .json-preview {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+/* 代码对比工具 */
+:root.dark .diff-tool {
+  background: var(--bg-secondary);
+}
+
+:root.dark .diff-editor {
+  background: var(--editor-bg);
+}
+
+/* SQL工具 */
+:root.dark .sql-tool {
+  background: var(--bg-secondary);
+}
+
+:root.dark .sql-editor {
+  background: var(--editor-bg);
+}
+
+/* 通用卡片样式 */
+:root.dark .tool-card {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+/* 结果展示区域 */
+:root.dark .result-area {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+/* 标签页 */
+:root.dark .el-tabs__item {
+  color: var(--text-secondary);
+}
+
+:root.dark .el-tabs__item.is-active {
+  color: var(--primary-color);
+}
+
+/* 下拉菜单 */
+:root.dark .el-select-dropdown {
+  background: var(--bg-overlay);
+  border-color: var(--border-color);
+}
+
+:root.dark .el-select-dropdown__item {
+  color: var(--text-primary);
+}
+
+:root.dark .el-select-dropdown__item.hover,
+:root.dark .el-select-dropdown__item:hover {
+  background: var(--bg-overlay-hover);
+}
+
+/* 表格 */
+:root.dark .el-table {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+:root.dark .el-table th,
+:root.dark .el-table tr {
+  background: var(--bg-secondary);
+}
+
+:root.dark .el-table td,
+:root.dark .el-table th.is-leaf {
+  background: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+/* 弹出框 */
+:root.dark .el-message-box {
+  background: var(--bg-overlay);
+  border-color: var(--border-color);
+}
+
+:root.dark .el-message-box__title {
+  color: var(--text-primary);
+}
+
+:root.dark .el-message-box__content {
+  color: var(--text-secondary);
+}
+
+/* 滚动条 */
+:root.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+:root.dark ::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+}
+
+:root.dark ::-webkit-scrollbar-thumb {
+  background: var(--border-color-hover);
+  border-radius: 4px;
+}
+
+:root.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* 代码高亮 */
+:root.dark pre,
+:root.dark code {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Base64 工具帮助页面样式 */
+:root.dark .help-content {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+:root.dark .help-content h2,
+:root.dark .help-content h3,
+:root.dark .help-content h4 {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+:root.dark .help-content p,
+:root.dark .help-content li {
+  color: var(--text-secondary);
+}
+
+:root.dark .usage-example {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+}
+
+:root.dark .usage-example pre {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+}
+
+:root.dark .tips-section {
+  border-top-color: var(--border-color);
+}
+
+:root.dark .tip-item {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+}
+
+:root.dark .tip-item:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color-hover);
+}
+
+:root.dark .tip-item .el-icon {
+  color: var(--primary-color);
+}
+
+:root.dark .tip-content h4 {
+  color: var(--text-primary);
+}
+
+:root.dark .tip-content p {
+  color: var(--text-secondary);
+}
+
+/* Base64 工具对话框样式 */
+:root.dark .el-dialog {
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-color);
+}
+
+:root.dark .el-dialog__title {
+  color: var(--text-primary);
+}
+
+:root.dark .el-dialog__body {
+  color: var(--text-secondary);
+}
+
+:root.dark .el-dialog__footer {
+  border-top-color: var(--border-color);
+}
+
+/* Base64 工具标签页样式 */
+:root.dark .el-tabs__nav-wrap::after {
+  background-color: var(--border-color);
+}
+
+:root.dark .el-tabs__item {
+  color: var(--text-secondary);
+}
+
+:root.dark .el-tabs__item.is-active {
+  color: var(--primary-color);
+}
+
+:root.dark .el-tabs__active-bar {
+  background-color: var(--primary-color);
+}
+
+/* Base64 工具卡片样式 */
+:root.dark .feature-card {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+:root.dark .feature-card:hover {
+  background: var(--bg-overlay-hover);
+  border-color: var(--border-color-hover);
+}
+
+:root.dark .feature-card .feature-title {
+  color: var(--text-primary);
+}
+
+:root.dark .feature-card .feature-desc {
+  color: var(--text-secondary);
+}
+
+/* Base64 工具代码示例样式 */
+:root.dark .code-block {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+}
+
+:root.dark .code-block pre {
+  color: var(--text-primary);
+}
+
+:root.dark .code-block .code-title {
+  color: var(--text-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+/* Base64 工具警告提示样式 */
+:root.dark .warning-block {
+  background: rgba(255, 229, 100, 0.1);
+  border-color: rgba(255, 229, 100, 0.2);
+}
+
+:root.dark .warning-block .warning-title {
+  color: #e7c000;
+}
+
+:root.dark .warning-block .warning-content {
+  color: rgba(255, 229, 100, 0.8);
+}
+
+/* Base64 工具信息提示样式 */
+:root.dark .info-block {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.2);
+}
+
+:root.dark .info-block .info-title {
+  color: #0ea5e9;
+}
+
+:root.dark .info-block .info-content {
+  color: rgba(56, 189, 248, 0.8);
+} 

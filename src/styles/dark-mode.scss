@@ -1,0 +1,110 @@
+/* 暗黑模式变量 */
+:root.dark {
+  /* 背景色 */
+  --bg-primary: #1a1a1c;
+  --bg-secondary: rgba(35, 35, 38, 0.85);
+  --bg-tertiary: rgba(45, 45, 48, 0.95);
+  --bg-overlay: rgba(35, 35, 38, 0.95);
+  --bg-overlay-hover: rgba(40, 40, 44, 0.98);
+  
+  /* 文本颜色 */
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-tertiary: rgba(255, 255, 255, 0.45);
+  
+  /* 边框颜色 */
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-hover: rgba(255, 255, 255, 0.15);
+  
+  /* 阴影 */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-lg: 
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+    
+  /* 工具卡片 */
+  --tool-card-bg: rgba(35, 35, 38, 0.85);
+  --tool-card-border: rgba(255, 255, 255, 0.08);
+  --tool-card-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  --tool-card-hover-bg: rgba(40, 40, 44, 0.95);
+  --tool-card-hover-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+    
+  /* 编辑器 */
+  --editor-bg: rgba(30, 30, 33, 0.95);
+  --editor-border: rgba(255, 255, 255, 0.1);
+  --editor-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* 暗黑模式下的通用组件样式 */
+:root.dark {
+  /* 工具容器 */
+  .tool-container {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* 编辑器容器 */
+  .editor-container {
+    background: var(--editor-bg);
+    border: 1px solid var(--editor-border);
+    box-shadow: var(--editor-shadow);
+  }
+  
+  /* 按钮 */
+  .action-button {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    
+    &:hover {
+      background: var(--bg-overlay-hover);
+      border-color: var(--border-color-hover);
+    }
+  }
+  
+  /* 输入框 */
+  .input-field {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    
+    &:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+    }
+  }
+  
+  /* 下拉菜单 */
+  .dropdown-menu {
+    background: var(--bg-overlay);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* 对话框 */
+  .dialog {
+    background: var(--bg-overlay);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* 提示框 */
+  .tooltip {
+    background: var(--bg-overlay);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+  }
+} 
