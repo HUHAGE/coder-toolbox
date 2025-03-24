@@ -27,4 +27,5 @@ export const keepAliveComponents = ref([
   'SqlTruncateChecker',
   'SqlParserTool',
   'WordToHtml',
+  'BasketballGroupTool',
 ])

@@ -24,5 +24,13 @@ export const tools = [
     icon: sqlIcon,
     path: '/tools/sql-truncate',
     category: 'sql'
+  },
+  {
+    code: 'basketball-group',
+    name: '篮球分组',
+    description: '智能篮球队员分组工具',
+    icon: basketballIcon,
+    path: '/tools/basketball-group',
+    category: 'fun'
   }
 ]

@@ -600,11 +600,12 @@ const tools = [
     category: 'fun'
   },
   {
-    code: 'fun',
+    code: 'basketball-group',
     name: '篮球分组',
-    description: '随机进行篮球分组',
-    icon: lanQiu, 
-    path: '', 
+    description: '智能篮球队员分组工具',
+    icon: lanQiu,
+    path: '/tools/basketball-group',
+    category: 'fun'
   }
 ]
 

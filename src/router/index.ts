@@ -16,6 +16,7 @@ import LinuxManual from '@/components/tools/LinuxManual.vue'
 import IdcardNew from '@/pages/tools/IdcardNew.vue'
 import SqlTruncate from '@/pages/tools/SqlTruncate.vue'
 import WordToHtml from '@/pages/tools/WordToHtml.vue'
+import BasketballGroup from '@/pages/tools/BasketballGroup.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -173,6 +174,15 @@ const router = createRouter({
       component: WordToHtml,
       meta: {
         title: 'word转html'
+      }
+    },
+    {
+      path: '/tools/basketball-group',
+      name: 'BasketballGroup',
+      component: BasketballGroup,
+      meta: {
+        title: '篮球分组',
+        keepAlive: true
       }
     }
   ],
