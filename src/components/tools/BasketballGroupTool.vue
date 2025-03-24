@@ -55,7 +55,7 @@
         
         <div class="button-group">
           <el-button 
-            class="add-player-btn" 
+            class="action-btn" 
             @click="addPlayer"
             :disabled="players.length >= 20"
           >
@@ -70,7 +70,7 @@
             :show-file-list="false"
             :on-change="handleFileChange"
           >
-            <el-button class="import-btn">
+            <el-button class="action-btn">
               <el-icon><Upload /></el-icon>
               导入名单
             </el-button>
@@ -685,25 +685,21 @@ const formatDateTime = (date: Date) => {
 
 .button-group {
   display: flex;
-  gap: 12px;
-  margin-top: 12px;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
 }
 
-.add-player-btn {
-  flex: 1;
+.action-btn {
+  width: 160px;
   border-style: dashed;
-}
-
-.import-btn {
-  border-style: dashed;
-  width: 120px;
 }
 
 /* 隐藏上传组件的默认样式 */
 .import-upload {
   :deep(.el-upload) {
     display: block;
-    width: 120px;
+    width: 160px;
   }
 }
 
@@ -793,9 +789,172 @@ const formatDateTime = (date: Date) => {
   flex: 1;
 }
 
-/* 暗色模式适配 */
-:root.dark .settings-section {
-  background: var(--bg-secondary);
+/* 暗黑模式适配 */
+:root.dark {
+  .tool-card {
+    background: var(--bg-secondary);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .avatar-display:hover {
+    background: var(--bg-secondary);
+  }
+
+  .avatar-circle {
+    background: var(--el-color-primary-light-5);
+  }
+
+  .settings-section {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+  }
+
+  .section-header {
+    background: var(--bg-primary);
+    border-color: var(--border-color);
+  }
+
+  .section-title {
+    color: var(--text-primary);
+  }
+
+  .setting-label {
+    color: var(--text-secondary);
+  }
+
+  .restriction-item {
+    background: var(--bg-primary);
+  }
+
+  .restriction-text {
+    color: var(--text-secondary);
+  }
+
+  /* 折叠面板暗黑模式 */
+  :deep(.el-collapse) {
+    background: var(--bg-secondary);
+    border-color: transparent;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  :deep(.el-collapse-item__header) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  :deep(.el-collapse-item__content) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  /* 输入框暗黑模式 */
+  :deep(.el-input__wrapper) {
+    background: var(--bg-primary);
+    box-shadow: 0 0 0 1px var(--border-color) inset !important;
+
+    &.is-focus {
+      box-shadow: 0 0 0 1px var(--el-color-primary) inset !important;
+    }
+  }
+
+  :deep(.el-input__inner) {
+    color: var(--text-primary);
+    background: var(--bg-primary);
+  }
+
+  /* 数字输入框暗黑模式 */
+  :deep(.el-input-number) {
+    .el-input__wrapper {
+      background: var(--bg-primary);
+    }
+    .el-input-number__decrease,
+    .el-input-number__increase {
+      background: var(--bg-primary);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+
+      &:hover {
+        color: var(--el-color-primary);
+      }
+    }
+  }
+
+  /* 按钮暗黑模式 */
+  .add-restriction-btn {
+    background: var(--bg-primary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+
+    &:hover {
+      border-color: var(--el-color-primary);
+      color: var(--el-color-primary);
+    }
+
+    .el-icon {
+      color: var(--text-primary);
+    }
+
+    &:hover .el-icon {
+      color: var(--el-color-primary);
+    }
+  }
+
+  /* 分组设置暗黑模式 */
+  .settings-content {
+    background: var(--bg-secondary);
+  }
+
+  .settings-section {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+  }
+
+  .section-content {
+    background: var(--bg-secondary);
+  }
+
+  /* 折叠面板暗黑模式 */
+  :deep(.el-collapse) {
+    background: var(--bg-secondary);
+    border-color: transparent;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  :deep(.el-collapse-item__header) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  :deep(.el-collapse-item__content) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  :deep(.el-collapse-item__wrap) {
+    background: var(--bg-secondary);
+  }
+
+  .action-btn {
+    background: var(--bg-primary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+
+    &:hover {
+      border-color: var(--el-color-primary);
+      color: var(--el-color-primary);
+    }
+
+    &:disabled {
+      background: var(--bg-primary);
+      border-color: var(--border-color);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+
+      .el-icon {
+        color: var(--text-secondary);
+      }
+    }
+  }
 }
 
 .group-action {

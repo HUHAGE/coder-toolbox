@@ -1,0 +1,101 @@
+/* Element Plus 暗黑模式样式覆盖 */
+html.dark {
+  /* 覆盖 Element Plus 暗黑模式的根变量 */
+  --el-bg-color: var(--bg-secondary) !important;
+  --el-bg-color-overlay: var(--bg-secondary) !important;
+  --el-bg-color-page: var(--bg-primary) !important;
+  --el-select-dropdown-bg-color: var(--bg-secondary) !important;
+  --el-fill-color-blank: var(--bg-secondary) !important;
+  --el-bg-color-base: var(--bg-secondary) !important;
+  --el-select-option-hover-bg: var(--bg-primary) !important;
+  --el-fill-color-light: var(--bg-primary) !important;
+  --el-text-color-primary: var(--text-primary) !important;
+  --el-text-color-regular: var(--text-primary) !important;
+  --el-border-color: var(--border-color) !important;
+  --el-border-color-light: var(--border-color) !important;
+  --el-mask-color: rgba(0, 0, 0, 0.5) !important;
+
+  /* 下拉菜单容器样式 */
+  .el-select-dropdown.el-popper,
+  .el-select__popper.el-popper,
+  .el-popper.is-light {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  /* 下拉菜单内部元素样式 */
+  .el-select-dropdown__wrap,
+  .el-select-dropdown__list,
+  .el-scrollbar,
+  .el-scrollbar__view,
+  .el-select-dropdown {
+    background-color: var(--bg-secondary) !important;
+  }
+
+  /* 下拉选项样式 */
+  .el-select-dropdown__item {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+
+    &:hover,
+    &.hover {
+      background-color: var(--bg-primary) !important;
+      color: var(--el-color-primary) !important;
+    }
+
+    &.selected {
+      background-color: var(--bg-secondary) !important;
+      color: var(--el-color-primary) !important;
+      font-weight: bold !important;
+
+      &:hover,
+      &.hover {
+        background-color: var(--bg-primary) !important;
+      }
+    }
+  }
+
+  /* 输入框样式 */
+  .el-input__wrapper,
+  .el-select .el-input__wrapper {
+    background-color: var(--bg-primary) !important;
+    box-shadow: 0 0 0 1px var(--border-color) inset !important;
+
+    &.is-focus {
+      box-shadow: 0 0 0 1px var(--el-color-primary) inset !important;
+    }
+  }
+
+  .el-input__inner {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* 选中标签样式 */
+  .el-select .el-select__tags .el-tag {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* 箭头样式 */
+  .el-popper__arrow::before {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  /* 确保所有可能的背景都被覆盖 */
+  .el-select-dropdown .el-scrollbar,
+  .el-select-dropdown .el-select-dropdown__wrap,
+  .el-select-dropdown .el-select-dropdown__list,
+  .el-select-dropdown .el-scrollbar__view,
+  .el-select-dropdown.is-multiple .el-select-dropdown__wrap,
+  .el-select-dropdown.is-multiple .el-scrollbar__view {
+    background-color: var(--bg-secondary) !important;
+  }
+
+  /* 强制所有下拉框相关元素使用正确的背景色 */
+  .el-select-dropdown *:not(.el-select-dropdown__item:hover):not(.el-select-dropdown__item.hover) {
+    background-color: var(--bg-secondary) !important;
+  }
+} 

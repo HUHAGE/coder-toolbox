@@ -6,6 +6,7 @@ import App from './App.vue'
 import router from './router'
 import './styles/index.css'
 import '@/styles/dark-mode.css'
+import './styles/element-plus-dark.css'
 import { minimizeTools } from './stores/minimizeTools'
 import { SpeedInsights } from '@vercel/speed-insights/vue'
 
