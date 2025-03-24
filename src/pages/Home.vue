@@ -335,6 +335,7 @@ import sqlAddIcon from '@/assets/icons/sql-add.svg'
 import wordToHtmlIcon from '@/assets/icons/word-to-html.svg'
 import hanBao from '@/assets/icons/汉堡.svg'
 import lanQiu from '@/assets/icons/篮球.svg'
+import lotteryIcon from '@/assets/icons/抽奖.svg'
 
 import { minimizeTools } from '@/stores/minimizeTools'
 import { MinimizeTools } from '@/stores/minimizeTools'
@@ -608,6 +609,14 @@ const tools = [
     icon: lanQiu,
     path: '/tools/basketball-group',
     category: 'fun'
+  },
+  {
+    code: 'lottery',
+    name: '年会抽奖工具',
+    description: '公平公正的随机抽奖工具',
+    icon: lotteryIcon, 
+    path: 'https://annual-meeting-lottery.vercel.app/', 
+    category: 'other'
   }
 ]
 
