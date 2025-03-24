@@ -800,9 +800,11 @@ const formatDateTime = (date: Date) => {
     background: var(--bg-secondary);
   }
 
+  /* 删除这部分，让头像背景保持和亮色模式一样
   .avatar-circle {
     background: var(--el-color-primary-light-5);
   }
+  */
 
   .settings-section {
     background: var(--bg-secondary);
