@@ -1135,29 +1135,35 @@ const clearHistory = () => {
 .preview-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  padding: 8px;
+  background: var(--bg-primary);
+  border-radius: 8px;
 }
 
 .preview-header {
   font-size: 14px;
   color: var(--text-secondary);
+  font-weight: 500;
+  padding: 0 4px;
 }
 
 .preview-members {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 8px;
+  padding: 4px;
 }
 
 .preview-avatar {
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: bold;
 }
 
