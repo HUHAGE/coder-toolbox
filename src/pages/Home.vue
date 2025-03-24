@@ -334,6 +334,7 @@ import sqlTruncateIcon from '@/assets/icons/sql-truncate.svg'
 import sqlAddIcon from '@/assets/icons/sql-add.svg'
 import wordToHtmlIcon from '@/assets/icons/word-to-html.svg'
 import hanBao from '@/assets/icons/汉堡.svg'
+import lanQiu from '@/assets/icons/篮球.svg'
 
 import { minimizeTools } from '@/stores/minimizeTools'
 import { MinimizeTools } from '@/stores/minimizeTools'
@@ -595,8 +596,15 @@ const tools = [
     name: '今天吃什么',
     description: '帮你决定今天吃什么',
     icon: hanBao, // 暂时使用 Grid 图标，后续可以替换为专门的食物图标
-    path: 'https://what-to-eat-kappa.vercel.app/', // 直接使用部署好的网站链接
+    path: 'https://www.soutzz.top/', // 直接使用部署好的网站链接
     category: 'fun'
+  },
+  {
+    code: 'fun',
+    name: '篮球分组',
+    description: '随机进行篮球分组',
+    icon: lanQiu, 
+    path: '', 
   }
 ]
 
