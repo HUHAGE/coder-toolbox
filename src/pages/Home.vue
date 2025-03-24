@@ -342,8 +342,6 @@ import { marked } from 'marked'
 import axios from 'axios'
 import MinimizedToolsBar from '@/components/MinimizedToolsBar.vue'
 
-import { SpeedInsights } from "@vercel/speed-insights/next"
-
 const isSearchFocused = ref(false)
 const showEngineDropdown = ref(false)
 const isDarkMode = ref(false)

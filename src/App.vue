@@ -5,6 +5,7 @@
         <component :is="Component" />
       </keep-alive>
     </router-view>
+    <SpeedInsights />
   </div>
 </template>
 

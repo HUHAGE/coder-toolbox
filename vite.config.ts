@@ -23,7 +23,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           'element-plus': ['element-plus'],
-          'monaco-editor': ['monaco-editor']
+          'monaco-editor': ['monaco-editor'],
+          'vercel': ['@vercel/speed-insights']
         },
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.')
@@ -70,7 +71,8 @@ export default defineConfig({
       'monaco-editor/esm/vs/language/html/html.worker',
       'monaco-editor/esm/vs/language/typescript/ts.worker',
       'jsencrypt',
-      'file-saver'
+      'file-saver',
+      '@vercel/speed-insights/vue'
     ]
   },
   assetsInclude: ['**/*.md'],

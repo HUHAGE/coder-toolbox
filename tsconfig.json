@@ -18,7 +18,8 @@
     },
     "allowJs": true,
     "types": [
-      "vite/client"
+      "vite/client",
+      "@vercel/speed-insights"
     ]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
