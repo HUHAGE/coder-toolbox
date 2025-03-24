@@ -15,7 +15,7 @@
           >
             <!-- 显示模式 -->
             <div class="avatar-display" @click="startEditing(player.id)">
-              <div class="avatar-circle" :style="{ background: getAvatarColor(player.id) }">
+              <div class="avatar-circle">
                 {{ player.name.charAt(0) }}
               </div>
               
@@ -53,14 +53,29 @@
           </div>
         </TransitionGroup>
         
-        <el-button 
-          class="add-player-btn" 
-          @click="addPlayer"
-          :disabled="players.length >= 20"
-        >
-          <el-icon><Plus /></el-icon>
-          添加队员
-        </el-button>
+        <div class="button-group">
+          <el-button 
+            class="add-player-btn" 
+            @click="addPlayer"
+            :disabled="players.length >= 20"
+          >
+            <el-icon><Plus /></el-icon>
+            添加队员
+          </el-button>
+          
+          <el-upload
+            class="import-upload"
+            accept=".txt"
+            :auto-upload="false"
+            :show-file-list="false"
+            :on-change="handleFileChange"
+          >
+            <el-button class="import-btn">
+              <el-icon><Upload /></el-icon>
+              导入名单
+            </el-button>
+          </el-upload>
+        </div>
       </div>
     </div>
 
@@ -75,78 +90,97 @@
         </template>
         
         <div class="settings-content">
-          <div class="setting-item">
-            <span class="setting-label">分组数量</span>
-            <el-input-number 
-              v-model="groupCount" 
-              :min="2" 
-              :max="5"
-              size="large"
-              controls-position="right"
-            />
-          </div>
-          
-          <div class="setting-item">
-            <span class="setting-label">组名设置</span>
-            <div class="group-names">
-              <div v-for="i in groupCount" :key="i" class="group-name-item">
-                <el-input 
-                  v-model="groupNames[i-1]" 
-                  :placeholder="`${i}组`"
-                  size="small"
-                />
+          <!-- 基础设置区域 -->
+          <div class="settings-section">
+            <div class="section-content">
+              <!-- 分组数量和组名设置放在一行 -->
+              <div class="settings-row">
+                <div class="count-setting">
+                  <span class="setting-label">分组数量</span>
+                  <el-input-number 
+                    v-model="groupCount" 
+                    :min="2" 
+                    :max="5"
+                    size="default"
+                    controls-position="right"
+                  />
+                </div>
+                
+                <div class="group-names">
+                  <div 
+                    v-for="i in groupCount" 
+                    :key="i" 
+                    class="group-name-item"
+                  >
+                    <el-input 
+                      v-model="groupNames[i-1]" 
+                      :prefix="String(i)"
+                      :placeholder="`${i}组`"
+                      size="default"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="setting-item">
-            <span class="setting-label">分组限制</span>
-            <div class="restrictions">
-              <div 
-                v-for="(restriction, index) in restrictions" 
-                :key="index"
-                class="restriction-item"
-              >
-                <el-select 
-                  v-model="restriction.player1" 
-                  placeholder="选择队员"
-                  size="small"
-                >
-                  <el-option
-                    v-for="player in players"
-                    :key="player.id"
-                    :label="player.name"
-                    :value="player.id"
-                  />
-                </el-select>
-                <span class="restriction-text">不能和</span>
-                <el-select 
-                  v-model="restriction.player2" 
-                  placeholder="选择队员"
-                  size="small"
-                >
-                  <el-option
-                    v-for="player in players"
-                    :key="player.id"
-                    :label="player.name"
-                    :value="player.id"
-                  />
-                </el-select>
-                <el-button
-                  circle
-                  class="delete-btn"
-                  @click="removeRestriction(index)"
-                >
-                  <el-icon><Delete /></el-icon>
-                </el-button>
-              </div>
+          <!-- 分组限制区域 -->
+          <div class="settings-section">
+            <div class="section-header">
+              <h4 class="section-title">分组限制</h4>
               <el-button 
                 class="add-restriction-btn" 
                 @click="addRestriction"
+                type="primary"
+                plain
+                size="small"
               >
                 <el-icon><Plus /></el-icon>
                 添加限制
               </el-button>
+            </div>
+            <div class="section-content">
+              <div class="restrictions-list">
+                <div 
+                  v-for="(restriction, index) in restrictions" 
+                  :key="index"
+                  class="restriction-item"
+                >
+                  <el-select 
+                    v-model="restriction.player1" 
+                    placeholder="选择队员"
+                    size="default"
+                  >
+                    <el-option
+                      v-for="player in players"
+                      :key="player.id"
+                      :label="player.name"
+                      :value="player.id"
+                    />
+                  </el-select>
+                  <span class="restriction-text">不能和</span>
+                  <el-select 
+                    v-model="restriction.player2" 
+                    placeholder="选择队员"
+                    size="default"
+                  >
+                    <el-option
+                      v-for="player in players"
+                      :key="player.id"
+                      :label="player.name"
+                      :value="player.id"
+                    />
+                  </el-select>
+                  <el-button
+                    type="danger"
+                    circle
+                    size="small"
+                    @click="removeRestriction(index)"
+                  >
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -168,9 +202,14 @@
 
     <!-- 分组结果卡片 -->
     <div class="tool-card result-card" v-if="groupResult.length">
-      <h3 class="card-title">
-        <el-icon><List /></el-icon>
-        分组结果
+      <h3 class="card-title result-header">
+        <div class="title-left">
+          <el-icon><List /></el-icon>
+          分组结果
+        </div>
+        <div class="result-time">
+          {{ formatDateTime(new Date()) }}
+        </div>
       </h3>
       <div class="group-results">
         <div 
@@ -189,7 +228,7 @@
             >
               <div 
                 class="member-avatar"
-                :style="{ background: getAvatarColor(player.id) }"
+                :style="{ background: getAvatarColor(index) }"
               >
                 {{ player.name.charAt(0) }}
               </div>
@@ -213,13 +252,6 @@
         >
           <div class="history-header">
             <span class="history-time">{{ history.time }}</span>
-            <el-button 
-              type="primary" 
-              link
-              @click="groupResult = history.groups; groupNames = history.groupNames"
-            >
-              查看详情
-            </el-button>
           </div>
           <div class="history-preview">
             <div 
@@ -235,7 +267,7 @@
                   v-for="player in group" 
                   :key="player.id"
                   class="preview-avatar"
-                  :style="{ background: getAvatarColor(player.id) }"
+                  :style="{ background: getAvatarColor(index) }"
                 >
                   {{ player.name.charAt(0) }}
                 </div>
@@ -258,7 +290,8 @@ import {
   Plus,
   Delete,
   Edit,
-  Timer
+  Timer,
+  Upload
 } from '@element-plus/icons-vue'
 
 interface Player {
@@ -498,6 +531,54 @@ const generateGroups = () => {
   
   ElMessage.error('无法生成满足限制条件的分组方案，请调整限制条件')
 }
+
+// 添加文件处理函数
+const handleFileChange = (file: File) => {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const content = e.target?.result as string
+    const names = content.split('\n')
+      .map(name => name.trim())
+      .filter(name => name) // 过滤空行
+
+    if (players.value.length + names.length > 20) {
+      ElMessage.warning('导入后队员总数不能超过20人')
+      return
+    }
+
+    // 获取当前最大ID
+    const maxId = Math.max(...players.value.map(p => p.id), 0)
+    
+    // 添加新队员
+    const newPlayers = names.map((name, index) => ({
+      id: maxId + index + 1,
+      name
+    }))
+
+    players.value.push(...newPlayers)
+    ElMessage.success(`成功导入 ${newPlayers.length} 名队员`)
+  }
+
+  reader.onerror = () => {
+    ElMessage.error('文件读取失败')
+  }
+
+  reader.readAsText(file.raw as Blob)
+}
+
+// 添加日期时间格式化函数
+const formatDateTime = (date: Date) => {
+  const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+  const weekday = weekdays[date.getDay()]
+  
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  
+  return `${year}-${month}-${day} ${weekday} ${hours}:${minutes}`
+}
 </script>
 
 <style scoped>
@@ -558,6 +639,7 @@ const generateGroups = () => {
   height: 60px;
   border-radius: 50%;
   color: white;
+  background: var(--el-color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -601,50 +683,119 @@ const generateGroups = () => {
   display: block;
 }
 
-.add-player-btn {
-  width: 100%;
-  border-style: dashed;
+.button-group {
+  display: flex;
+  gap: 12px;
   margin-top: 12px;
+}
+
+.add-player-btn {
+  flex: 1;
+  border-style: dashed;
+}
+
+.import-btn {
+  border-style: dashed;
+  width: 120px;
+}
+
+/* 隐藏上传组件的默认样式 */
+.import-upload {
+  :deep(.el-upload) {
+    display: block;
+    width: 120px;
+  }
 }
 
 .settings-content {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  padding: 0;
+}
+
+.settings-section {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-title {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.section-content {
+  padding: 16px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: flex-start;
   gap: 24px;
 }
 
-.setting-item {
+.count-setting {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 12px;
+  min-width: 200px;
 }
 
 .setting-label {
-  font-weight: 500;
-  color: var(--text-primary);
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
 .group-names {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.restrictions {
+.group-name-item {
+  width: 120px;
+}
+
+.restrictions-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .restriction-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  
-  .restriction-text {
-    color: var(--text-secondary);
-    margin: 0 8px;
-  }
+  padding: 8px;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+}
+
+.restriction-text {
+  padding: 0 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+:deep(.el-select) {
+  flex: 1;
+}
+
+/* 暗色模式适配 */
+:root.dark .settings-section {
+  background: var(--bg-secondary);
 }
 
 .group-action {
@@ -691,7 +842,7 @@ const generateGroups = () => {
   padding: 16px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 16px;
 }
 
 .member-item {
@@ -726,43 +877,6 @@ const generateGroups = () => {
   transform: scale(0.8);
 }
 
-/* 暗色模式适配 */
-:root.dark {
-  .tool-card {
-    background: var(--bg-secondary);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .group-item {
-    background: var(--bg-secondary);
-    border-color: var(--border-color);
-  }
-  
-  .member-item {
-    background: var(--bg-primary);
-  }
-}
-
-/* 添加折叠面板相关样式 */
-:deep(.el-collapse) {
-  --el-collapse-border-color: transparent;
-  background: var(--bg-secondary);
-  border-radius: 12px;
-}
-
-:deep(.el-collapse-item__header) {
-  background: transparent;
-  padding: 20px;
-}
-
-:deep(.el-collapse-item__content) {
-  padding: 0 20px 20px;
-}
-
-.settings-title {
-  margin: 0;
-}
-
 .history-card {
   margin-top: 20px;
 }
@@ -781,7 +895,7 @@ const generateGroups = () => {
 
 .history-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 12px 16px;
   background: var(--bg-primary);
@@ -827,5 +941,46 @@ const generateGroups = () => {
   color: white;
   font-size: 12px;
   font-weight: bold;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-time {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: normal;
+}
+
+/* 修改折叠面板相关样式 */
+:deep(.el-collapse) {
+  --el-collapse-border-color: transparent;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+:deep(.el-collapse-item__header) {
+  background: transparent;
+  padding: 20px 20px 0;
+  border-bottom: none;
+}
+
+:deep(.el-collapse-item__content) {
+  padding: 0 20px 20px;
+}
+
+:deep(.el-collapse-item__arrow) {
+  display: none;
 }
 </style> 
