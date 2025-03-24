@@ -11,6 +11,10 @@
 
 <script setup lang="ts">
 import { keepAliveComponents } from '@/stores/keepAliveStore'
+import { inject } from '@vercel/analytics'
+
+// 初始化 analytics
+inject()
 </script>
 
 <style>

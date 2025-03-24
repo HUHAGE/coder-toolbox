@@ -9,6 +9,7 @@ import '@/styles/dark-mode.css'
 import './styles/element-plus-dark.css'
 import { minimizeTools } from './stores/minimizeTools'
 import { SpeedInsights } from '@vercel/speed-insights/vue'
+import { inject } from '@vercel/analytics'
 
 const app = createApp(App)
 
@@ -21,3 +22,6 @@ app.provide('minimizeTools', minimizeTools)
 app.component('SpeedInsights', SpeedInsights)
 
 app.mount('#app')
+
+// 初始化 analytics
+inject()

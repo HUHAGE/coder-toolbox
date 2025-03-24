@@ -24,7 +24,7 @@ export default defineConfig({
         manualChunks: {
           'element-plus': ['element-plus'],
           'monaco-editor': ['monaco-editor'],
-          'vercel': ['@vercel/speed-insights']
+          'vercel': ['@vercel/speed-insights', '@vercel/analytics']
         },
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.')

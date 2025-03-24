@@ -38,7 +38,8 @@
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",
     "xpath": "^0.0.34",
-    "yaml": "^2.7.0"
+    "yaml": "^2.7.0",
+    "@vercel/analytics": "^1.2.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
