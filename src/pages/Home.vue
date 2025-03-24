@@ -333,6 +333,7 @@ import sqlZHIcon from '@/assets/icons/sql-zh.svg'
 import sqlTruncateIcon from '@/assets/icons/sql-truncate.svg'
 import sqlAddIcon from '@/assets/icons/sql-add.svg'
 import wordToHtmlIcon from '@/assets/icons/word-to-html.svg'
+import hanBao from '@/assets/icons/汉堡.svg'
 
 import { minimizeTools } from '@/stores/minimizeTools'
 import { MinimizeTools } from '@/stores/minimizeTools'
@@ -365,7 +366,8 @@ const categories = [
   { key: 'convert', name: '转换', icon: Histogram },
   { key: 'generate', name: '生成', icon: Collection },
   { key: 'sql', name: 'SQL工具', icon: Connection }, // 添加 SQL 工具分类
-  { key: 'other', name: '其他', icon: Grid }
+  { key: 'other', name: '其他', icon: Grid },
+  { key: 'fun', name: '趣味', icon: Grid },
 ]
 
 const currentCategory = ref('all')
@@ -588,6 +590,14 @@ const tools = [
     icon: wordToHtmlIcon,
     path: '/tools/word-to-html',
     category: ['convert', 'format']
+  },
+  {
+    code: 'fun',
+    name: '今天吃什么',
+    description: '帮你决定今天吃什么',
+    icon: hanBao, // 暂时使用 Grid 图标，后续可以替换为专门的食物图标
+    path: 'https://what-to-eat-kappa.vercel.app/', // 直接使用部署好的网站链接
+    category: 'fun'
   }
 ]
 
@@ -648,7 +658,17 @@ const handleSearch = () => {
 
 // 导航到工具页面
 const navigateToTool = (tool: typeof tools[0]) => {
-  router.push(tool.path)
+  if (tool.path.startsWith('http')) {
+    // 对于外部链接，使用新窗口打开
+    if (window.utools) {
+      window.utools.shellOpenExternal(tool.path)
+    } else {
+      window.open(tool.path, '_blank')
+    }
+  } else {
+    // 内部路由导航保持不变
+    router.push(tool.path)
+  }
 }
 
 const handleSearchBlur = () => {
