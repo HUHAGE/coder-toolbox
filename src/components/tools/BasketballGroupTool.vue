@@ -18,7 +18,6 @@
               <div class="avatar-circle" :style="{ background: getAvatarColor(player.id) }">
                 {{ player.name.charAt(0) }}
               </div>
-              <span class="player-name">{{ player.name }}</span>
               
               <!-- 悬浮操作按钮 -->
               <div class="hover-actions">
@@ -194,7 +193,53 @@
               >
                 {{ player.name.charAt(0) }}
               </div>
-              {{ player.name }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 历史记录卡片 -->
+    <div class="tool-card history-card" v-if="groupHistories.length > 0">
+      <h3 class="card-title">
+        <el-icon><Timer /></el-icon>
+        历史记录
+      </h3>
+      <div class="history-list">
+        <div 
+          v-for="history in groupHistories" 
+          :key="history.id"
+          class="history-item"
+        >
+          <div class="history-header">
+            <span class="history-time">{{ history.time }}</span>
+            <el-button 
+              type="primary" 
+              link
+              @click="groupResult = history.groups; groupNames = history.groupNames"
+            >
+              查看详情
+            </el-button>
+          </div>
+          <div class="history-preview">
+            <div 
+              v-for="(group, index) in history.groups" 
+              :key="index"
+              class="preview-group"
+            >
+              <div class="preview-header">
+                {{ history.groupNames[index] || `${index + 1}组` }}
+              </div>
+              <div class="preview-members">
+                <div 
+                  v-for="player in group" 
+                  :key="player.id"
+                  class="preview-avatar"
+                  :style="{ background: getAvatarColor(player.id) }"
+                >
+                  {{ player.name.charAt(0) }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -204,11 +249,7 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({
-  name: 'BasketballGroupTool'
-})
-
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { 
   User,
@@ -216,7 +257,8 @@ import {
   List,
   Plus,
   Delete,
-  Edit
+  Edit,
+  Timer
 } from '@element-plus/icons-vue'
 
 interface Player {
@@ -227,6 +269,13 @@ interface Player {
 interface Restriction {
   player1: number
   player2: number
+}
+
+interface GroupHistory {
+  id: number
+  time: string
+  groups: Player[][]
+  groupNames: string[]
 }
 
 // 添加预定义的颜色数组
@@ -271,11 +320,40 @@ const defaultPlayers = [
   { id: 9, name: '伟' }
 ]
 
-const players = ref<Player[]>(defaultPlayers)
-const groupCount = ref(2)
-const groupNames = ref<string[]>([])
-const restrictions = ref<Restriction[]>([])
-const groupResult = ref<Player[][]>([])
+// 从 localStorage 读取数据的函数
+const getStorageData = <T>(key: string, defaultValue: T): T => {
+  const stored = localStorage.getItem(key)
+  return stored ? JSON.parse(stored) : defaultValue
+}
+
+// 保存数据到 localStorage 的函数
+const saveStorageData = <T>(key: string, value: T): void => {
+  localStorage.setItem(key, JSON.stringify(value))
+}
+
+// 修改初始化数据的方式
+const players = ref<Player[]>(getStorageData('basketballPlayers', defaultPlayers))
+const groupCount = ref(getStorageData('basketballGroupCount', 2))
+const groupNames = ref<string[]>(getStorageData('basketballGroupNames', []))
+const restrictions = ref<Restriction[]>(getStorageData('basketballRestrictions', []))
+const groupResult = ref<Player[][]>(getStorageData('basketballGroupResult', []))
+const groupHistories = ref<GroupHistory[]>(getStorageData('basketballHistories', []))
+const historyId = ref(getStorageData('basketballHistoryId', 0))
+
+// 监听数据变化并保存
+watch(
+  [players, groupCount, groupNames, restrictions, groupResult, groupHistories, historyId],
+  ([newPlayers, newGroupCount, newGroupNames, newRestrictions, newGroupResult, newHistories, newHistoryId]) => {
+    saveStorageData('basketballPlayers', newPlayers)
+    saveStorageData('basketballGroupCount', newGroupCount)
+    saveStorageData('basketballGroupNames', newGroupNames)
+    saveStorageData('basketballRestrictions', newRestrictions)
+    saveStorageData('basketballGroupResult', newGroupResult)
+    saveStorageData('basketballHistories', newHistories)
+    saveStorageData('basketballHistoryId', newHistoryId)
+  },
+  { deep: true }
+)
 
 // 添加折叠面板的激活状态控制
 const activeCollapse = ref([''])  // 默认折叠
@@ -402,6 +480,14 @@ const generateGroups = () => {
     }
     
     if (isValid) {
+      // 创建新的历史记录
+      const newHistory: GroupHistory = {
+        id: ++historyId.value,
+        time: new Date().toLocaleString(),
+        groups: JSON.parse(JSON.stringify(tempGroups)), // 深拷贝分组结果
+        groupNames: [...groupNames.value] // 保存当前的组名设置
+      }
+      groupHistories.value.unshift(newHistory) // 将新记录添加到历史记录开头
       groupResult.value = tempGroups
       ElMessage.success('分组成功！')
       return
@@ -419,7 +505,7 @@ const generateGroups = () => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 8px 20px 20px;
+  padding: 0px 20px 20px;
 }
 
 .tool-card {
@@ -483,13 +569,6 @@ const generateGroups = () => {
 
 .avatar-display:hover .avatar-circle {
   transform: scale(1.05);
-}
-
-.player-name {
-  display: block;
-  font-size: 14px;
-  color: var(--text-primary);
-  margin-top: 8px;
 }
 
 .hover-actions {
@@ -618,21 +697,20 @@ const generateGroups = () => {
 .member-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 12px;
+  padding: 4px;
   border-radius: 16px;
   color: var(--text-primary);
 }
 
 .member-avatar {
-  width: 24px;
-  height: 24px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 12px;
+  font-size: 24px;
   font-weight: bold;
 }
 
@@ -683,5 +761,71 @@ const generateGroups = () => {
 
 .settings-title {
   margin: 0;
+}
+
+.history-card {
+  margin-top: 20px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.history-item {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.history-time {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.history-preview {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.preview-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-header {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.preview-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.preview-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
 }
 </style> 
