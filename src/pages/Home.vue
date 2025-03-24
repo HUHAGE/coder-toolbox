@@ -342,6 +342,8 @@ import { ElMessageBox, ElMessage } from 'element-plus'
 import { marked } from 'marked'
 import axios from 'axios'
 import MinimizedToolsBar from '@/components/MinimizedToolsBar.vue'
+import { tools } from '@/config/tools'
+import { track } from '@vercel/analytics'
 
 const isSearchFocused = ref(false)
 const showEngineDropdown = ref(false)
@@ -926,6 +928,20 @@ const openAuthorBlog = () => {
   } else {
     window.open('https://huhage.github.io/huhawebsite', '_blank')
   }
+}
+
+// 工具点击处理
+const handleToolClick = (tool: any) => {
+  // 添加工具点击统计
+  track('tool_click', {
+    tool: tool.name,
+    code: tool.code,
+    path: tool.path,
+    category: tool.category,
+    timestamp: new Date().toISOString()
+  })
+  
+  router.push(tool.path)
 }
 
 </script>
