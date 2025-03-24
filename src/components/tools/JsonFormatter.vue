@@ -177,6 +177,7 @@ import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import YAML from 'yaml'
 import { XMLBuilder } from 'fast-xml-parser'
 import JSONPath from 'jsonpath'
+import { track } from '@vercel/analytics'
 
 defineOptions({
   name: 'JsonFormatter'
@@ -283,8 +284,22 @@ const formatJson = () => {
     
     // 更新统计信息
     updateJsonStats()
+
+    // 添加统计
+    track('json_formatter_action', {
+      action: 'format',
+      status: 'success',
+      inputLength: input.length
+    })
   } catch (error: any) {
     ElMessage.error(`格式化失败: ${error.message}`)
+
+    // 统计错误
+    track('json_formatter_action', {
+      action: 'format',
+      status: 'error',
+      errorMessage: error.message
+    })
   }
 }
 
@@ -298,6 +313,12 @@ const compressJson = () => {
     const compressed = JSON.stringify(parsed)
     outputEditor.setValue(compressed)
     ElMessage.success('压缩成功')
+
+    track('json_formatter_action', {
+      action: 'compress',
+      status: 'success',
+      inputLength: input.length
+    })
   } catch (error: any) {
     ElMessage.error(`压缩失败: ${error.message}`)
   }

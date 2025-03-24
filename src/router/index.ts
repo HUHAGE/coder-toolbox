@@ -17,6 +17,7 @@ import IdcardNew from '@/pages/tools/IdcardNew.vue'
 import SqlTruncate from '@/pages/tools/SqlTruncate.vue'
 import WordToHtml from '@/pages/tools/WordToHtml.vue'
 import BasketballGroup from '@/pages/tools/BasketballGroup.vue'
+import { trackToolUsage } from '@/utils/analytics'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -192,6 +193,15 @@ const router = createRouter({
       top: 0,
       behavior: 'instant'
     }
+  }
+})
+
+// 添加全局路由守卫
+router.afterEach((to) => {
+  // 检查是否是工具页面
+  if (to.path.startsWith('/tools/')) {
+    const toolName = to.meta.title || to.name || to.path.split('/').pop()
+    trackToolUsage(toolName as string, to.path)
   }
 })
 

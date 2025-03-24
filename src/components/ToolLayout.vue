@@ -121,6 +121,7 @@ import {
 import { ElMessage } from 'element-plus'
 import { MinimizeTools } from '@/stores/minimizeTools'
 import MinimizedToolsBar from './MinimizedToolsBar.vue'
+import { track } from '@vercel/analytics'
 
 const props = defineProps<{
   title: string
@@ -163,6 +164,11 @@ const copyLink = () => {
   navigator.clipboard.writeText(window.location.href)
   ElMessage.success('链接已复制')
   showShareDialog.value = false
+  
+  track('tool_action', {
+    tool: props.title,
+    action: 'copy_result'
+  })
 }
 
 const showFeedback = () => {
