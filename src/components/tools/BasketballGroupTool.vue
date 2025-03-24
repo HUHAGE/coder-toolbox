@@ -84,8 +84,19 @@
       <el-collapse-item name="settings">
         <template #title>
           <h3 class="card-title settings-title">
-            <el-icon><Setting /></el-icon>
-            分组设置
+            <div class="title-left">
+              <el-icon><Setting /></el-icon>
+              分组设置
+            </div>
+            <el-button 
+              class="toggle-btn" 
+              text
+            >
+              {{ activeCollapse.includes('settings') ? '收起' : '展开' }}
+              <el-icon class="toggle-icon" :class="{ 'is-active': activeCollapse.includes('settings') }">
+                <ArrowDown />
+              </el-icon>
+            </el-button>
           </h3>
         </template>
         
@@ -240,9 +251,21 @@
 
     <!-- 历史记录卡片 -->
     <div class="tool-card history-card" v-if="groupHistories.length > 0">
-      <h3 class="card-title">
-        <el-icon><Timer /></el-icon>
-        历史记录
+      <h3 class="card-title history-header">
+        <div class="title-left">
+          <el-icon><Timer /></el-icon>
+          历史记录
+        </div>
+        <div class="history-actions">
+          <el-button 
+            class="clear-btn" 
+            type="danger" 
+            @click="clearHistory"
+          >
+            <el-icon><Delete /></el-icon>
+            清空记录
+          </el-button>
+        </div>
       </h3>
       <div class="history-list">
         <div 
@@ -282,7 +305,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   User,
   Setting,
@@ -291,7 +314,8 @@ import {
   Delete,
   Edit,
   Timer,
-  Upload
+  Upload,
+  ArrowDown
 } from '@element-plus/icons-vue'
 
 interface Player {
@@ -578,6 +602,25 @@ const formatDateTime = (date: Date) => {
   const minutes = String(date.getMinutes()).padStart(2, '0')
   
   return `${year}-${month}-${day} ${weekday} ${hours}:${minutes}`
+}
+
+// 清空历史记录
+const clearHistory = () => {
+  ElMessageBox.confirm(
+    '确定要清空所有历史记录吗？',
+    '提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      groupHistories.value = []
+      historyId.value = 0
+      ElMessage.success('历史记录已清空')
+    })
+    .catch(() => {})
 }
 </script>
 
@@ -957,6 +1000,22 @@ const formatDateTime = (date: Date) => {
       }
     }
   }
+
+  .toggle-btn {
+    color: var(--text-secondary);
+
+    &:hover {
+      color: var(--el-color-primary);
+    }
+  }
+
+  .clear-btn {
+    color: var(--el-color-danger);
+
+    &:hover {
+      color: var(--el-color-danger-light-3);
+    }
+  }
 }
 
 .group-action {
@@ -1056,11 +1115,9 @@ const formatDateTime = (date: Date) => {
 
 .history-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-color);
+  margin: 0 0 20px;
 }
 
 .history-time {
@@ -1143,5 +1200,102 @@ const formatDateTime = (date: Date) => {
 
 :deep(.el-collapse-item__arrow) {
   display: none;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+  color: var(--text-secondary);
+}
+
+.toggle-icon.is-active {
+  transform: rotate(180deg);
+}
+
+/* 添加新的样式 */
+.settings-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  height: 28px;
+  padding: 0 8px;
+}
+
+.toggle-icon {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-icon.is-active {
+  transform: rotate(180deg);
+}
+
+/* 移除 Element Plus 默认的折叠图标 */
+:deep(.el-collapse-item__arrow) {
+  display: none;
+}
+
+/* 修改历史记录相关样式 */
+.history-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  
+  .el-icon {
+    font-size: 16px;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(var(--el-color-danger-rgb), 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* 暗黑模式下的清空按钮样式 */
+:root.dark .clear-btn {
+  background: rgba(var(--el-color-danger-rgb), 0.1);
+  border-color: rgba(var(--el-color-danger-rgb), 0.2);
+
+  &:hover {
+    background: rgba(var(--el-color-danger-rgb), 0.2);
+    border-color: rgba(var(--el-color-danger-rgb), 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
 }
 </style> 
