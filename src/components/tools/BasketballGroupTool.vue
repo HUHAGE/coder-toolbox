@@ -82,7 +82,7 @@
       </div>
     </div>
 
-    <!-- 分组设置卡片改为可折叠 -->
+    <!-- 分组设置折叠面板 -->
     <el-collapse v-model="activeCollapse">
       <el-collapse-item name="settings">
         <template #title>
@@ -185,6 +185,7 @@
                       :value="player.id"
                     />
                   </el-select>
+                  <span class="restriction-text">一组</span>
                   <el-button
                     type="danger"
                     circle
@@ -255,13 +256,67 @@
       </div>
     </div>
 
-    <!-- 历史记录卡片 -->
-    <div class="tool-card history-card" v-if="groupHistories.length > 0">
-      <h3 class="card-title history-header">
-        <div class="title-left">
-          <el-icon><Timer /></el-icon>
-          历史记录
+    <!-- 历史记录折叠面板 -->
+    <el-collapse v-model="activeCollapse" v-if="groupHistories.length > 0">
+      <el-collapse-item name="history">
+        <template #title>
+          <h3 class="card-title settings-title">
+            <div class="title-left">
+              <el-icon><Timer /></el-icon>
+              历史记录
+            </div>
+            <el-button 
+              class="toggle-btn" 
+              text
+            >
+              {{ activeCollapse.includes('history') ? '收起' : '展开' }}
+              <el-icon class="toggle-icon" :class="{ 'is-active': activeCollapse.includes('history') }">
+                <ArrowDown />
+              </el-icon>
+            </el-button>
+          </h3>
+        </template>
+
+        <!-- 历史记录内容 -->
+        <div class="history-list">
+          <div 
+            v-for="history in groupHistories" 
+            :key="history.id"
+            class="history-item"
+          >
+            <div class="history-header">
+              <span class="history-time">{{ history.time }}</span>
+            </div>
+            <div class="history-preview">
+              <div 
+                v-for="(group, index) in history.groups" 
+                :key="index"
+                class="preview-group"
+              >
+                <div class="preview-header">
+                  {{ history.groupNames[index] || `${index + 1}组` }}
+                </div>
+                <div class="preview-members">
+                  <div 
+                    v-for="player in group" 
+                    :key="player.id"
+                    class="preview-item"
+                  >
+                    <div 
+                      class="preview-avatar"
+                      :style="{ background: getAvatarColor(index) }"
+                    >
+                      {{ player.name.charAt(0) }}
+                    </div>
+                    <span class="preview-name">{{ player.name }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- 清空按钮 -->
         <div class="history-actions">
           <el-button 
             class="clear-btn" 
@@ -272,45 +327,8 @@
             清空记录
           </el-button>
         </div>
-      </h3>
-      <div class="history-list">
-        <div 
-          v-for="history in groupHistories" 
-          :key="history.id"
-          class="history-item"
-        >
-          <div class="history-header">
-            <span class="history-time">{{ history.time }}</span>
-          </div>
-          <div class="history-preview">
-            <div 
-              v-for="(group, index) in history.groups" 
-              :key="index"
-              class="preview-group"
-            >
-              <div class="preview-header">
-                {{ history.groupNames[index] || `${index + 1}组` }}
-              </div>
-              <div class="preview-members">
-                <div 
-                  v-for="player in group" 
-                  :key="player.id"
-                  class="preview-item"
-                >
-                  <div 
-                    class="preview-avatar"
-                    :style="{ background: getAvatarColor(index) }"
-                  >
-                    {{ player.name.charAt(0) }}
-                  </div>
-                  <span class="preview-name">{{ player.name }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      </el-collapse-item>
+    </el-collapse>
   </div>
 </template>
 
@@ -423,8 +441,8 @@ watch(
   { deep: true }
 )
 
-// 添加折叠面板的激活状态控制
-const activeCollapse = ref([''])  // 默认折叠
+// 修改折叠面板的激活状态控制
+const activeCollapse = ref(['']) // 默认都折叠
 
 // 添加自定义指令用于自动聚焦
 const vFocus = {
@@ -1168,6 +1186,7 @@ const clearHistory = () => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-bottom: 16px; /* 添加底部间距 */
 }
 
 .history-item {
@@ -1282,7 +1301,7 @@ const clearHistory = () => {
 }
 
 :deep(.el-collapse-item__content) {
-  padding: 0 20px 20px;
+  padding: 20px;
 }
 
 :deep(.el-collapse-item__arrow) {
@@ -1348,7 +1367,8 @@ const clearHistory = () => {
 /* 修改历史记录相关样式 */
 .history-actions {
   display: flex;
-  gap: 8px;
+  justify-content: flex-end; /* 右对齐 */
+  padding: 0 16px 16px; /* 添加内边距 */
 }
 
 .clear-btn {
@@ -1359,19 +1379,11 @@ const clearHistory = () => {
   font-size: 14px;
   border-radius: 6px;
   transition: all 0.3s ease;
-  
-  .el-icon {
-    font-size: 16px;
-  }
+}
 
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(var(--el-color-danger-rgb), 0.2);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
+/* 确保折叠面板样式一致 */
+:deep(.el-collapse-item__content) {
+  padding: 20px;
 }
 
 /* 暗黑模式下的清空按钮样式 */
@@ -1384,5 +1396,25 @@ const clearHistory = () => {
     border-color: rgba(var(--el-color-danger-rgb), 0.3);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
+}
+
+/* 调整折叠面板的间距 */
+.el-collapse {
+  margin-bottom: 60px; /* 添加底部间距，避免被最小化栏遮挡 */
+}
+
+/* 调整历史记录折叠面板的样式 */
+.el-collapse + .el-collapse {
+  margin-top: 20px; /* 当有多个折叠面板时，添加间距 */
+}
+
+/* 移除之前的底部间距样式 */
+.el-collapse {
+  margin-bottom: 0; /* 移除之前添加的底部间距 */
+}
+
+/* 为最后一个折叠面板添加底部间距 */
+.basketball-group-tool > .el-collapse:last-child {
+  margin-bottom: 60px; /* 避免被最小化栏遮挡 */
 }
 </style> 
