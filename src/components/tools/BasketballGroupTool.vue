@@ -240,11 +240,14 @@
               :key="player.id"
               class="member-item"
             >
-              <div 
-                class="member-avatar"
-                :style="{ background: getAvatarColor(index) }"
-              >
-                {{ player.name.charAt(0) }}
+              <div class="member-info">
+                <div 
+                  class="member-avatar"
+                  :style="{ background: getAvatarColor(index) }"
+                >
+                  {{ player.name.charAt(0) }}
+                </div>
+                <span class="member-name">{{ player.name }}</span>
               </div>
             </div>
           </div>
@@ -292,10 +295,15 @@
                 <div 
                   v-for="player in group" 
                   :key="player.id"
-                  class="preview-avatar"
-                  :style="{ background: getAvatarColor(index) }"
+                  class="preview-item"
                 >
-                  {{ player.name.charAt(0) }}
+                  <div 
+                    class="preview-avatar"
+                    :style="{ background: getAvatarColor(index) }"
+                  >
+                    {{ player.name.charAt(0) }}
+                  </div>
+                  <span class="preview-name">{{ player.name }}</span>
                 </div>
               </div>
             </div>
@@ -1082,6 +1090,8 @@ const clearHistory = () => {
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
 }
 
 .group-header {
@@ -1097,6 +1107,7 @@ const clearHistory = () => {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  justify-content: center;
 }
 
 .member-item {
@@ -1107,16 +1118,34 @@ const clearHistory = () => {
   color: var(--text-primary);
 }
 
-.member-avatar {
+.member-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   width: 60px;
-  height: 60px;
+}
+
+.member-avatar {
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
+}
+
+.member-name {
+  font-size: 12px;
+  color: var(--text-primary);
+  text-align: center;
+  max-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 动画效果 */
@@ -1187,6 +1216,14 @@ const clearHistory = () => {
   flex-wrap: wrap;
   gap: 8px;
   padding: 4px;
+  justify-content: center;
+}
+
+.preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
 .preview-avatar {
@@ -1197,8 +1234,18 @@ const clearHistory = () => {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
+}
+
+.preview-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .result-header {
