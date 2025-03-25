@@ -84,10 +84,16 @@
 
           <el-switch
             v-model="useRandomAvatar"
-            active-text="随机头像"
-            inactive-text="默认头像"
+            inactive-text="随机头像"
             @change="handleAvatarTypeChange"
           />
+          <el-button
+            v-if="useRandomAvatar"
+            class="action-btn"
+            @click="switchAvatarStyle"
+          >
+            切换风格
+          </el-button>
         </div>
       </div>
     </div>
@@ -425,8 +431,23 @@ const saveStorageData = <T>(key: string, value: T): void => {
 }
 
 // 修改初始化数据的方式
+// 头像风格列表
+const avatarStyles = [
+  'adventurer-neutral',
+  'avataaars-neutral',
+  'bottts-neutral',
+  'fun-emoji',
+  'lorelei-neutral',
+  'micah',
+  'personas',
+  'pixel-art-neutral'
+]
+
 // 头像类型状态
 const useRandomAvatar = ref<boolean>(getStorageData('basketballUseRandomAvatar', false))
+
+// 当前头像风格
+const currentAvatarStyle = ref<string>(getStorageData('basketballAvatarStyle', 'adventurer-neutral'))
 
 // 玩家头像种子
 const playerAvatarSeeds = ref<Record<number, string>>(getStorageData('basketballPlayerAvatarSeeds', {}))
@@ -434,6 +455,14 @@ const playerAvatarSeeds = ref<Record<number, string>>(getStorageData('basketball
 // 生成随机头像种子
 const generateAvatarSeed = () => {
   return Math.random().toString(36).substring(2, 15)
+}
+
+// 切换头像风格
+const switchAvatarStyle = () => {
+  const currentIndex = avatarStyles.indexOf(currentAvatarStyle.value)
+  const nextIndex = (currentIndex + 1) % avatarStyles.length
+  currentAvatarStyle.value = avatarStyles[nextIndex]
+  saveStorageData('basketballAvatarStyle', currentAvatarStyle.value)
 }
 
 // 获取玩家头像
@@ -446,7 +475,7 @@ const getPlayerAvatar = (playerId: number) => {
     playerAvatarSeeds.value[playerId] = generateAvatarSeed()
   }
   
-  return `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${playerAvatarSeeds.value[playerId]}`
+  return `https://api.dicebear.com/9.x/${currentAvatarStyle.value}/svg?seed=${playerAvatarSeeds.value[playerId]}`
 }
 
 // 处理头像类型切换
