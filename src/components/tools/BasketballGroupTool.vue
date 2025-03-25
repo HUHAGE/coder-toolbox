@@ -16,7 +16,10 @@
             <!-- 显示模式 -->
             <div class="avatar-display" @click="startEditing(player.id)">
               <div class="avatar-info">
-                <div class="avatar-circle" :style="{ backgroundImage: getPlayerAvatar(player.id) ? `url(${getPlayerAvatar(player.id)})` : 'none' }">
+                <div class="avatar-circle" :style="{ 
+                  backgroundImage: getPlayerAvatar(player.id) ? `url(${getPlayerAvatar(player.id)})` : 'none',
+                  backgroundColor: !getPlayerAvatar(player.id) ? getAvatarColor(player.id) : undefined
+                }">
                   <template v-if="!getPlayerAvatar(player.id)">{{ player.name.charAt(0) }}</template>
                 </div>
                 <span class="avatar-name">{{ player.name }}</span>
@@ -726,14 +729,18 @@ const clearHistory = () => {
 
 .players-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
   margin-bottom: 20px;
+  justify-items: center;
 }
 
 .player-avatar {
   position: relative;
   text-align: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .avatar-display {
@@ -741,10 +748,13 @@ const clearHistory = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px;
+  justify-content: center;
+  padding: 16px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 120px;
 }
 
 .avatar-info {
