@@ -16,8 +16,8 @@
             <!-- 显示模式 -->
             <div class="avatar-display" @click="startEditing(player.id)">
               <div class="avatar-info">
-                <div class="avatar-circle">
-                  {{ player.name.charAt(0) }}
+                <div class="avatar-circle" :style="{ backgroundImage: getPlayerAvatar(player.id) ? `url(${getPlayerAvatar(player.id)})` : 'none' }">
+                  <template v-if="!getPlayerAvatar(player.id)">{{ player.name.charAt(0) }}</template>
                 </div>
                 <span class="avatar-name">{{ player.name }}</span>
               </div>
@@ -78,6 +78,13 @@
               导入名单
             </el-button>
           </el-upload>
+
+          <el-switch
+            v-model="useRandomAvatar"
+            active-text="随机头像"
+            inactive-text="默认头像"
+            @change="handleAvatarTypeChange"
+          />
         </div>
       </div>
     </div>
@@ -418,6 +425,35 @@ const saveStorageData = <T>(key: string, value: T): void => {
 }
 
 // 修改初始化数据的方式
+// 头像类型状态
+const useRandomAvatar = ref<boolean>(getStorageData('basketballUseRandomAvatar', false))
+
+// 玩家头像种子
+const playerAvatarSeeds = ref<Record<number, string>>(getStorageData('basketballPlayerAvatarSeeds', {}))
+
+// 生成随机头像种子
+const generateAvatarSeed = () => {
+  return Math.random().toString(36).substring(2, 15)
+}
+
+// 获取玩家头像
+const getPlayerAvatar = (playerId: number) => {
+  if (!useRandomAvatar.value) {
+    return null
+  }
+  
+  if (!playerAvatarSeeds.value[playerId]) {
+    playerAvatarSeeds.value[playerId] = generateAvatarSeed()
+  }
+  
+  return `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${playerAvatarSeeds.value[playerId]}`
+}
+
+// 处理头像类型切换
+const handleAvatarTypeChange = () => {
+  saveStorageData('basketballUseRandomAvatar', useRandomAvatar.value)
+}
+
 const players = ref<Player[]>(getStorageData('basketballPlayers', defaultPlayers))
 const groupCount = ref(getStorageData('basketballGroupCount', 2))
 const groupNames = ref<string[]>(getStorageData('basketballGroupNames', []))
@@ -428,8 +464,8 @@ const historyId = ref(getStorageData('basketballHistoryId', 0))
 
 // 监听数据变化并保存
 watch(
-  [players, groupCount, groupNames, restrictions, groupResult, groupHistories, historyId],
-  ([newPlayers, newGroupCount, newGroupNames, newRestrictions, newGroupResult, newHistories, newHistoryId]) => {
+  [players, groupCount, groupNames, restrictions, groupResult, groupHistories, historyId, playerAvatarSeeds],
+  ([newPlayers, newGroupCount, newGroupNames, newRestrictions, newGroupResult, newHistories, newHistoryId, newPlayerAvatarSeeds]) => {
     saveStorageData('basketballPlayers', newPlayers)
     saveStorageData('basketballGroupCount', newGroupCount)
     saveStorageData('basketballGroupNames', newGroupNames)
@@ -724,6 +760,8 @@ const clearHistory = () => {
   color: white;
   transition: transform 0.3s ease;
   background: var(--el-color-primary); /* 使用 Element Plus 的主题色 */
+  background-size: cover;
+  background-position: center;
 }
 
 .avatar-name {
@@ -1255,6 +1293,8 @@ const clearHistory = () => {
   color: white;
   font-size: 14px;
   font-weight: bold;
+  background-size: cover;
+  background-position: center;
 }
 
 .preview-name {
@@ -1417,4 +1457,4 @@ const clearHistory = () => {
 .basketball-group-tool > .el-collapse:last-child {
   margin-bottom: 60px; /* 避免被最小化栏遮挡 */
 }
-</style> 
+</style>
