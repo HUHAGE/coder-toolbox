@@ -336,6 +336,7 @@ import wordToHtmlIcon from '@/assets/icons/word-to-html.svg'
 import hanBao from '@/assets/icons/汉堡.svg'
 import lanQiu from '@/assets/icons/篮球.svg'
 import lotteryIcon from '@/assets/icons/抽奖.svg'
+import pixelBreakoutIcon from '@/assets/icons/pixel-breakout.svg' // 添加这一行
 
 import { minimizeTools } from '@/stores/minimizeTools'
 import { MinimizeTools } from '@/stores/minimizeTools'
@@ -616,6 +617,14 @@ const tools = [
     description: '公平公正的随机抽奖工具',
     icon: lotteryIcon, 
     path: 'https://lucky-draw-lottery-alpha.vercel.app/', // 直接使用部署好的网站链接
+    category: 'fun'
+  },
+  {
+    code: 'pixel-breakout',
+    name: '像素弹球大师',
+    description: '红白机风格的经典弹球游戏',
+    icon: pixelBreakoutIcon,
+    path: '/games/pixel-breakout-master',
     category: 'fun'
   }
 ]

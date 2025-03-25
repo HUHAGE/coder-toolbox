@@ -17,6 +17,7 @@ import IdcardNew from '@/pages/tools/IdcardNew.vue'
 import SqlTruncate from '@/pages/tools/SqlTruncate.vue'
 import WordToHtml from '@/pages/tools/WordToHtml.vue'
 import BasketballGroup from '@/pages/tools/BasketballGroup.vue'
+import PixelBreakoutMaster from '@/pages/games/pixel-breakout-master/pixel-breakout-master.vue'
 import { trackToolUsage } from '@/utils/analytics'
 
 const router = createRouter({
@@ -183,6 +184,15 @@ const router = createRouter({
       component: BasketballGroup,
       meta: {
         title: '篮球分组',
+        keepAlive: true
+      }
+    },
+    {
+      path: '/games/pixel-breakout-master',
+      name: 'PixelBreakoutMaster',
+      component: PixelBreakoutMaster,
+      meta: {
+        title: '像素弹球大师',
         keepAlive: true
       }
     }

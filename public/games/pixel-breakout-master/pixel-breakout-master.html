@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>像素弹球大师</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 512px;
+            height: 480px;
+            background-color: #000;
+            border: 8px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .game-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            display: block;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .game-ui button {
+            pointer-events: auto;
+        }
+
+        .game-title {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            color: #fff;
+            text-shadow: 4px 4px 0 #f00, -4px -4px 0 #00f;
+            white-space: nowrap;
+            letter-spacing: 2px;
+        }
+
+        .game-subtitle {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            color: #ff0;
+            white-space: nowrap;
+        }
+
+        .start-button, .ai-toggle {
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            border: 4px solid #555;
+            padding: 8px 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+            text-transform: uppercase;
+        }
+
+        .start-button {
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .ai-toggle {
+            top: 10px;
+            right: 10px;
+            font-size: 12px;
+            padding: 4px 8px;
+            z-index: 100;
+        }
+
+        .start-button:hover, .ai-toggle:hover {
+            background-color: #555;
+            border-color: #777;
+        }
+
+        .start-button:active, .ai-toggle:active {
+            background-color: #222;
+            border-color: #444;
+        }
+
+        .game-over, .level-complete {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            color: #f00;
+            text-shadow: 2px 2px 0 #fff;
+            white-space: nowrap;
+            display: none;
+        }
+
+        .score-display {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .lives-display {
+            position: absolute;
+            top: 30px;
+            left: 10px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .level-display {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.03) 50%,
+                rgba(0, 0, 0, 0.1) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .crt-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            border-radius: 20px;
+            box-shadow: inset 0 0 100px rgba(0, 0, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .crt-effect:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                circle at center,
+                transparent 50%,
+                rgba(0, 0, 0, 0.5) 100%
+            );
+            pointer-events: none;
+        }
+
+        .sound-toggle {
+            position: absolute;
+            top: 10px;
+            left: 200px;
+            font-size: 12px;
+            padding: 4px 8px;
+            background-color: #333;
+            color: #fff;
+            border: 4px solid #555;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+
+        .sound-toggle:hover {
+            background-color: #555;
+            border-color: #777;
+        }
+
+        .sound-toggle:active {
+            background-color: #222;
+            border-color: #444;
+        }
+
+        .debug-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 10px;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                width: 320px;
+                height: 300px;
+                border-width: 4px;
+            }
+            
+            .game-title {
+                font-size: 24px;
+            }
+            
+            .game-subtitle {
+                font-size: 12px;
+            }
+            
+            .start-button, .ai-toggle {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-screen">
+            <canvas id="gameCanvas"></canvas>
+            <div class="scanlines"></div>
+            <div class="crt-effect"></div>
+        </div>
+        <div class="game-ui">
+            <div class="score-display">分数: <span id="score">0</span></div>
+            <div class="lives-display">生命: <span id="lives">3</span></div>
+            <div class="level-display">关卡: <span id="level">1</span></div>
+            <button class="ai-toggle" id="aiToggle">AI模式: 开</button>
+            <button class="sound-toggle" id="soundToggle">音效: 开</button>
+            <div class="game-title" id="gameTitle">像素弹球大师</div>
+            <div class="game-subtitle" id="gameSubtitle">红白机经典复刻版</div>
+            <button class="start-button" id="startButton">开始游戏</button>
+            <div class="game-over" id="gameOver">游戏结束!</div>
+            <div class="level-complete" id="levelComplete">关卡完成!</div>
+            <div class="debug-info" id="debugInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏主类
+        class PixelBreakoutGame {
+            constructor() {
+                // 获取DOM元素
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.scoreElement = document.getElementById('score');
+                this.livesElement = document.getElementById('lives');
+                this.levelElement = document.getElementById('level');
+                this.startButton = document.getElementById('startButton');
+                this.aiToggle = document.getElementById('aiToggle');
+                this.soundToggle = document.getElementById('soundToggle');
+                this.gameTitle = document.getElementById('gameTitle');
+                this.gameSubtitle = document.getElementById('gameSubtitle');
+                this.gameOverElement = document.getElementById('gameOver');
+                this.levelCompleteElement = document.getElementById('levelComplete');
+                this.debugInfo = document.getElementById('debugInfo');
+
+                // 设置画布尺寸
+                this.canvas.width = 256;
+                this.canvas.height = 240;
+                this.canvas.style.width = '100%';
+                this.canvas.style.height = '100%';
+
+                // 游戏状态
+                this.gameState = 'title'; // title, playing, gameOver, levelComplete
+                this.score = 0;
+                this.lives = 3;
+                this.level = 1;
+                this.maxLevel = 3;
+                
+                // AI控制
+                this.aiEnabled = true;
+                this.aiPrediction = { x: 0, y: 0 };
+                this.aiReactionDelay = 0;
+                this.aiErrorFactor = 0;
+                this.aiTargetX = 0;
+                
+                // 音效控制
+                this.soundEnabled = true;
+                this.audioContext = null;
+                this.initAudio();
+                
+                // 游戏对象
+                this.paddle = {
+                    x: this.canvas.width / 2 - 20,
+                    y: this.canvas.height - 20,
+                    width: 40,
+                    height: 8,
+                    speed: 5,
+                    color: '#5599ff'
+                };
+                
+                this.ball = {
+                    x: this.canvas.width / 2,
+                    y: this.canvas.height - 30,
+                    radius: 3,
+                    speed: 2,
+                    dx: 0,
+                    dy: 0,
+                    launched: false,
+                    color: '#ffffff'
+                };
+                
+                this.bricks = [];
+                this.powerUps = [];
+                
+                // 游戏设置
+                this.brickRowCount = 6;
+                this.brickColumnCount = 10;
+                this.brickWidth = 20;
+                this.brickHeight = 10;
+                this.brickPadding = 4;
+                this.brickOffsetTop = 30;
+                this.brickOffsetLeft = 15;
+                
+                // 控制状态
+                this.rightPressed = false;
+                this.leftPressed = false;
+                this.spacePressed = false;
+                this.mouseX = 0;
+                
+                // 调色板 - 16色NES风格
+                this.palette = {
+                    black: '#000000',
+                    white: '#ffffff',
+                    red: '#fc1d1d',
+                    orange: '#ff901f',
+                    yellow: '#fffc3b',
+                    lightGreen: '#7bff30',
+                    green: '#009900',
+                    cyan: '#00ffff',
+                    lightBlue: '#5599ff',
+                    blue: '#0000fc',
+                    purple: '#9e00ff',
+                    pink: '#ff40ff',
+                    lightGray: '#cccccc',
+                    mediumGray: '#777777',
+                    darkGray: '#333333',
+                    brown: '#8b4513'
+                };
+                
+                // 砖块类型
+                this.brickTypes = [
+                    { color: this.palette.red, points: 10, hits: 1, dropRate: 0 },
+                    { color: this.palette.orange, points: 20, hits: 1, dropRate: 0.1 },
+                    { color: this.palette.yellow, points: 30, hits: 1, dropRate: 0.2 },
+                    { color: this.palette.lightGreen, points: 50, hits: 2, dropRate: 0.3 },
+                    { color: this.palette.blue, points: 100, hits: 3, dropRate: 0.5 }
+                ];
+                
+                // 道具类型
+                this.powerUpTypes = [
+                    { type: 'expand', color: this.palette.lightBlue, duration: 10000 },
+                    { type: 'slow', color: this.palette.green, duration: 8000 },
+                    { type: 'multiball', color: this.palette.yellow, duration: 0 },
+                    { type: 'extraLife', color: this.palette.red, duration: 0 },
+                    { type: 'laser', color: this.palette.purple, duration: 12000 }
+                ];
+                
+                // 特效状态
+                this.effects = {
+                    paddleSize: 1,
+                    ballSpeed: 1,
+                    multiBall: false,
+                    laser: false
+                };
+                
+                this.effectTimers = {};
+                this.additionalBalls = [];
+                this.lasers = [];
+                
+                // 初始化事件监听
+                this.initEventListeners();
+                
+                // 初始化关卡
+                this.initLevel();
+                
+                // 开始游戏循环
+                this.lastTime = 0;
+                requestAnimationFrame(this.gameLoop.bind(this));
+            }
+            
+            // 初始化音频系统
+            initAudio() {
+                try {
+                    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.audioContext = new AudioContext();
+                } catch (e) {
+                    console.warn('Web Audio API不受支持。游戏将没有声音。', e);
+                    this.soundEnabled = false;
+                }
+            }
+            
+            // 生成音效
+            playSound(type, params = {}) {
+                if (!this.soundEnabled || !this.audioContext) return;
+                
+                // 创建音频节点
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                // 根据音效类型设置参数
+                switch (type) {
+                    case 'paddleHit':
+                        oscillator.type = 'triangle';
+                        oscillator.frequency.setValueAtTime(300, this.audioContext.currentTime);
+                        oscillator.frequency.linearRampToValueAtTime(600, this.audioContext.currentTime + 0.1);
+                        gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.2);
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 0.2);
+                        break;
+                        
+                    case 'brickHit':
+                        oscillator.type = 'square';
+                        const brickType = params.brickType || 0;
+                        const baseFreq = 200 + brickType * 50;
+                        oscillator.frequency.setValueAtTime(baseFreq, this.audioContext.currentTime);
+                        oscillator.frequency.linearRampToValueAtTime(baseFreq + 100, this.audioContext.currentTime + 0.05);
+                        gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.1);
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 0.1);
+                        break;
+                        
+                    case 'brickDestroy':
+                        oscillator.type = 'square';
+                        oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
+                        oscillator.frequency.linearRampToValueAtTime(700, this.audioContext.currentTime + 0.15);
+                        gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.2);
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 0.2);
+                        break;
+                        
+                    case 'wallHit':
+                        oscillator.type = 'sine';
+                        oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime);
+                        oscillator.frequency.linearRampToValueAtTime(150, this.audioContext.currentTime + 0.1);
+                        gainNode.gain.setValueAtTime(0.15, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.1);
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 0.1);
+                        break;
+                        
+                    case 'loseLife':
+                        oscillator.type = 'sawtooth';
+                        oscillator.frequency.setValueAtTime(300, this.audioContext.currentTime);
+                        oscillator.frequency.linearRampToValueAtTime(100, this.audioContext.currentTime + 0.5);
+                        gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.5);
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 0.5);
+                        break;
+                        
+                    case 'gameOver':
+                        oscillator.type = 'sawtooth';
+                        oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
+                        oscillator.frequency.linearRampToValueAtTime(100, this.audioContext.currentTime + 1.5);
+                        gainNode.gain.setValueAtTime(0.4, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 1.5);
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 1.5);
+                        break;
+                        
+                    case 'levelComplete':
+                        this.playMelody([
+                            { note: 400, duration: 0.1 },
+                            { note: 500, duration: 0.1 },
+                            { note: 600, duration: 0.1 },
+                            { note: 700, duration: 0.3 }
+                        ]);
+                        break;
+                        
+                    case 'powerUp':
+                        oscillator.type = 'square';
+                        oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
+                        oscillator.frequency.linearRampToValueAtTime(800, this.audioContext.currentTime + 0.2);
+                        gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.3);
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 0.3);
+                        break;
+                        
+                    case 'launch':
+                        oscillator.type = 'triangle';
+                        oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime);
+                        oscillator.frequency.linearRampToValueAtTime(400, this.audioContext.currentTime + 0.2);
+                        gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.2);
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 0.2);
+                        break;
+                        
+                    case 'laser':
+                        oscillator.type = 'sawtooth';
+                        oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+                        oscillator.frequency.linearRampToValueAtTime(400, this.audioContext.currentTime + 0.2);
+                        gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.2);
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 0.2);
+                        break;
+                }
+            }
+            
+            // 播放旋律
+            playMelody(notes) {
+                if (!this.soundEnabled || !this.audioContext) return;
+                
+                let time = this.audioContext.currentTime;
+                
+                notes.forEach(note => {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(note.note, time);
+                    
+                    gainNode.gain.setValueAtTime(0.3, time);
+                    gainNode.gain.linearRampToValueAtTime(0, time + note.duration);
+                    
+                    oscillator.start(time);
+                    oscillator.stop(time + note.duration);
+                    
+                    time += note.duration;
+                });
+            }
+            
+            // 播放背景音乐
+            playBackgroundMusic() {
+                if (!this.soundEnabled || !this.audioContext || this.bgMusicPlaying) return;
+                
+                this.bgMusicPlaying = true;
+                
+                const playNote = (freq, startTime, duration, type = 'square', gain = 0.1) => {
+                    const osc = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    osc.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    
+                    gainNode.gain.setValueAtTime(gain, startTime);
+                    gainNode.gain.linearRampToValueAtTime(0, startTime + duration - 0.05);
+                    
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                };
+                
+                // 简单的背景音乐模式
+                const pattern = [
+                    { note: 330, duration: 0.2 },
+                    { note: 330, duration: 0.2 },
+                    { note: 0, duration: 0.1 },
+                    { note: 330, duration: 0.2 },
+                    { note: 0, duration: 0.1 },
+                    { note: 262, duration: 0.2 },
+                    { note: 330, duration: 0.2 },
+                    { note: 0, duration: 0.1 },
+                    { note: 392, duration: 0.2 },
+                    { note: 0, duration: 0.4 },
+                    { note: 196, duration: 0.2 },
+                    { note: 0, duration: 0.4 }
+                ];
+                
+                const playPattern = (startTime) => {
+                    let currentTime = startTime;
+                    
+                    pattern.forEach(note => {
+                        if (note.note > 0) {
+                            playNote(note.note, currentTime, note.duration);
+                        }
+                        currentTime += note.duration;
+                    });
+                    
+                    // 循环播放
+                    if (this.soundEnabled && this.gameState === 'playing') {
+                        setTimeout(() => {
+                            playPattern(this.audioContext.currentTime);
+                        }, (currentTime - startTime) * 1000);
+                    } else {
+                        this.bgMusicPlaying = false;
+                    }
+                };
+                
+                playPattern(this.audioContext.currentTime);
+            }
+            
+            // 初始化事件监听器
+            initEventListeners() {
+                // 键盘控制
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Right' || e.key === 'ArrowRight') {
+                        this.rightPressed = true;
+                    } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
+                        this.leftPressed = true;
+                    } else if (e.key === ' ' || e.key === 'Spacebar') {
+                        this.spacePressed = true;
+                    }
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    if (e.key === 'Right' || e.key === 'ArrowRight') {
+                        this.rightPressed = false;
+                    } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
+                        this.leftPressed = false;
+                    } else if (e.key === ' ' || e.key === 'Spacebar') {
+                        this.spacePressed = false;
+                    }
+                });
+                
+                // 鼠标控制
+                this.canvas.addEventListener('mousemove', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const scaleX = this.canvas.width / rect.width;
+                    this.mouseX = (e.clientX - rect.left) * scaleX;
+                });
+                
+                this.canvas.addEventListener('click', () => {
+                    if (this.gameState === 'playing' && !this.ball.launched) {
+                        this.launchBall();
+                    }
+                });
+                
+                // 触摸控制
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const rect = this.canvas.getBoundingClientRect();
+                    const scaleX = this.canvas.width / rect.width;
+                    this.mouseX = (e.touches[0].clientX - rect.left) * scaleX;
+                });
+                
+                this.canvas.addEventListener('touchend', () => {
+                    if (this.gameState === 'playing' && !this.ball.launched) {
+                        this.launchBall();
+                    }
+                });
+                
+                // 按钮控制
+                this.startButton.addEventListener('click', () => {
+                    this.startGame();
+                });
+                
+                this.aiToggle.addEventListener('click', () => {
+                    this.aiEnabled = !this.aiEnabled;
+                    this.aiToggle.textContent = `AI模式: ${this.aiEnabled ? '开' : '关'}`;
+                });
+                
+                this.soundToggle.addEventListener('click', () => {
+                    this.soundEnabled = !this.soundEnabled;
+                    this.soundToggle.textContent = `音效: ${this.soundEnabled ? '开' : '关'}`;
+                    
+                    if (this.soundEnabled && this.gameState === 'playing' && !this.bgMusicPlaying) {
+                        this.playBackgroundMusic();
+                    }
+                });
+            }
+            
+            // 初始化关卡
+            initLevel() {
+                this.bricks = [];
+                this.powerUps = [];
+                this.lasers = [];
+                
+                // 根据关卡设置砖块布局
+                switch (this.level) {
+                    case 1:
+                        // 简单的矩形布局
+                        for (let c = 0; c < this.brickColumnCount; c++) {
+                            for (let r = 0; r < 4; r++) {
+                                const brickType = Math.min(r, this.brickTypes.length - 1);
+                                this.createBrick(c, r, brickType);
+                            }
+                        }
+                        break;
+                        
+                    case 2:
+                        // 拱形布局
+                        for (let c = 0; c < this.brickColumnCount; c++) {
+                            const height = Math.sin((c / (this.brickColumnCount - 1)) * Math.PI) * 4;
+                            for (let r = 0; r < Math.ceil(height); r++) {
+                                const brickType = Math.min(4 - r, this.brickTypes.length - 1);
+                                this.createBrick(c, r, brickType);
+                            }
+                        }
+                        // 添加额外的坚固砖块
+                        for (let c = 2; c < this.brickColumnCount - 2; c += 2) {
+                            this.createBrick(c, 4, 4);
+                        }
+                        break;
+                        
+                    case 3:
+                        // 复杂图案
+                        for (let c = 0; c < this.brickColumnCount; c++) {
+                            for (let r = 0; r < this.brickRowCount; r++) {
+                                // 创建"像素艺术"图案
+                                if ((c === 0 || c === this.brickColumnCount - 1 || 
+                                     r === 0 || r === this.brickRowCount - 1) ||
+                                    (c === 4 && r >= 2 && r <= 4) ||
+                                    (c === 5 && r >= 2 && r <= 4) ||
+                                    (r === 2 && c >= 4 && c <= 5) ||
+                                    (r === 4 && c >= 4 && c <= 5) ||
+                                    (c >= 2 && c <= 7 && r === 3 && c !== 4 && c !== 5)) {
+                                    
+                                    const brickType = (c + r) % this.brickTypes.length;
+                                    this.createBrick(c, r, brickType);
+                                }
+                            }
+                        }
+                        break;
+                }
+                
+                // 重置球和挡板
+                this.resetBallAndPaddle();
+                
+                // 重置特效
+                this.effects = {
+                    paddleSize: 1,
+                    ballSpeed: 1,
+                    multiBall: false,
+                    laser: false
+                };
+                
+                this.effectTimers = {};
+                this.additionalBalls = [];
+            }
+            
+            // 创建砖块
+            createBrick(column, row, typeIndex) {
+                const brick = {
+                    x: this.brickOffsetLeft + column * (this.brickWidth + this.brickPadding),
+                    y: this.brickOffsetTop + row * (this.brickHeight + this.brickPadding),
+                    width: this.brickWidth,
+                    height: this.brickHeight,
+                    type: typeIndex,
+                    hits: this.brickTypes[typeIndex].hits,
+                    visible: true
+                };
+                
+                this.bricks.push(brick);
+            }
+            
+            // 重置球和挡板位置
+            resetBallAndPaddle() {
+                this.paddle.x = this.canvas.width / 2 - this.paddle.width / 2;
+                this.ball.x = this.canvas.width / 2;
+                this.ball.y = this.canvas.height - 30;
+                this.ball.dx = 0;
+                this.ball.dy = 0;
+                this.ball.launched = false;
+                this.ball.speed = 2;
+            }
+            
+            // 发射球
+            launchBall() {
+                if (!this.ball.launched) {
+                    // 随机角度，但确保向上发射
+                    const angle = Math.random() * Math.PI / 2 + Math.PI / 4;
+                    this.ball.dx = Math.cos(angle) * this.ball.speed;
+                    this.ball.dy = -Math.sin(angle) * this.ball.speed;
+                    this.ball.launched = true;
+                    
+                    this.playSound('launch');
+                    
+                    // 如果是游戏开始，开始播放背景音乐
+                    if (this.gameState === 'playing' && !this.bgMusicPlaying) {
+                        this.playBackgroundMusic();
+                    }
+                }
+            }
+            
+            // 创建额外的球（多球道具效果）
+            createExtraBall() {
+                const newBall = {
+                    x: this.ball.x,
+                    y: this.ball.y,
+                    radius: this.ball.radius,
+                    speed: this.ball.speed,
+                    dx: -this.ball.dx,
+                    dy: this.ball.dy,
+                    launched: true,
+                    color: this.palette.yellow
+                };
+                
+                this.additionalBalls.push(newBall);
+                
+                // 再添加一个不同角度的球
+                const newBall2 = {
+                    x: this.ball.x,
+                    y: this.ball.y,
+                    radius: this.ball.radius,
+                    speed: this.ball.speed,
+                    dx: this.ball.dy,
+                    dy: -this.ball.dx,
+                    launched: true,
+                    color: this.palette.orange
+                };
+                
+                this.additionalBalls.push(newBall2);
+            }
+            
+            // 发射激光
+            fireLaser() {
+                if (!this.effects.laser) return;
+                
+                const laser1 = {
+                    x: this.paddle.x + 5,
+                    y: this.paddle.y,
+                    width: 2,
+                    height: 5,
+                    speed: 5
+                };
+                
+                const laser2 = {
+                    x: this.paddle.x + this.paddle.width - 7,
+                    y: this.paddle.y,
+                    width: 2,
+                    height: 5,
+                    speed: 5
+                };
+                
+                this.lasers.push(laser1, laser2);
+                this.playSound('laser');
+            }
+            
+            // 应用道具效果
+            applyPowerUp(powerUp) {
+                const type = this.powerUpTypes[powerUp.typeIndex];
+                
+                switch (type.type) {
+                    case 'expand':
+                        this.effects.paddleSize = 1.5;
+                        this.paddle.width = 40 * this.effects.paddleSize;
+                        
+                        // 设置定时器恢复正常大小
+                        if (this.effectTimers.paddleSize) {
+                            clearTimeout(this.effectTimers.paddleSize);
+                        }
+                        
+                        this.effectTimers.paddleSize = setTimeout(() => {
+                            this.effects.paddleSize = 1;
+                            this.paddle.width = 40;
+                        }, type.duration);
+                        break;
+                        
+                    case 'slow':
+                        this.effects.ballSpeed = 0.7;
+                        
+                        // 应用到所有球
+                        this.ball.speed *= this.effects.ballSpeed;
+                        this.ball.dx *= this.effects.ballSpeed;
+                        this.ball.dy *= this.effects.ballSpeed;
+                        
+                        this.additionalBalls.forEach(ball => {
+                            ball.speed *= this.effects.ballSpeed;
+                            ball.dx *= this.effects.ballSpeed;
+                            ball.dy *= this.effects.ballSpeed;
+                        });
+                        
+                        // 设置定时器恢复正常速度
+                        if (this.effectTimers.ballSpeed) {
+                            clearTimeout(this.effectTimers.ballSpeed);
+                        }
+                        
+                        this.effectTimers.ballSpeed = setTimeout(() => {
+                            // 恢复正常速度
+                            const speedMultiplier = 1 / this.effects.ballSpeed;
+                            this.effects.ballSpeed = 1;
+                            
+                            this.ball.speed *= speedMultiplier;
+                            this.ball.dx *= speedMultiplier;
+                            this.ball.dy *= speedMultiplier;
+                            
+                            this.additionalBalls.forEach(ball => {
+                                ball.speed *= speedMultiplier;
+                                ball.dx *= speedMultiplier;
+                                ball.dy *= speedMultiplier;
+                            });
+                        }, type.duration);
+                        break;
+                        
+                    case 'multiball':
+                        this.effects.multiBall = true;
+                        this.createExtraBall();
+                        break;
+                        
+                    case 'extraLife':
+                        this.lives++;
+                        this.livesElement.textContent = this.lives;
+                        break;
+                        
+                    case 'laser':
+                        this.effects.laser = true;
+                        
+                        // 设置定时器结束激光效果
+                        if (this.effectTimers.laser) {
+                            clearTimeout(this.effectTimers.laser);
+                        }
+                        
+                        this.effectTimers.laser = setTimeout(() => {
+                            this.effects.laser = false;
+                        }, type.duration);
+                        break;
+                }
+                
+                this.playSound('powerUp');
+            }
+            
+            // 开始游戏
+            startGame() {
+                this.gameState = 'playing';
+                this.score = 0;
+                this.lives = 3;
+                this.level = 1;
+                
+                this.scoreElement.textContent = this.score;
+                this.livesElement.textContent = this.lives;
+                this.levelElement.textContent = this.level;
+                
+                this.gameTitle.style.display = 'none';
+                this.gameSubtitle.style.display = 'none';
+                this.startButton.style.display = 'none';
+                this.gameOverElement.style.display = 'none';
+                
+                this.initLevel();
+                
+                // 如果AI模式开启，自动发射球
+                if (this.aiEnabled) {
+                    setTimeout(() => {
+                        if (!this.ball.launched && this.gameState === 'playing') {
+                            this.launchBall();
+                        }
+                    }, 1000);
+                }
+            }
+            
+            // 游戏结束
+            endGame() {
+                this.gameState = 'gameOver';
+                this.gameOverElement.style.display = 'block';
+                this.startButton.style.display = 'block';
+                this.startButton.textContent = '再来一次';
+                this.bgMusicPlaying = false;
+                
+                this.playSound('gameOver');
+            }
+            
+            // 完成关卡
+            completeLevel() {
+                this.gameState = 'levelComplete';
+                this.levelCompleteElement.style.display = 'block';
+                
+                this.playSound('levelComplete');
+                
+                setTimeout(() => {
+                    this.levelCompleteElement.style.display = 'none';
+                    
+                    if (this.level < this.maxLevel) {
+                        this.level++;
+                        this.levelElement.textContent = this.level;
+                        this.initLevel();
+                        this.gameState = 'playing';
+                        
+                        // 如果AI模式开启，自动发射球
+                        if (this.aiEnabled) {
+                            setTimeout(() => {
+                                if (!this.ball.launched && this.gameState === 'playing') {
+                                    this.launchBall();
+                                }
+                            }, 1000);
+                        }
+                    } else {
+                        // 通关
+                        this.gameState = 'gameOver';
+                        this.gameOverElement.textContent = '恭喜通关!';
+                        this.gameOverElement.style.display = 'block';
+                        this.startButton.style.display = 'block';
+                        this.startButton.textContent = '再来一次';
+                    }
+                }, 2000);
+            }
+            
+            // 更新AI控制
+            updateAI(deltaTime) {
+                if (!this.aiEnabled || !this.ball.launched) return;
+                
+                // 更新AI反应延迟
+                if (this.aiReactionDelay > 0) {
+                    this.aiReactionDelay -= deltaTime;
+                    return;
+                }
+                
+                // 预测球的落点
+                this.predictBallLanding();
+                
+                // 添加一些随机误差，使AI看起来更像人类
+                this.aiErrorFactor = Math.sin(Date.now() / 1000) * 10;
+                this.aiTargetX = this.aiPrediction.x + this.aiErrorFactor;
+                
+                // 移动挡板到预测位置
+                const paddleCenter = this.paddle.x + this.paddle.width / 2;
+                const distance = this.aiTargetX - paddleCenter;
+                
+                if (Math.abs(distance) > 2) {
+                    const direction = distance > 0 ? 1 : -1;
+                    const speed = Math.min(Math.abs(distance) / 10, this.paddle.speed);
+                    this.paddle.x += direction * speed;
+                }
+                
+                // 确保挡板不会超出边界
+                if (this.paddle.x < 0) {
+                    this.paddle.x = 0;
+                } else if (this.paddle.x + this.paddle.width > this.canvas.width) {
+                    this.paddle.x = this.canvas.width - this.paddle.width;
+                }
+                
+                // 随机发射激光
+                if (this.effects.laser && Math.random() < 0.05) {
+                    this.fireLaser();
+                }
+                
+                // 设置新的反应延迟
+                this.aiReactionDelay = Math.random() * 100;
+            }
+            
+            // 预测球的落点
+            predictBallLanding() {
+                if (!this.ball.launched) return;
+                
+                // 复制球的当前状态进行模拟
+                let simX = this.ball.x;
+                let simY = this.ball.y;
+                let simDx = this.ball.dx;
+                let simDy = this.ball.dy;
+                
+                // 模拟球的运动直到它到达挡板高度
+                const maxIterations = 1000; // 防止无限循环
+                let iterations = 0;
+                
+                while (simY < this.paddle.y && iterations < maxIterations) {
+                    // 更新位置
+                    simX += simDx;
+                    simY += simDy;
+                    
+                    // 检查左右墙壁碰撞
+                    if (simX - this.ball.radius < 0 || simX + this.ball.radius > this.canvas.width) {
+                        simDx = -simDx;
+                    }
+                    
+                    // 检查顶部碰撞
+                    if (simY - this.ball.radius < 0) {
+                        simDy = -simDy;
+                    }
+                    
+                    // 检查与砖块的碰撞（简化版，不改变方向）
+                    for (const brick of this.bricks) {
+                        if (brick.visible && 
+                            simX > brick.x && simX < brick.x + brick.width &&
+                            simY > brick.y && simY < brick.y + brick.height) {
+                            simDy = -simDy;
+                            break;
+                        }
+                    }
+                    
+                    iterations++;
+                }
+                
+                // 存储预测结果
+                this.aiPrediction = { x: simX, y: simY };
+            }
+            
+            // 更新游戏状态
+            update(deltaTime) {
+                if (this.gameState !== 'playing') return;
+                
+                // 更新AI
+                this.updateAI(deltaTime);
+                
+                // 处理键盘输入
+                if (!this.aiEnabled) {
+                    if (this.rightPressed) {
+                        this.paddle.x += this.paddle.speed;
+                    } else if (this.leftPressed) {
+                        this.paddle.x -= this.paddle.speed;
+                    } else if (this.mouseX) {
+                        // 鼠标/触摸控制
+                        this.paddle.x = this.mouseX - this.paddle.width / 2;
+                    }
+                    
+                    // 确保挡板不会超出边界
+                    if (this.paddle.x < 0) {
+                        this.paddle.x = 0;
+                    } else if (this.paddle.x + this.paddle.width > this.canvas.width) {
+                        this.paddle.x = this.canvas.width - this.paddle.width;
+                    }
+                    
+                    // 发射球
+                    if (this.spacePressed && !this.ball.launched) {
+                        this.launchBall();
+                    }
+                    
+                    // 发射激光
+                    if (this.effects.laser && this.spacePressed && Math.random() < 0.1) {
+                        this.fireLaser();
+                    }
+                }
+                
+                // 如果球没有发射，跟随挡板移动
+                if (!this.ball.launched) {
+                    this.ball.x = this.paddle.x + this.paddle.width / 2;
+                } else {
+                    // 更新球的位置
+                    this.ball.x += this.ball.dx;
+                    this.ball.y += this.ball.dy;
+                    
+                    // 检测碰撞
+                    this.detectCollisions(this.ball);
+                }
+                
+                // 更新额外的球
+                for (let i = this.additionalBalls.length - 1; i >= 0; i--) {
+                    const ball = this.additionalBalls[i];
+                    
+                    ball.x += ball.dx;
+                    ball.y += ball.dy;
+                    
+                    // 检测碰撞
+                    this.detectCollisions(ball);
+                    
+                    // 如果球掉出屏幕底部，移除它
+                    if (ball.y > this.canvas.height + ball.radius) {
+                        this.additionalBalls.splice(i, 1);
+                    }
+                }
+                
+                // 更新激光
+                for (let i = this.lasers.length - 1; i >= 0; i--) {
+                    const laser = this.lasers[i];
+                    
+                    laser.y -= laser.speed;
+                    
+                    // 检测激光与砖块的碰撞
+                    for (let j = 0; j < this.bricks.length; j++) {
+                        const brick = this.bricks[j];
+                        
+                        if (brick.visible && 
+                            laser.x > brick.x && laser.x < brick.x + brick.width &&
+                            laser.y > brick.y && laser.y < brick.y + brick.height) {
+                            
+                            // 减少砖块生命值
+                            brick.hits--;
+                            
+                            if (brick.hits <= 0) {
+                                brick.visible = false;
+                                this.score += this.brickTypes[brick.type].points;
+                                this.scoreElement.textContent = this.score;
+                                this.playSound('brickDestroy');
+                                
+                                // 检查是否掉落道具
+                                if (Math.random() < this.brickTypes[brick.type].dropRate) {
+                                    this.createPowerUp(brick);
+                                }
+                            } else {
+                                this.playSound('brickHit', { brickType: brick.type });
+                            }
+                            
+                            // 移除激光
+                            this.lasers.splice(i, 1);
+                            break;
+                        }
+                    }
+                    
+                    // 如果激光超出屏幕顶部，移除它
+                    if (laser.y + laser.height < 0) {
+                        this.lasers.splice(i, 1);
+                    }
+                }
+                
+                // 更新道具
+                for (let i = this.powerUps.length - 1; i >= 0; i--) {
+                    const powerUp = this.powerUps[i];
+                    
+                    powerUp.y += powerUp.speed;
+                    
+                    // 检测道具与挡板的碰撞
+                    if (powerUp.y + powerUp.height > this.paddle.y && 
+                        powerUp.y < this.paddle.y + this.paddle.height &&
+                        powerUp.x + powerUp.width > this.paddle.x && 
+                        powerUp.x < this.paddle.x + this.paddle.width) {
+                        
+                        this.applyPowerUp(powerUp);
+                        this.powerUps.splice(i, 1);
+                    }
+                    
+                    // 如果道具掉出屏幕底部，移除它
+                    if (powerUp.y > this.canvas.height) {
+                        this.powerUps.splice(i, 1);
+                    }
+                }
+                
+                // 检查是否完成关卡
+                if (this.bricks.every(brick => !brick.visible || brick.hits <= 0)) {
+                    this.completeLevel();
+                }
+            }
+            
+            // 检测球的碰撞
+            detectCollisions(ball) {
+                // 检测与墙壁的碰撞
+                if (ball.x - ball.radius < 0) {
+                    ball.dx = Math.abs(ball.dx);
+                    ball.x = ball.radius;
+                    this.playSound('wallHit');
+                } else if (ball.x + ball.radius > this.canvas.width) {
+                    ball.dx = -Math.abs(ball.dx);
+                    ball.x = this.canvas.width - ball.radius;
+                    this.playSound('wallHit');
+                }
+                
+                if (ball.y - ball.radius < 0) {
+                    ball.dy = Math.abs(ball.dy);
+                    ball.y = ball.radius;
+                    this.playSound('wallHit');
+                }
+                
+                // 检测与挡板的碰撞
+                if (ball.y + ball.radius > this.paddle.y && 
+                    ball.y - ball.radius < this.paddle.y + this.paddle.height &&
+                    ball.x + ball.radius > this.paddle.x && 
+                    ball.x - ball.radius < this.paddle.x + this.paddle.width) {
+                    
+                    // 计算球击中挡板的相对位置（0到1）
+                    const hitPos = (ball.x - this.paddle.x) / this.paddle.width;
+                    
+                    // 根据击中位置计算反弹角度（中间垂直，边缘有更大角度）
+                    const angle = (hitPos - 0.5) * Math.PI * 0.7;
+                    
+                    // 设置新的方向和速度
+                    const speed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+                    ball.dx = Math.sin(angle) * speed;
+                    ball.dy = -Math.cos(angle) * speed;
+                    
+                    // 确保球不会卡在挡板内
+                    ball.y = this.paddle.y - ball.radius;
+                    
+                    this.playSound('paddleHit');
+                }
+                
+                // 检测与砖块的碰撞
+                for (const brick of this.bricks) {
+                    if (!brick.visible) continue;
+                    
+                    // 检查球是否与砖块碰撞
+                    if (ball.x + ball.radius > brick.x && 
+                        ball.x - ball.radius < brick.x + brick.width &&
+                        ball.y + ball.radius > brick.y && 
+                        ball.y - ball.radius < brick.y + brick.height) {
+                        
+                        // 确定碰撞方向
+                        const overlapLeft = ball.x + ball.radius - brick.x;
+                        const overlapRight = brick.x + brick.width - (ball.x - ball.radius);
+                        const overlapTop = ball.y + ball.radius - brick.y;
+                        const overlapBottom = brick.y + brick.height - (ball.y - ball.radius);
+                        
+                        // 找出最小重叠方向
+                        const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+                        
+                        // 根据碰撞方向改变球的方向
+                        if (minOverlap === overlapLeft && ball.dx > 0) {
+                            ball.dx = -ball.dx;
+                            ball.x = brick.x - ball.radius;
+                        } else if (minOverlap === overlapRight && ball.dx < 0) {
+                            ball.dx = -ball.dx;
+                            ball.x = brick.x + brick.width + ball.radius;
+                        } else if (minOverlap === overlapTop && ball.dy > 0) {
+                            ball.dy = -ball.dy;
+                            ball.y = brick.y - ball.radius;
+                        } else if (minOverlap === overlapBottom && ball.dy < 0) {
+                            ball.dy = -ball.dy;
+                            ball.y = brick.y + brick.height + ball.radius;
+                        }
+                        
+                        // 减少砖块生命值
+                        brick.hits--;
+                        
+                        if (brick.hits <= 0) {
+                            brick.visible = false;
+                            this.score += this.brickTypes[brick.type].points;
+                            this.scoreElement.textContent = this.score;
+                            this.playSound('brickDestroy');
+                            
+                            // 检查是否掉落道具
+                            if (Math.random() < this.brickTypes[brick.type].dropRate) {
+                                this.createPowerUp(brick);
+                            }
+                        } else {
+                            this.playSound('brickHit', { brickType: brick.type });
+                        }
+                        
+                        // 每次只处理一个砖块碰撞
+                        break;
+                    }
+                }
+                
+                // 检测球是否掉出屏幕底部
+                if (ball.y - ball.radius > this.canvas.height) {
+                    // 如果是主球
+                    if (ball === this.ball) {
+                        this.lives--;
+                        this.livesElement.textContent = this.lives;
+                        this.playSound('loseLife');
+                        
+                        if (this.lives <= 0) {
+                            this.endGame();
+                        } else {
+                            this.resetBallAndPaddle();
+                            
+                            // 如果AI模式开启，自动发射球
+                            if (this.aiEnabled) {
+                                setTimeout(() => {
+                                    if (!this.ball.launched && this.gameState === 'playing') {
+                                        this.launchBall();
+                                    }
+                                }, 1000);
+                            }
+                        }
+                    }
+                    // 额外的球不会减少生命
+                }
+            }
+            
+            // 创建道具
+            createPowerUp(brick) {
+                const typeIndex = Math.floor(Math.random() * this.powerUpTypes.length);
+                const powerUp = {
+                    x: brick.x + brick.width / 2 - 8,
+                    y: brick.y,
+                    width: 16,
+                    height: 16,
+                    speed: 1,
+                    typeIndex: typeIndex,
+                    color: this.powerUpTypes[typeIndex].color
+                };
+                
+                this.powerUps.push(powerUp);
+            }
+            
+            // 绘制游戏
+            draw() {
+                // 清空画布
+                this.ctx.fillStyle = this.palette.black;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 绘制背景网格
+                this.drawBackground();
+                
+                // 绘制砖块
+                this.drawBricks();
+                
+                // 绘制挡板
+                this.drawPaddle();
+                
+                // 绘制球
+                this.drawBall();
+                
+                // 绘制额外的球
+                for (const ball of this.additionalBalls) {
+                    this.ctx.beginPath();
+                    this.ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                    this.ctx.fillStyle = ball.color;
+                    this.ctx.fill();
+                    this.ctx.closePath();
+                }
+                
+                // 绘制激光
+                for (const laser of this.lasers) {
+                    this.ctx.fillStyle = this.palette.pink;
+                    this.ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
+                }
+                
+                // 绘制道具
+                this.drawPowerUps();
+                
+                // 绘制AI预测
+                if (this.aiEnabled && this.ball.launched && this.gameState === 'playing') {
+                    this.drawAIPrediction();
+                }
+                
+                // 绘制调试信息
+                if (this.aiEnabled) {
+                    this.debugInfo.textContent = `AI目标: ${Math.round(this.aiTargetX)}, 误差: ${Math.round(this.aiErrorFactor)}`;
+                } else {
+                    this.debugInfo.textContent = '';
+                }
+            }
+            
+            // 绘制背景
+            drawBackground() {
+                // 绘制简单的网格背景
+                this.ctx.strokeStyle = this.palette.darkGray;
+                this.ctx.lineWidth = 0.5;
+                
+                // 垂直线
+                for (let x = 0; x <= this.canvas.width; x += 16) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                
+                // 水平线
+                for (let y = 0; y <= this.canvas.height; y += 16) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+            
+            // 绘制砖块
+            drawBricks() {
+                for (const brick of this.bricks) {
+                    if (brick.visible) {
+                        const brickType = this.brickTypes[brick.type];
+                        
+                        // 绘制砖块主体
+                        this.ctx.fillStyle = brickType.color;
+                        this.ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+                        
+                        // 绘制砖块高光
+                        this.ctx.fillStyle = this.palette.white;
+                        this.ctx.fillRect(brick.x, brick.y, brick.width, 2);
+                        this.ctx.fillRect(brick.x, brick.y, 2, brick.height);
+                        
+                        //                         // 绘制砖块阴影
+                        this.ctx.fillStyle = this.palette.darkGray;
+                        this.ctx.fillRect(brick.x + brick.width - 2, brick.y, 2, brick.height);
+                        this.ctx.fillRect(brick.x, brick.y + brick.height - 2, brick.width, 2);
+                        
+                        // 如果砖块需要多次击中，绘制指示器
+                        if (brickType.hits > 1) {
+                            const hitsLeft = brick.hits;
+                            this.ctx.fillStyle = this.palette.black;
+                            this.ctx.fillRect(brick.x + brick.width / 2 - 3, brick.y + brick.height / 2 - 1, 6, 2);
+                            if (hitsLeft > 2) {
+                                this.ctx.fillRect(brick.x + brick.width / 2 - 1, brick.y + brick.height / 2 - 3, 2, 6);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 绘制挡板
+            drawPaddle() {
+                // 绘制挡板主体
+                this.ctx.fillStyle = this.paddle.color;
+                this.ctx.fillRect(this.paddle.x, this.paddle.y, this.paddle.width, this.paddle.height);
+                
+                // 绘制挡板高光
+                this.ctx.fillStyle = this.palette.white;
+                this.ctx.fillRect(this.paddle.x, this.paddle.y, this.paddle.width, 2);
+                this.ctx.fillRect(this.paddle.x, this.paddle.y, 2, this.paddle.height);
+                
+                // 绘制挡板阴影
+                this.ctx.fillStyle = this.palette.darkGray;
+                this.ctx.fillRect(this.paddle.x + this.paddle.width - 2, this.paddle.y, 2, this.paddle.height);
+                this.ctx.fillRect(this.paddle.x, this.paddle.y + this.paddle.height - 2, this.paddle.width, 2);
+                
+                // 如果激光模式激活，绘制激光炮
+                if (this.effects.laser) {
+                    this.ctx.fillStyle = this.palette.pink;
+                    this.ctx.fillRect(this.paddle.x + 5, this.paddle.y - 4, 2, 4);
+                    this.ctx.fillRect(this.paddle.x + this.paddle.width - 7, this.paddle.y - 4, 2, 4);
+                }
+            }
+            
+            // 绘制球
+            drawBall() {
+                this.ctx.beginPath();
+                this.ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
+                this.ctx.fillStyle = this.ball.color;
+                this.ctx.fill();
+                this.ctx.closePath();
+                
+                // 绘制球的高光
+                this.ctx.beginPath();
+                this.ctx.arc(this.ball.x - 1, this.ball.y - 1, this.ball.radius / 2, 0, Math.PI * 2);
+                this.ctx.fillStyle = this.palette.white;
+                this.ctx.fill();
+                this.ctx.closePath();
+            }
+            
+            // 绘制道具
+            drawPowerUps() {
+                for (const powerUp of this.powerUps) {
+                    const type = this.powerUpTypes[powerUp.typeIndex];
+                    
+                    // 绘制道具背景
+                    this.ctx.fillStyle = type.color;
+                    this.ctx.fillRect(powerUp.x, powerUp.y, powerUp.width, powerUp.height);
+                    
+                    // 绘制道具边框
+                    this.ctx.strokeStyle = this.palette.white;
+                    this.ctx.lineWidth = 1;
+                    this.ctx.strokeRect(powerUp.x, powerUp.y, powerUp.width, powerUp.height);
+                    
+                    // 根据道具类型绘制不同图标
+                    this.ctx.fillStyle = this.palette.white;
+                    
+                    switch (type.type) {
+                        case 'expand':
+                            // 绘制扩展图标
+                            this.ctx.fillRect(powerUp.x + 3, powerUp.y + 7, 10, 2);
+                            break;
+                            
+                        case 'slow':
+                            // 绘制减速图标
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(powerUp.x + 4, powerUp.y + 4);
+                            this.ctx.lineTo(powerUp.x + 12, powerUp.y + 8);
+                            this.ctx.lineTo(powerUp.x + 4, powerUp.y + 12);
+                            this.ctx.fill();
+                            break;
+                            
+                        case 'multiball':
+                            // 绘制多球图标
+                            this.ctx.beginPath();
+                            this.ctx.arc(powerUp.x + 5, powerUp.y + 5, 2, 0, Math.PI * 2);
+                            this.ctx.fill();
+                            this.ctx.beginPath();
+                            this.ctx.arc(powerUp.x + 11, powerUp.y + 5, 2, 0, Math.PI * 2);
+                            this.ctx.fill();
+                            this.ctx.beginPath();
+                            this.ctx.arc(powerUp.x + 8, powerUp.y + 11, 2, 0, Math.PI * 2);
+                            this.ctx.fill();
+                            break;
+                            
+                        case 'extraLife':
+                            // 绘制额外生命图标
+                            this.ctx.fillStyle = this.palette.red;
+                            this.ctx.fillRect(powerUp.x + 6, powerUp.y + 3, 4, 10);
+                            this.ctx.fillRect(powerUp.x + 3, powerUp.y + 6, 10, 4);
+                            break;
+                            
+                        case 'laser':
+                            // 绘制激光图标
+                            this.ctx.fillStyle = this.palette.pink;
+                            this.ctx.fillRect(powerUp.x + 4, powerUp.y + 3, 2, 10);
+                            this.ctx.fillRect(powerUp.x + 10, powerUp.y + 3, 2, 10);
+                            this.ctx.fillRect(powerUp.x + 3, powerUp.y + 3, 10, 2);
+                            break;
+                    }
+                }
+            }
+            
+            // 绘制AI预测
+            drawAIPrediction() {
+                if (!this.aiPrediction) return;
+                
+                // 绘制预测点
+                this.ctx.beginPath();
+                this.ctx.arc(this.aiPrediction.x, this.paddle.y, 3, 0, Math.PI * 2);
+                this.ctx.fillStyle = this.palette.green;
+                this.ctx.fill();
+                this.ctx.closePath();
+                
+                // 绘制目标点（带误差）
+                this.ctx.beginPath();
+                this.ctx.arc(this.aiTargetX, this.paddle.y, 3, 0, Math.PI * 2);
+                this.ctx.fillStyle = this.palette.yellow;
+                this.ctx.fill();
+                this.ctx.closePath();
+                
+                // 绘制轨迹线
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.ball.x, this.ball.y);
+                this.ctx.lineTo(this.aiPrediction.x, this.paddle.y);
+                this.ctx.strokeStyle = this.palette.green;
+                this.ctx.globalAlpha = 0.3;
+                this.ctx.stroke();
+                this.ctx.globalAlpha = 1.0;
+            }
+            
+            // 游戏循环
+            gameLoop(timestamp) {
+                // 计算帧间隔时间
+                const deltaTime = timestamp - (this.lastTime || timestamp);
+                this.lastTime = timestamp;
+                
+                // 更新游戏状态
+                this.update(deltaTime);
+                
+                // 绘制游戏
+                this.draw();
+                
+                // 继续游戏循环
+                requestAnimationFrame(this.gameLoop.bind(this));
+            }
+        }
+        
+        // 当页面加载完成后初始化游戏
+        window.onload = function() {
+            const game = new PixelBreakoutGame();
+        };
+    </script>
+</body>
+</html>
