@@ -418,15 +418,15 @@ const getAvatarColor = (id: number) => {
 
 // 初始队员数据
 const defaultPlayers = [
-  { id: 1, name: '欢' },
-  { id: 2, name: '坤' },
-  { id: 3, name: '猴' },
-  { id: 4, name: '龙' },
-  { id: 5, name: '创' },
-  { id: 6, name: '鹏' },
-  { id: 7, name: '君' },
-  { id: 8, name: '兵' },
-  { id: 9, name: '伟' }
+  { id: 1, name: '打铁欢' },
+  { id: 2, name: '走步坤' },
+  { id: 3, name: '迫击猴' },
+  { id: 4, name: '快攻龙' },
+  { id: 5, name: '妙传创' },
+  { id: 6, name: '三分鹏' },
+  { id: 7, name: '坦克君' },
+  { id: 8, name: '拉杆兵' },
+  { id: 9, name: '全能伟' }
 ]
 
 // 从 localStorage 读取数据的函数
