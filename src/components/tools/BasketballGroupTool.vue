@@ -315,16 +315,7 @@
                     :key="player.id"
                     class="preview-item"
                   >
-                    <div 
-                      class="preview-avatar"
-                      :style="{ 
-                        backgroundImage: getPlayerAvatar(player.id) ? `url(${getPlayerAvatar(player.id)})` : 'none',
-                        background: !getPlayerAvatar(player.id) ? getAvatarColor(player.id) : 'none'
-                      }"
-                    >
-                      <template v-if="!getPlayerAvatar(player.id)">{{ player.name.charAt(0) }}</template>
-                    </div>
-                    <span class="preview-name">{{ player.name }}</span>
+                    {{ player.name }}
                   </div>
                 </div>
               </div>
@@ -1153,7 +1144,8 @@ const clearHistory = () => {
 .group-results {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  gap: 16px;
+  padding: 0 8px;
 }
 
 .group-item {
@@ -1168,23 +1160,24 @@ const clearHistory = () => {
 .group-header {
   background: var(--el-color-primary);
   color: white;
-  padding: 8px 16px;
+  padding: 6px 12px;
   font-weight: 500;
   text-align: center;
 }
 
 .group-members {
-  padding: 16px;
+  padding: 12px;
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
+  align-items: center;
 }
 
 .member-item {
   display: flex;
   align-items: center;
-  padding: 4px;
+  padding: 2px;
   border-radius: 16px;
   color: var(--text-primary);
 }
@@ -1413,19 +1406,43 @@ const clearHistory = () => {
   padding: 0 16px 16px; /* 添加内边距 */
 }
 
-.history-preview .preview-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
+.history-preview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 12px;
+}
+
+.preview-group {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  background: var(--bg-primary);
+}
+
+.preview-header {
   font-size: 14px;
   font-weight: bold;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.preview-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.preview-item {
+  font-size: 12px;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .clear-btn {
