@@ -251,9 +251,12 @@
               <div class="member-info">
                 <div 
                   class="member-avatar"
-                  :style="{ background: getAvatarColor(index) }"
+                  :style="{ 
+                    backgroundImage: getPlayerAvatar(player.id) ? `url(${getPlayerAvatar(player.id)})` : 'none',
+                    backgroundColor: !getPlayerAvatar(player.id) ? getAvatarColor(player.id) : 'transparent'
+                  }"
                 >
-                  {{ player.name.charAt(0) }}
+                  <template v-if="!getPlayerAvatar(player.id)">{{ player.name.charAt(0) }}</template>
                 </div>
                 <span class="member-name">{{ player.name }}</span>
               </div>
@@ -311,9 +314,12 @@
                   >
                     <div 
                       class="preview-avatar"
-                      :style="{ background: getAvatarColor(index) }"
+                      :style="{ 
+                        backgroundImage: getPlayerAvatar(player.id) ? `url(${getPlayerAvatar(player.id)})` : 'none',
+                        background: !getPlayerAvatar(player.id) ? getAvatarColor(player.id) : 'none'
+                      }"
                     >
-                      {{ player.name.charAt(0) }}
+                      <template v-if="!getPlayerAvatar(player.id)">{{ player.name.charAt(0) }}</template>
                     </div>
                     <span class="preview-name">{{ player.name }}</span>
                   </div>
@@ -755,13 +761,12 @@ const clearHistory = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
   color: white;
-  transition: transform 0.3s ease;
-  background: var(--el-color-primary); /* 使用 Element Plus 的主题色 */
-  background-size: cover;
-  background-position: center;
+  font-size: 20px;
+  font-weight: bold;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 .avatar-name {
@@ -1192,6 +1197,13 @@ const clearHistory = () => {
   color: white;
   font-size: 20px;
   font-weight: bold;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  font-weight: bold;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 .member-name {
@@ -1245,47 +1257,26 @@ const clearHistory = () => {
   font-size: 14px;
 }
 
-.history-preview {
-  padding: 16px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-}
-
-.preview-group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 8px;
-  background: var(--bg-primary);
-  border-radius: 8px;
-}
-
-.preview-header {
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-weight: 500;
-  padding: 0 4px;
-}
-
-.preview-members {
+.preview-group-members {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 4px;
-  justify-content: center;
+  margin-top: 8px;
 }
 
-.preview-item {
+.preview-member {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 4px;
+  padding: 4px 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-.preview-avatar {
-  width: 36px;
-  height: 36px;
+.preview-member .preview-avatar {
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1293,15 +1284,16 @@ const clearHistory = () => {
   color: white;
   font-size: 14px;
   font-weight: bold;
-  background-size: cover;
-  background-position: center;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 .preview-name {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   text-align: center;
-  max-width: 48px;
+  max-width: 60px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1409,6 +1401,21 @@ const clearHistory = () => {
   display: flex;
   justify-content: flex-end; /* 右对齐 */
   padding: 0 16px 16px; /* 添加内边距 */
+}
+
+.history-preview .preview-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .clear-btn {
