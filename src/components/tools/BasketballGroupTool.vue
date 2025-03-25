@@ -433,6 +433,7 @@ const saveStorageData = <T>(key: string, value: T): void => {
 // 修改初始化数据的方式
 // 头像风格列表
 const avatarStyles = [
+  'adventurer',
   'adventurer-neutral',
   'avataaars-neutral',
   'bottts-neutral',
@@ -440,7 +441,11 @@ const avatarStyles = [
   'lorelei-neutral',
   'micah',
   'personas',
-  'pixel-art-neutral'
+  'pixel-art-neutral',
+  'bottts',
+  'open-peeps',
+  'dylan',
+  'big-smile'
 ]
 
 // 头像类型状态
