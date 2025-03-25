@@ -15,8 +15,11 @@
           >
             <!-- 显示模式 -->
             <div class="avatar-display" @click="startEditing(player.id)">
-              <div class="avatar-circle">
-                {{ player.name.charAt(0) }}
+              <div class="avatar-info">
+                <div class="avatar-circle">
+                  {{ player.name.charAt(0) }}
+                </div>
+                <span class="avatar-name">{{ player.name }}</span>
               </div>
               
               <!-- 悬浮操作按钮 -->
@@ -667,50 +670,83 @@ const clearHistory = () => {
 
 .avatar-display {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 12px;
   transition: all 0.3s ease;
 }
 
-.avatar-display:hover {
-  background: var(--bg-primary);
+.avatar-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 .avatar-circle {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  color: white;
-  background: var(--el-color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
   font-weight: bold;
-  margin: 0 auto 8px;
+  color: white;
   transition: transform 0.3s ease;
+  background: var(--el-color-primary); /* 使用 Element Plus 的主题色 */
 }
 
-.avatar-display:hover .avatar-circle {
-  transform: scale(1.05);
+.avatar-name {
+  font-size: 14px;
+  color: var(--text-primary);
+  text-align: center;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .hover-actions {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) translateY(10px);
   display: flex;
   gap: 8px;
   opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+  transition: all 0.3s ease;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px;
+  border-radius: 8px;
+  z-index: 1;
 }
 
-.avatar-display:hover .hover-actions {
-  opacity: 1;
-  pointer-events: auto;
+.avatar-display:hover {
+  background: var(--bg-hover);
+  
+  .avatar-circle {
+    transform: scale(1.05);
+    filter: brightness(0.8);
+  }
+  
+  .hover-actions {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0);
+  }
+}
+
+/* 调整按钮样式 */
+.hover-actions .el-button {
+  --el-button-size: 32px;
+  padding: 6px;
+  
+  .el-icon {
+    font-size: 16px;
+  }
 }
 
 .avatar-edit {
@@ -843,11 +879,9 @@ const clearHistory = () => {
     background: var(--bg-secondary);
   }
 
-  /* 删除这部分，让头像背景保持和亮色模式一样
-  .avatar-circle {
-    background: var(--el-color-primary-light-5);
+  .avatar-name {
+    color: var(--text-primary);
   }
-  */
 
   .settings-section {
     background: var(--bg-secondary);
