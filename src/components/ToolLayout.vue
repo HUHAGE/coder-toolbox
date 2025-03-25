@@ -265,6 +265,11 @@ const toggleTheme = () => {
   position: relative;
   margin: 0;
   padding-left: 88px;
+  
+  @media (max-width: 768px) {
+    padding-left: 80px;
+    justify-content: center;
+  }
 }
 
 .back-button {
@@ -281,6 +286,13 @@ const toggleTheme = () => {
   color: white;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  @media (max-width: 768px) {
+    left: 4px;
+    width: 32px;
+    height: 32px;
+    z-index: 10;
+  }
 }
 
 .back-button:hover {
@@ -315,6 +327,13 @@ const toggleTheme = () => {
   color: white;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  @media (max-width: 768px) {
+    left: 40px;
+    width: 32px;
+    height: 32px;
+    z-index: 10;
+  }
 }
 
 .minimize-button:hover {
@@ -335,6 +354,11 @@ const toggleTheme = () => {
   display: flex;
   align-items: center;
   gap: 8px;
+  
+  @media (max-width: 768px) {
+    max-width: calc(100% - 80px);
+    overflow: hidden;
+  }
 }
 
 .tool-icon,
@@ -353,6 +377,14 @@ const toggleTheme = () => {
   font-weight: 600;
   color: var(--primary-color);
   margin: 0;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
 }
 
 .header-right {
@@ -360,6 +392,12 @@ const toggleTheme = () => {
   align-items: center;
   gap: 8px;
   margin-right: 0;
+  
+  @media (max-width: 768px) {
+    margin-right: 0;
+    gap: 4px;
+    flex-shrink: 0;
+  }
 }
 
 .divider {
@@ -508,50 +546,20 @@ const toggleTheme = () => {
 @media (max-width: 768px) {
   .tool-header {
     height: 56px;
-    padding: 0 1rem;
+    padding: 0;
   }
 
+  .header-content {
+    padding: 0 8px;
+    justify-content: space-between;
+  }
+  
   .header-center {
-    padding-left: 44px;
+    flex: 1;
   }
-
-  .back-button {
-    left: 0;
-    width: 32px;
-    height: 32px;
-  }
-
-  .back-icon {
-    font-size: 1.1em;
-  }
-
-  .tool-info {
-    margin-left: 0;
-  }
-
-  .tool-title {
-    font-size: 1.125rem;
-  }
-
+  
   .header-right {
-    margin-right: -25px;
-    gap: 4px;
-  }
-
-  .action-btn,
-  .theme-toggle {
-    width: 28px;
-    height: 28px;
-    padding: 4px;
-  }
-
-  .divider {
-    height: 20px;
-  }
-
-  .tool-content {
-    padding: 1.5rem 1rem;
-    padding-top: calc(56px + 1.5rem);
+    flex: 0 0 auto;
   }
 }
 
