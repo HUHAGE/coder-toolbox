@@ -598,7 +598,7 @@ const tools = [
     code: 'fun',
     name: '今天吃什么',
     description: '帮你决定今天吃什么',
-    icon: hanBao, // 暂时使用 Grid 图标，后续可以替换为专门的食物图标
+    icon: hanBao,
     path: 'https://www.soutzz.top/', // 直接使用部署好的网站链接
     category: 'fun'
   },
@@ -615,8 +615,8 @@ const tools = [
     name: '年会抽奖工具',
     description: '公平公正的随机抽奖工具',
     icon: lotteryIcon, 
-    path: 'https://annual-meeting-lottery.vercel.app/', 
-    category: 'other'
+    path: 'https://lucky-draw-lottery-alpha.vercel.app/', // 直接使用部署好的网站链接
+    category: 'fun'
   }
 ]
 
