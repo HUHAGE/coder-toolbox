@@ -14,7 +14,7 @@
                :class="{ 'is-editing': editingId === player.id }"
           >
             <!-- 显示模式 -->
-            <div class="avatar-display" @click="startEditing(player.id)">
+            <div class="avatar-display" @click="toggleActions(player.id)" :class="{ 'is-active': activePlayerId === player.id }">
               <div class="avatar-info">
                 <div class="avatar-circle" :style="{ 
                   backgroundImage: getPlayerAvatar(player.id) ? `url(${getPlayerAvatar(player.id)})` : 'none',
@@ -360,6 +360,16 @@ import {
   ArrowDown
 } from '@element-plus/icons-vue'
 
+const activePlayerId = ref<number | null>(null)
+
+const toggleActions = (playerId: number) => {
+  if (activePlayerId.value === playerId) {
+    activePlayerId.value = null
+  } else {
+    activePlayerId.value = playerId
+  }
+}
+
 interface Player {
   id: number
   name: string
@@ -499,7 +509,25 @@ const historyId = ref(getStorageData('basketballHistoryId', 0))
 // 监听数据变化并保存
 watch(
   [players, groupCount, groupNames, restrictions, groupResult, groupHistories, historyId, playerAvatarSeeds],
-  ([newPlayers, newGroupCount, newGroupNames, newRestrictions, newGroupResult, newHistories, newHistoryId, newPlayerAvatarSeeds]) => {
+  ([
+    newPlayers, 
+    newGroupCount, 
+    newGroupNames, 
+    newRestrictions, 
+    newGroupResult, 
+    newHistories, 
+    newHistoryId, 
+    newPlayerAvatarSeeds
+  ]: [
+    Player[], 
+    number, 
+    string[], 
+    Restriction[], 
+    Player[][], 
+    GroupHistory[], 
+    number, 
+    Record<number, string>
+  ]) => {
     saveStorageData('basketballPlayers', newPlayers)
     saveStorageData('basketballGroupCount', newGroupCount)
     saveStorageData('basketballGroupNames', newGroupNames)
@@ -530,7 +558,7 @@ const startEditing = (id: number) => {
 // 完成编辑
 const finishEditing = () => {
   if (editingId.value !== null) {
-    const player = players.value.find(p => p.id === editingId.value)
+    const player = players.value.find((p: Player) => p.id === editingId.value)
     if (player) {
       validatePlayerName(player)
     }
@@ -544,16 +572,16 @@ const addPlayer = () => {
     ElMessage.warning('最多添加20名队员')
     return
   }
-  const newId = Math.max(...players.value.map(p => p.id), 0) + 1
+  const newId = Math.max(...players.value.map((p: Player) => p.id), 0) + 1
   players.value.push({ id: newId, name: '' })
 }
 
 // 删除队员
 const removePlayer = (id: number) => {
-  players.value = players.value.filter(p => p.id !== id)
+  players.value = players.value.filter((p: Player) => p.id !== id)
   // 清理相关的限制
   restrictions.value = restrictions.value.filter(
-    r => r.player1 !== id && r.player2 !== id
+    (r: Restriction) => r.player1 !== id && r.player2 !== id
   )
 }
 
@@ -583,7 +611,7 @@ const generateGroups = () => {
   }
 
   // 验证所有队员都有名字
-  if (players.value.some(p => !p.name.trim())) {
+  if (players.value.some((p: Player) => !p.name.trim())) {
     ElMessage.warning('请填写所有队员的姓名')
     return
   }
@@ -656,7 +684,7 @@ const generateGroups = () => {
 }
 
 // 添加文件处理函数
-const handleFileChange = (file: File) => {
+const handleFileChange = (file: any) => {
   const reader = new FileReader()
   reader.onload = (e) => {
     const content = e.target?.result as string
@@ -670,7 +698,7 @@ const handleFileChange = (file: File) => {
     }
 
     // 获取当前最大ID
-    const maxId = Math.max(...players.value.map(p => p.id), 0)
+    const maxId = Math.max(...players.value.map((p: Player) => p.id), 0)
     
     // 添加新队员
     const newPlayers = names.map((name, index) => ({
@@ -723,12 +751,19 @@ const clearHistory = () => {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .basketball-group-tool {
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 0px 20px 20px;
+  padding-bottom: 80px;
+
+  @media (max-width: 768px) {
+    gap: 16px;
+    padding: 0px 12px 12px;
+    padding-bottom: 100px;
+  }
 }
 
 .tool-card {
@@ -736,6 +771,11 @@ const clearHistory = () => {
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    border-radius: 8px;
+  }
 }
 
 .card-title {
@@ -758,6 +798,12 @@ const clearHistory = () => {
   gap: 16px;
   margin-bottom: 20px;
   justify-items: center;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
 }
 
 .player-avatar {
@@ -766,6 +812,19 @@ const clearHistory = () => {
   width: 100%;
   display: flex;
   justify-content: center;
+
+  @media (max-width: 768px) {
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      font-size: 16px;
+    }
+
+    .avatar-name {
+      font-size: 12px;
+      max-width: 60px;
+    }
+  }
 }
 
 .avatar-display {
@@ -780,6 +839,11 @@ const clearHistory = () => {
   transition: all 0.3s ease;
   width: 100%;
   max-width: 120px;
+  
+  @media (max-width: 768px) {
+    padding: 8px 4px;
+    max-width: 70px;
+  }
 }
 
 .avatar-info {
@@ -787,6 +851,10 @@ const clearHistory = () => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  
+  @media (max-width: 768px) {
+    gap: 4px;
+  }
 }
 
 .avatar-circle {
@@ -802,6 +870,12 @@ const clearHistory = () => {
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
+  
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
 }
 
 .avatar-name {
@@ -827,29 +901,44 @@ const clearHistory = () => {
   padding: 8px;
   border-radius: 8px;
   z-index: 1;
-}
-
-.avatar-display:hover {
-  background: var(--bg-hover);
   
-  .avatar-circle {
-    transform: scale(1.05);
-    filter: brightness(0.8);
-  }
-  
-  .hover-actions {
-    opacity: 1;
-    transform: translate(-50%, -50%) translateY(0);
+  @media (max-width: 768px) {
+    padding: 6px;
+    gap: 6px;
   }
 }
 
-/* 调整按钮样式 */
-.hover-actions .el-button {
-  --el-button-size: 32px;
-  padding: 6px;
-  
-  .el-icon {
-    font-size: 16px;
+/* 添加回桌面端的悬浮效果 */
+@media (min-width: 769px) {
+  .avatar-display:hover {
+    background: var(--bg-hover);
+    
+    .avatar-circle {
+      transform: scale(1.05);
+      filter: brightness(0.8);
+    }
+    
+    .hover-actions {
+      opacity: 1;
+      transform: translate(-50%, -50%) translateY(0);
+    }
+  }
+}
+
+/* 添加回移动端的点击效果 */
+@media (max-width: 768px) {
+  .avatar-display.is-active {
+    background: var(--bg-hover);
+    
+    .avatar-circle {
+      transform: scale(1.05);
+      filter: brightness(0.8);
+    }
+    
+    .hover-actions {
+      opacity: 1;
+      transform: translate(-50%, -50%) translateY(0);
+    }
   }
 }
 
@@ -871,11 +960,37 @@ const clearHistory = () => {
   justify-content: center;
   gap: 16px;
   margin-top: 16px;
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    gap: 8px;
+    
+    .action-btn {
+      width: auto;
+      min-width: 80px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+    
+    .el-icon {
+      margin-right: 4px;
+    }
+    
+    .el-switch {
+      transform: scale(0.9);
+      margin: 0 4px;
+    }
+  }
 }
 
 .action-btn {
   width: 160px;
   border-style: dashed;
+  
+  @media (max-width: 768px) {
+    width: auto;
+    min-width: 80px;
+  }
 }
 
 /* 隐藏上传组件的默认样式 */
@@ -883,6 +998,10 @@ const clearHistory = () => {
   :deep(.el-upload) {
     display: block;
     width: 160px;
+    
+    @media (max-width: 768px) {
+      width: auto;
+    }
   }
 }
 
@@ -929,6 +1048,11 @@ const clearHistory = () => {
   align-items: center;
   gap: 12px;
   min-width: 200px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 .setting-label {
@@ -941,10 +1065,19 @@ const clearHistory = () => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    width: 100%;
+  }
 }
 
 .group-name-item {
   width: 120px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 }
 
 .restrictions-list {
@@ -1180,6 +1313,12 @@ const clearHistory = () => {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   padding: 0 8px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 4px;
+  }
 }
 
 .group-item {
@@ -1273,7 +1412,12 @@ const clearHistory = () => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-bottom: 16px; /* 添加底部间距 */
+  margin-bottom: 16px;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    margin-bottom: 12px;
+  } /* 添加底部间距 */
 }
 
 .history-item {
@@ -1452,6 +1596,11 @@ const clearHistory = () => {
   border-radius: 6px;
   padding: 12px;
   background: var(--bg-primary);
+
+  @media (max-width: 768px) {
+    padding: 8px;
+    border-radius: 4px;
+  }
 }
 
 .preview-header {
@@ -1523,6 +1672,26 @@ const clearHistory = () => {
 
 /* 为最后一个折叠面板添加底部间距 */
 .basketball-group-tool > .el-collapse:last-child {
-  margin-bottom: 60px; /* 避免被最小化栏遮挡 */
+  margin-bottom: 0; /* 避免被最小化栏遮挡 */
+}
+
+/* 确保历史记录部分有足够的底部间距 */
+.history-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 16px 16px;
+  
+  @media (max-width: 768px) {
+    padding-bottom: 20px;
+  }
+}
+
+/* 确保分组结果卡片有足够的底部间距 */
+.result-card {
+  margin-bottom: 20px;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 30px;
+  }
 }
 </style>
