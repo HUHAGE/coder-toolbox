@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反应力测试游戏</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .target {
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .target:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .target:active {
+            transform: scale(0.95);
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .chart-bar {
+            transition: all 0.3s ease;
+        }
+        
+        .chart-bar:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- 标题 -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl md:text-5xl font-bold text-indigo-700 mb-2">反应力测试游戏</h1>
+                <p class="text-gray-600 text-lg">点击出现的彩色方块，测试你的反应速度！</p>
+            </div>
+            
+            <!-- 游戏区域 -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                    <div class="mb-4 md:mb-0">
+                        <h2 class="text-2xl font-semibold text-gray-800">游戏面板</h2>
+                        <p class="text-gray-500">点击出现的方块测试反应速度</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-indigo-100 px-4 py-2 rounded-lg">
+                            <span class="text-gray-600">最佳成绩:</span>
+                            <span id="best-time" class="font-bold text-indigo-700 ml-1">-</span>
+                            <span class="text-gray-500 text-sm">ms</span>
+                        </div>
+                        <div class="bg-green-100 px-4 py-2 rounded-lg">
+                            <span class="text-gray-600">平均成绩:</span>
+                            <span id="avg-time" class="font-bold text-green-700 ml-1">-</span>
+                            <span class="text-gray-500 text-sm">ms</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 游戏主区域 -->
+                <div class="relative bg-gray-50 rounded-xl h-64 md:h-80 flex items-center justify-center mb-6 overflow-hidden">
+                    <div id="game-area" class="w-full h-full flex items-center justify-center">
+                        <div id="start-screen" class="text-center">
+                            <button id="start-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg pulse">
+                                <i class="fas fa-play mr-2"></i>开始游戏
+                            </button>
+                            <p class="mt-4 text-gray-500">点击上方按钮开始测试</p>
+                        </div>
+                        <div id="target" class="hidden target absolute w-16 h-16 rounded-xl cursor-pointer"></div>
+                        <div id="waiting" class="hidden text-center">
+                            <div class="text-gray-500 mb-4">准备...</div>
+                            <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        </div>
+                        <div id="result" class="hidden text-center">
+                            <div class="text-2xl font-bold text-indigo-700 mb-2">反应时间: <span id="reaction-time">0</span>ms</div>
+                            <div id="feedback" class="text-lg mb-4"></div>
+                            <button id="next-round" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-full text-sm transition-all duration-300 transform hover:scale-105 shadow">
+                                下一轮 <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 游戏控制 -->
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="text-gray-600">当前回合:</span>
+                        <span id="round-count" class="font-bold ml-1">0</span>
+                        <span class="text-gray-500 text-sm ml-1">/5</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="reset-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-all duration-300">
+                            <i class="fas fa-redo mr-1"></i>重置
+                        </button>
+                        <button id="history-btn" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-lg transition-all duration-300">
+                            <i class="fas fa-history mr-1"></i>历史记录
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 历史记录面板 -->
+            <div id="history-panel" class="bg-white rounded-xl shadow-lg p-6 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800">历史记录</h2>
+                    <button id="close-history" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-600">测试次数: <span id="total-tests" class="font-bold">0</span></span>
+                        <span class="text-gray-600">平均反应时间: <span id="history-avg" class="font-bold">-</span>ms</span>
+                    </div>
+                    <div class="h-40 flex items-end space-x-1" id="history-chart">
+                        <!-- 图表将在这里动态生成 -->
+                        <div class="text-center text-xs text-gray-500 mt-2">暂无数据</div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">序号</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日期</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">反应时间</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">等级</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table" class="bg-white divide-y divide-gray-200">
+                            <!-- 历史记录将在这里动态生成 -->
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-center text-gray-500">暂无历史记录</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        const gameState = {
+            round: 0,
+            maxRounds: 5,
+            reactionTimes: [],
+            gameStarted: false,
+            targetVisible: false,
+            startTime: 0,
+            history: JSON.parse(localStorage.getItem('reactionHistory')) || [],
+            colors: [
+                'bg-red-500', 'bg-blue-500', 'bg-green-500', 
+                'bg-yellow-500', 'bg-purple-500', 'bg-pink-500',
+                'bg-indigo-500', 'bg-teal-500', 'bg-orange-500'
+            ]
+        };
+
+        // DOM 元素
+        const elements = {
+            startScreen: document.getElementById('start-screen'),
+            startBtn: document.getElementById('start-btn'),
+            target: document.getElementById('target'),
+            waiting: document.getElementById('waiting'),
+            result: document.getElementById('result'),
+            reactionTime: document.getElementById('reaction-time'),
+            feedback: document.getElementById('feedback'),
+            nextRound: document.getElementById('next-round'),
+            roundCount: document.getElementById('round-count'),
+            resetBtn: document.getElementById('reset-btn'),
+            historyBtn: document.getElementById('history-btn'),
+            historyPanel: document.getElementById('history-panel'),
+            closeHistory: document.getElementById('close-history'),
+            historyTable: document.getElementById('history-table'),
+            historyChart: document.getElementById('history-chart'),
+            totalTests: document.getElementById('total-tests'),
+            historyAvg: document.getElementById('history-avg'),
+            bestTime: document.getElementById('best-time'),
+            avgTime: document.getElementById('avg-time'),
+            gameArea: document.getElementById('game-area')
+        };
+
+        // 初始化游戏
+        function initGame() {
+            updateRoundCount();
+            updateStats();
+            setupEventListeners();
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            elements.startBtn.addEventListener('click', startGame);
+            elements.target.addEventListener('click', targetClicked);
+            elements.nextRound.addEventListener('click', nextRound);
+            elements.resetBtn.addEventListener('click', resetGame);
+            elements.historyBtn.addEventListener('click', showHistory);
+            elements.closeHistory.addEventListener('click', hideHistory);
+        }
+
+        // 开始游戏
+        function startGame() {
+            gameState.gameStarted = true;
+            gameState.round = 0;
+            gameState.reactionTimes = [];
+            
+            elements.startScreen.classList.add('hidden');
+            elements.waiting.classList.remove('hidden');
+            
+            updateRoundCount();
+            
+            // 延迟显示目标，模拟随机性
+            setTimeout(showTarget, Math.random() * 2000 + 1000);
+        }
+
+        // 显示目标
+        function showTarget() {
+            if (!gameState.gameStarted) return;
+            
+            elements.waiting.classList.add('hidden');
+            
+            // 随机位置
+            const gameRect = elements.gameArea.getBoundingClientRect();
+            const maxX = gameRect.width - 64;
+            const maxY = gameRect.height - 64;
+            
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+            
+            // 随机颜色
+            const randomColor = gameState.colors[Math.floor(Math.random() * gameState.colors.length)];
+            
+            // 设置目标样式和位置
+            elements.target.className = `target absolute w-16 h-16 rounded-xl cursor-pointer ${randomColor}`;
+            elements.target.style.left = `${randomX}px`;
+            elements.target.style.top = `${randomY}px`;
+            elements.target.classList.remove('hidden');
+            
+            gameState.targetVisible = true;
+            gameState.startTime = performance.now();
+        }
+
+        // 目标被点击
+        function targetClicked() {
+            if (!gameState.targetVisible) return;
+            
+            const reactionTime = Math.round(performance.now() - gameState.startTime);
+            gameState.reactionTimes.push(reactionTime);
+            gameState.round++;
+            
+            gameState.targetVisible = false;
+            elements.target.classList.add('hidden');
+            
+            showResult(reactionTime);
+        }
+
+        // 显示结果
+        function showResult(time) {
+            elements.reactionTime.textContent = time;
+            
+            // 根据反应时间给出反馈
+            let feedbackText = '';
+            let feedbackClass = '';
+            
+            if (time < 200) {
+                feedbackText = '超凡的反应速度！';
+                feedbackClass = 'text-green-600';
+            } else if (time < 300) {
+                feedbackText = '非常棒！';
+                feedbackClass = 'text-green-500';
+            } else if (time < 400) {
+                feedbackText = '不错的表现';
+                feedbackClass = 'text-blue-500';
+            } else if (time < 600) {
+                feedbackText = '还可以更快';
+                feedbackClass = 'text-yellow-600';
+            } else {
+                feedbackText = '需要多练习';
+                feedbackClass = 'text-red-500';
+            }
+            
+            elements.feedback.textContent = feedbackText;
+            elements.feedback.className = feedbackClass;
+            
+            elements.result.classList.remove('hidden');
+            updateRoundCount();
+            updateStats();
+        }
+
+        // 下一轮
+        function nextRound() {
+            elements.result.classList.add('hidden');
+            
+            if (gameState.round < gameState.maxRounds) {
+                elements.waiting.classList.remove('hidden');
+                setTimeout(showTarget, Math.random() * 2000 + 1000);
+            } else {
+                // 游戏结束，保存历史记录
+                saveHistory();
+                endGame();
+            }
+        }
+
+        // 结束游戏
+        function endGame() {
+            gameState.gameStarted = false;
+            elements.startScreen.classList.remove('hidden');
+            elements.waiting.classList.add('hidden');
+            elements.result.classList.add('hidden');
+            
+            // 显示最终结果
+            const avg = Math.round(gameState.reactionTimes.reduce((a, b) => a + b, 0) / gameState.reactionTimes.length);
+            const best = Math.min(...gameState.reactionTimes);
+            
+            alert(`测试完成！\n平均反应时间: ${avg}ms\n最佳成绩: ${best}ms`);
+        }
+
+        // 重置游戏
+        function resetGame() {
+            gameState.gameStarted = false;
+            gameState.round = 0;
+            gameState.reactionTimes = [];
+            
+            elements.startScreen.classList.remove('hidden');
+            elements.waiting.classList.add('hidden');
+            elements.result.classList.add('hidden');
+            elements.target.classList.add('hidden');
+            
+            updateRoundCount();
+            updateStats();
+        }
+
+        // 显示历史记录
+        function showHistory() {
+            renderHistory();
+            elements.historyPanel.classList.remove('hidden');
+        }
+
+        // 隐藏历史记录
+        function hideHistory() {
+            elements.historyPanel.classList.add('hidden');
+        }
+
+        // 保存历史记录
+        function saveHistory() {
+            if (gameState.reactionTimes.length === 0) return;
+            
+            const avgTime = Math.round(gameState.reactionTimes.reduce((a, b) => a + b, 0) / gameState.reactionTimes.length);
+            const bestTime = Math.min(...gameState.reactionTimes);
+            
+            const historyEntry = {
+                date: new Date().toLocaleString(),
+                avgTime: avgTime,
+                bestTime: bestTime,
+                times: [...gameState.reactionTimes]
+            };
+            
+            gameState.history.unshift(historyEntry);
+            if (gameState.history.length > 20) {
+                gameState.history = gameState.history.slice(0, 20);
+            }
+            
+            localStorage.setItem('reactionHistory', JSON.stringify(gameState.history));
+        }
+
+        // 渲染历史记录
+        function renderHistory() {
+            if (gameState.history.length === 0) {
+                elements.historyTable.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">暂无历史记录</td>
+                    </tr>
+                `;
+                elements.historyChart.innerHTML = '<div class="text-center text-xs text-gray-500 mt-2">暂无数据</div>';
+                elements.totalTests.textContent = '0';
+                elements.historyAvg.textContent = '-';
+                return;
+            }
+            
+            // 更新表格
+            let tableHTML = '';
+            gameState.history.forEach((entry, index) => {
+                const bestTime = Math.min(...entry.times);
+                const level = getLevel(bestTime);
+                
+                tableHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.date}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${getTimeColor(bestTime)}">${bestTime}ms</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${level}</td>
+                    </tr>
+                `;
+            });
+            elements.historyTable.innerHTML = tableHTML;
+            
+            // 更新图表
+            const last10Entries = gameState.history.slice(0, 10).reverse();
+            const maxTime = Math.max(...last10Entries.map(entry => Math.max(...entry.times)));
+            
+            let chartHTML = '';
+            last10Entries.forEach((entry, index) => {
+                const height = (Math.min(...entry.times) / maxTime) * 100;
+                chartHTML += `
+                    <div class="flex flex-col items-center chart-bar" style="width: 8%">
+                        <div class="bg-indigo-500 w-full rounded-t-sm" style="height: ${100 - height}%"></div>
+                        <div class="bg-green-500 w-full rounded-t-sm" style="height: ${height}%"></div>
+                        <div class="text-xs text-gray-500 mt-1">${index + 1}</div>
+                    </div>
+                `;
+            });
+            elements.historyChart.innerHTML = chartHTML;
+            
+            // 更新统计
+            elements.totalTests.textContent = gameState.history.length;
+            
+            const totalAvg = Math.round(
+                gameState.history.reduce((sum, entry) => sum + entry.avgTime, 0) / gameState.history.length
+            );
+            elements.historyAvg.textContent = totalAvg;
+        }
+
+        // 更新回合计数
+        function updateRoundCount() {
+            elements.roundCount.textContent = gameState.round;
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            if (gameState.reactionTimes.length > 0) {
+                const best = Math.min(...gameState.reactionTimes);
+                const avg = Math.round(gameState.reactionTimes.reduce((a, b) => a + b, 0) / gameState.reactionTimes.length);
+                
+                elements.bestTime.textContent = best;
+                elements.avgTime.textContent = avg;
+            } else {
+                elements.bestTime.textContent = '-';
+                elements.avgTime.textContent = '-';
+            }
+        }
+
+        // 根据时间获取颜色
+        function getTimeColor(time) {
+            if (time < 200) return 'text-green-600';
+            if (time < 300) return 'text-green-500';
+            if (time < 400) return 'text-blue-500';
+            if (time < 600) return 'text-yellow-600';
+            return 'text-red-500';
+        }
+
+        // 获取等级
+        function getLevel(time) {
+            if (time < 200) return '超凡';
+            if (time < 250) return '专家';
+            if (time < 300) return '优秀';
+            if (time < 350) return '良好';
+            if (time < 400) return '一般';
+            if (time < 500) return '普通';
+            return '新手';
+        }
+
+        // 初始化游戏
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>

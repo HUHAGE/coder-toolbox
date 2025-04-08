@@ -19,6 +19,8 @@ import WordToHtml from '@/pages/tools/WordToHtml.vue'
 import BasketballGroup from '@/pages/tools/BasketballGroup.vue'
 import PixelBreakoutMaster from '@/pages/games/pixel-breakout-master/pixel-breakout-master.vue'
 import SnakeGame from '@/pages/games/tanchishe/tanchishe.vue'
+import Fanyingli from '@/pages/games/fanyingli/fanyingli.vue'
+
 import { trackToolUsage } from '@/utils/analytics'
 
 const router = createRouter({
@@ -189,6 +191,15 @@ const router = createRouter({
       }
     },
     {
+      path: '/games/pixel-breakout-master',
+      name: 'PixelBreakoutMaster',
+      component: PixelBreakoutMaster,
+      meta: {
+        title: '像素弹球大师',
+        keepAlive: true
+      }
+    },
+    {
       path: '/games/tanchishe',
       name: 'SnakeGame',
       component: SnakeGame,
@@ -198,12 +209,12 @@ const router = createRouter({
       }
     },
     {
-      path: '/games/pixel-breakout-master',
-      name: 'PixelBreakoutMaster',
-      component: PixelBreakoutMaster,
+      path: '/games/fanyingli',
+      name: 'fanyingli',
+      component: Fanyingli, 
       meta: {
-        title: '像素弹球大师',
-        keepAlive: true
+        title: '反应力',
+        keepAlive: true 
       }
     }
   ],

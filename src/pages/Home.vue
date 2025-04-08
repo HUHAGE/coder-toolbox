@@ -338,6 +338,7 @@ import lanQiu from '@/assets/icons/篮球.svg'
 import lotteryIcon from '@/assets/icons/抽奖.svg'
 import pixelBreakoutIcon from '@/assets/icons/pixel-breakout.svg' // 添加这一行
 import tanchisheIcon from '@/assets/icons/贪吃蛇.svg'
+import fanyinliIcon from '@/assets/icons/反应力.svg'
 
 import { minimizeTools } from '@/stores/minimizeTools'
 import { MinimizeTools } from '@/stores/minimizeTools'
@@ -636,6 +637,14 @@ const tools = [
     path: '/games/tanchishe',
     category: 'fun'
   },
+  {
+    code: 'fanyinli',
+    name: '反应力测试',
+    description: '测试你的反应力', 
+    icon: fanyinliIcon,
+    path: '/games/fanyingli',
+    category: 'fun'
+  }
 ]
 
 // 修改过滤工具的计算属性

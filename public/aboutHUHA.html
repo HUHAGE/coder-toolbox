@@ -1,0 +1,536 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script>window.huggingface={variables:{"SPACE_CREATOR_USER_ID":"67ee3f1e51cc3d021551badb"}};</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人介绍</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .skill-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e2e8f0;
+            overflow: hidden;
+        }
+        
+        .skill-progress {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width 1s ease-in-out;
+        }
+        
+        .project-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        
+        .project-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .project-card:hover .project-overlay {
+            opacity: 1;
+        }
+        
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 32px;
+            height: calc(100% - 32px);
+            width: 2px;
+            background-color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-indigo-600">个人介绍</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="text-gray-700 hover:text-indigo-600 transition">关于我</a>
+                    <a href="#skills" class="text-gray-700 hover:text-indigo-600 transition">技能</a>
+                    <a href="#projects" class="text-gray-700 hover:text-indigo-600 transition">项目</a>
+                    <a href="#experience" class="text-gray-700 hover:text-indigo-600 transition">经历</a>
+                    <a href="#contact" class="text-gray-700 hover:text-indigo-600 transition">联系</a>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button class="text-gray-700">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="gradient-bg text-white py-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">你好，我是<span class="text-indigo-200">HUHA</span></h1>
+                    <h2 class="text-2xl md:text-3xl font-semibold mb-6">JAVA开发 & AI爱好者</h2>
+                    <p class="text-lg mb-8 text-indigo-100">我专注于创建美观、高效且用户友好的数字体验。将创意转化为现实是我的热情所在。</p>
+                    <div class="flex space-x-4">
+                        <a href="#contact" class="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium hover:bg-indigo-50 transition">联系我</a>
+                        <a href="#projects" class="border border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-indigo-600 transition">查看项目</a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="relative">
+                        <div class="w-64 h-64 md:w-80 md:h-80 rounded-full bg-indigo-500 overflow-hidden border-4 border-white shadow-xl">
+                            <img src="https://img.picui.cn/free/2025/04/08/67f4e8bf3e246.png" alt="个人头像" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -bottom-5 -right-5 bg-white text-indigo-600 px-4 py-2 rounded-lg shadow-lg">
+                            <span class="font-bold">8年+</span> 经验
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">关于我</h2>
+                <div class="w-20 h-1 bg-indigo-600 mx-auto"></div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10">
+                    <h3 class="text-2xl font-semibold mb-4">我是谁？</h3>
+                    <p class="text-gray-600 mb-6">我是一名充满激情的开发工程师，拥有8年以上的专业经验。我专注于创建高效、可扩展且用户友好的Web应用程序。</p>
+                    <p class="text-gray-600 mb-6">我的技术栈包括C#、JAVA、HTML和多种数据库技术。我热衷于学习新技术并将它们应用到实际项目中。</p>
+                    <p class="text-gray-600">工作之余，我喜欢参加新技术（例如：AI相关的）学习。我相信持续学习和知识分享是职业发展的关键。</p>
+                    
+                    <div class="mt-8">
+                        <h4 class="text-lg font-semibold mb-4">个人信息</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-user text-indigo-600 mr-3"></i>
+                                <span>HUHA</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-envelope text-indigo-600 mr-3"></i>
+                                <span>wsyhok@126.com</span>
+                            </div>
+                         
+                            <div class="flex items-center">
+                                <i class="fas fa-map-marker-alt text-indigo-600 mr-3"></i>
+                                <span>中国，成都</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2">
+                    <div class="bg-gray-50 p-8 rounded-xl">
+                        <h3 class="text-2xl font-semibold mb-6">我的技能</h3>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium">前端开发</span>
+                                <span class="text-indigo-600">90%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium">后端开发</span>
+                                <span class="text-indigo-600">85%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium">UI/UX设计</span>
+                                <span class="text-indigo-600">75%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium">数据库</span>
+                                <span class="text-indigo-600">80%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 80%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium">DevOps</span>
+                                <span class="text-indigo-600">70%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能 -->
+    <section id="skills" class="py-20 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">技术技能</h2>
+                <div class="w-20 h-1 bg-indigo-600 mx-auto"></div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <!-- 技能卡片 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fab fa-react text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">React</h3>
+                    <p class="text-gray-600">使用React构建高性能、可维护的前端应用程序。</p>
+                </div>
+                
+                <!-- 技能卡片 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fab fa-node-js text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Node.js</h3>
+                    <p class="text-gray-600">使用Node.js构建可扩展的后端服务和API。</p>
+                </div>
+                
+                <!-- 技能卡片 3 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fab fa-python text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Python</h3>
+                    <p class="text-gray-600">使用Python进行数据分析、自动化和后端开发。</p>
+                </div>
+                
+                <!-- 技能卡片 4 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-database text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">数据库</h3>
+                    <p class="text-gray-600">MySQL, MongoDB, PostgreSQL等数据库设计与优化。</p>
+                </div>
+                
+                <!-- 技能卡片 5 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fab fa-aws text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">AWS</h3>
+                    <p class="text-gray-600">云服务部署、管理和优化。</p>
+                </div>
+                
+                <!-- 技能卡片 6 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-mobile-alt text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">响应式设计</h3>
+                    <p class="text-gray-600">创建适配所有设备的完美用户体验。</p>
+                </div>
+                
+                <!-- 技能卡片 7 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-code-branch text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Git</h3>
+                    <p class="text-gray-600">版本控制和团队协作的最佳实践。</p>
+                </div>
+                
+                <!-- 技能卡片 8 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-paint-brush text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">UI/UX</h3>
+                    <p class="text-gray-600">设计美观且用户友好的界面。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 项目展示 -->
+    <section id="projects" class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">精选项目</h2>
+                <div class="w-20 h-1 bg-indigo-600 mx-auto"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 项目 1 -->
+                <div class="project-card bg-white rounded-xl shadow-sm overflow-hidden card-hover">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="项目1" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">电子商务平台</h3>
+                        <p class="text-gray-600 mb-4">一个全功能的电子商务解决方案，支持多种支付方式和个性化推荐��</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">React</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">Node.js</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">MongoDB</span>
+                        </div>
+                    </div>
+                    <div class="project-overlay">
+                        <a href="#" class="text-white mb-4 text-lg font-medium hover:text-indigo-300">查看详情</a>
+                        <a href="#" class="text-white text-sm hover:text-indigo-300">访问网站 <i class="fas fa-external-link-alt ml-1"></i></a>
+                    </div>
+                </div>
+                
+                <!-- 项目 2 -->
+                <div class="project-card bg-white rounded-xl shadow-sm overflow-hidden card-hover">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1415&q=80" alt="项目2" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">数据分析仪表盘</h3>
+                        <p class="text-gray-600 mb-4">实时数据可视化工具，帮助企业做出数据驱动的决策。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">Python</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">D3.js</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">Flask</span>
+                        </div>
+                    </div>
+                    <div class="project-overlay">
+                        <a href="#" class="text-white mb-4 text-lg font-medium hover:text-indigo-300">查看详情</a>
+                        <a href="#" class="text-white text-sm hover:text-indigo-300">访问网站 <i class="fas fa-external-link-alt ml-1"></i></a>
+                    </div>
+                </div>
+                
+                <!-- 项目 3 -->
+                <div class="project-card bg-white rounded-xl shadow-sm overflow-hidden card-hover">
+                    <img src="https://images.unsplash.com/photo-1559028012-481c04fa702d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1136&q=80" alt="项目3" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">社交媒体应用</h3>
+                        <p class="text-gray-600 mb-4">连接专业人士的社交平台，具有即时通讯和内容分享功能。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">Vue.js</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">Firebase</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">WebRTC</span>
+                        </div>
+                    </div>
+                    <div class="project-overlay">
+                        <a href="#" class="text-white mb-4 text-lg font-medium hover:text-indigo-300">查看详情</a>
+                        <a href="#" class="text-white text-sm hover:text-indigo-300">访问网站 <i class="fas fa-external-link-alt ml-1"></i></a>
+                    </div>
+                </div>
+                
+                <!-- 项目 4 -->
+                <div class="project-card bg-white rounded-xl shadow-sm overflow-hidden card-hover">
+                    <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="项目4" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">任务管理系统</h3>
+                        <p class="text-gray-600 mb-4">团队协作工具，提高工作效率和项目管理透明度。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">Angular</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">NestJS</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">PostgreSQL</span>
+                        </div>
+                    </div>
+                    <div class="project-overlay">
+                        <a href="#" class="text-white mb-4 text-lg font-medium hover:text-indigo-300">查看详情</a>
+                        <a href="#" class="text-white text-sm hover:text-indigo-300">访问网站 <i class="fas fa-external-link-alt ml-1"></i></a>
+                    </div>
+                </div>
+                
+                <!-- 项目 5 -->
+                <div class="project-card bg-white rounded-xl shadow-sm overflow-hidden card-hover">
+                    <img src="https://images.unsplash.com/photo-1522542550221-31fd19575a2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="项目5" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">AI内容生成器</h3>
+                        <p class="text-gray-600 mb-4">利用人工智能技术自动生成高质量的内容和图像。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">Python</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">TensorFlow</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">FastAPI</span>
+                        </div>
+                    </div>
+                    <div class="project-overlay">
+                        <a href="#" class="text-white mb-4 text-lg font-medium hover:text-indigo-300">查看详情</a>
+                        <a href="#" class="text-white text-sm hover:text-indigo-300">访问网站 <i class="fas fa-external-link-alt ml-1"></i></a>
+                    </div>
+                </div>
+                
+                <!-- 项目 6 -->
+                <div class="project-card bg-white rounded-xl shadow-sm overflow-hidden card-hover">
+                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="项目6" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">移动健康应用</h3>
+                        <p class="text-gray-600 mb-4">追踪健康指标并提供个性化健康建议的移动应用。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">React Native</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">GraphQL</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full">AWS</span>
+                        </div>
+                    </div>
+                    <div class="project-overlay">
+                        <a href="#" class="text-white mb-4 text-lg font-medium hover:text-indigo-300">查看详情</a>
+                        <a href="#" class="text-white text-sm hover:text-indigo-300">访问网站 <i class="fas fa-external-link-alt ml-1"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="#" class="inline-flex items-center px-6 py-3 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition">
+                    查看更多项目
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 工作经历 -->
+    <section id="experience" class="py-20 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">工作经历</h2>
+                <div class="w-20 h-1 bg-indigo-600 mx-auto"></div>
+            </div>
+            
+            <div class="relative">
+                <!-- 时间线项目 1 -->
+                <div class="timeline-item relative pl-16 pb-12">
+                    <div class="absolute left-0 top-0 flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
+                            <h3 class="text-xl font-semibold">高级全栈工程师</h3>
+                            <span class="text-indigo-600 font-medium">2021 - 至今</span>
+                        </div>
+                        <h4 class="text-lg font-medium text-gray-700 mb-2">科技先锋有限公司</h4>
+                        <p class="text-gray-600 mb-4">领导开发团队构建企业级SaaS解决方案，优化系统架构提高性能30%，引入微服务架构提升可扩展性。</p>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>设计和实现核心功能模块</li>
+                            <li>指导初级开发人员并实施代码审查</li>
+                            <li>优化CI/CD流程，缩短部署时间40%</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 时间线项目 2 -->
+                <div class="timeline-item relative pl-16 pb-12">
+                    <div class="absolute left-0 top-0 flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
+                            <h3 class="text-xl font-semibold">全栈开发工程师</h3>
+                            <span class="text-indigo-600 font-medium">2018 - 2021</span>
+                        </div>
+                        <h4 class="text-lg font-medium text-gray-700 mb-2">数字创新科技有限公司</h4>
+                        <p class="text-gray-600 mb-4">参与多个客户项目的全栈开发，从需求分析到部署上线，为客户提供定制化解决方案。</p>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>开发并维护10+企业网站和Web应用</li>
+                            <li>实现响应式设计，提升移动用户体验</li>
+                            <li>引入自动化测试，减少bug率25%</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 时间线项目 3 -->
+                <div class="timeline-item relative pl-16">
+                    <div class="absolute left-0 top-0 flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
+                            <h3 class="text-xl font-semibold">前端开发实习生</h3>
+                            <span class="text-indigo-600 font-medium">2017 - 2018</span>
+                        </div>
+                        <h4 class="text-lg font-medium text-gray-700 mb-2">创意网络工作室</h4>
+                        <p class="text-gray-600 mb-4">参与客户项目的UI实现，学习现代前端开发技术和最佳实践。</p>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>协助开发5+商业网站</li>
+                            <li>优化页面加载速度，提升性能15%</li>
+                            <li>参与设计评审和用户测试</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系我 -->
+    <section id="contact" class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">联系我</h2>
+                <div class="w-20 h-1 bg-indigo-600 mx-auto"></div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row">
+                <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10">
+                    <h3 class="text-2xl font-semibold mb-6">让我们聊聊</h3>
+                    <p class="text-gray-600 mb-8">如果您有任何问题或想讨论潜在的合作机会，请随时联系我。我通常会在24小时内回复。</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="bg-indigo-100 p-3 rounded-lg mr-4">
+                                <i class="fas fa-envelope text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">电子邮件</h4>
+                                <p class="text-gray-600">wsyhok@126.com</p>
+                            </div>
+                        </div>
+                        
+
+</html>
