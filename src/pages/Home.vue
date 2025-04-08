@@ -337,6 +337,7 @@ import hanBao from '@/assets/icons/汉堡.svg'
 import lanQiu from '@/assets/icons/篮球.svg'
 import lotteryIcon from '@/assets/icons/抽奖.svg'
 import pixelBreakoutIcon from '@/assets/icons/pixel-breakout.svg' // 添加这一行
+import tanchisheIcon from '@/assets/icons/贪吃蛇.svg'
 
 import { minimizeTools } from '@/stores/minimizeTools'
 import { MinimizeTools } from '@/stores/minimizeTools'
@@ -626,7 +627,15 @@ const tools = [
     icon: pixelBreakoutIcon,
     path: '/games/pixel-breakout-master',
     category: 'fun'
-  }
+  },
+  {
+    code: 'tanchishe',
+    name: '超级贪吃蛇',
+    description: '不一样的贪吃蛇游戏',
+    icon: tanchisheIcon,
+    path: '/games/tanchishe',
+    category: 'fun'
+  },
 ]
 
 // 修改过滤工具的计算属性
