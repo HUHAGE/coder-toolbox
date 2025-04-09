@@ -175,10 +175,10 @@
             <a href="#" @click.prevent="showAboutProject">
               项目介绍
             </a>
-            <span class="dot">·</span>
+            <!-- <span class="dot">·</span>
             <a href="#" @click.prevent="showUserManual">
               使用说明
-            </a>
+            </a> -->
           </div>
         </div>
       </div>
