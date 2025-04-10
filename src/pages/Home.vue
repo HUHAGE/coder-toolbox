@@ -5,24 +5,24 @@
       <div class="brand">
         <div class="brand-content">
           <img :src="toolLogo" alt="logo" class="toollogo" />
-          <h1 class="title">呼哈开发者工具箱</h1>
+          <h1 class="title">{{ t.title }}</h1>
         </div>
         
         <!-- 添加操作按钮组 -->
         <div class="header-actions">
-          <el-tooltip content="项目介绍" placement="bottom">
+          <el-tooltip :content="t.tooltips.aboutProject" placement="bottom">
             <el-button class="action-btn" @click="showAboutProject">
               <el-icon><InfoFilled /></el-icon>
             </el-button>
           </el-tooltip>
           
-          <el-tooltip content="关于作者" placement="bottom">
+          <el-tooltip :content="t.tooltips.aboutAuthor" placement="bottom">
             <el-button class="action-btn" @click="showAboutAuthor">
               <el-icon><User /></el-icon>
             </el-button>
           </el-tooltip>
           
-          <el-tooltip content="GitHub" placement="bottom">
+          <el-tooltip :content="t.tooltips.github" placement="bottom">
             <el-button class="action-btn" @click="openGitHub">
               <svg class="github-icon" viewBox="0 0 16 16" width="1em" height="1em">
                 <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
@@ -33,13 +33,22 @@
           <div class="divider"></div>
 
           <!-- 修改主题切换按钮 -->
-          <el-tooltip content="切换主题" placement="bottom">
+          <el-tooltip :content="t.tooltips.toggleTheme" placement="bottom">
             <button class="theme-toggle" @click="toggleTheme" :class="{ 'is-dark': isDarkMode }">
               <div class="toggle-icon">
                 <el-icon>
                   <Moon v-if="!isDarkMode" />
                   <Sunny v-else />
                 </el-icon>
+              </div>
+            </button>
+          </el-tooltip>
+
+          <!-- 添加语言切换按钮 -->
+          <el-tooltip :content="isEnglish ? '切换为中文' : 'Switch to English'" placement="bottom">
+            <button class="lang-toggle" @click="toggleLanguage" :class="{ 'is-english': isEnglish }">
+              <div class="toggle-icon">
+                <span class="lang-text">{{ isEnglish ? '中' : 'En' }}</span>
               </div>
             </button>
           </el-tooltip>
@@ -53,8 +62,15 @@
             <el-icon class="search-icon">
               <Search />
             </el-icon>
-            <input v-model="searchText" type="text" class="search-input" placeholder="搜索工具..."
-              @focus="isSearchFocused = true" @blur="handleSearchBlur" @keyup.enter="handleSearch" />
+            <input 
+              v-model="searchText" 
+              type="text" 
+              class="search-input" 
+              :placeholder="t.searchPlaceholder"
+              @focus="isSearchFocused = true" 
+              @blur="handleSearchBlur" 
+              @keyup.enter="handleSearch" 
+            />
             <div class="search-divider"></div>
             <div class="engine-selector" @click.stop="showEngineDropdown = true">
               <span class="engine-name">{{ currentEngine.name }}</span>
@@ -101,13 +117,13 @@
             <el-icon>
               <Grid />
             </el-icon>
-            全部工具
+            {{ t.allTools }}
           </el-radio-button>
           <el-radio-button v-for="category in categories" :key="category.key" :value="category.key">
             <el-icon>
               <component :is="getCategoryIcon(category.key)" />
             </el-icon>
-            {{ category.name }}
+            {{ t.categories[category.key] }}
           </el-radio-button>
         </el-radio-group>
       </div>
@@ -128,11 +144,11 @@
             @click="navigateToTool(tool)"
           >
             <div class="tool-icon">
-              <img :src="tool.icon" :alt="tool.name" class="tool-icon-image"/>
+              <img :src="tool.icon" :alt="getToolTranslation(tool).name" class="tool-icon-image"/>
             </div>
             <div class="tool-content">
-              <h3 class="tool-title">{{ tool.name }}</h3>
-              <p class="tool-desc">{{ tool.description }}</p>
+              <h3 class="tool-title">{{ getToolTranslation(tool).name }}</h3>
+              <p class="tool-desc">{{ getToolTranslation(tool).description }}</p>
             </div>
           </div>
         </transition-group>
@@ -147,17 +163,17 @@
           <div class="stats-numbers">
             <div class="stat-item">
               <span class="stat-value">{{ toolsCount }}</span>
-              <span class="stat-label">工具</span>
+              <span class="stat-label">{{ t.stats.tools }}</span>
             </div>
             <div class="separator"></div>
             <div class="stat-item">
               <span class="stat-value">{{ categoriesCount }}</span>
-              <span class="stat-label">分类</span>
+              <span class="stat-label">{{ t.stats.categories }}</span>
             </div>
             <div class="separator"></div>
             <div class="stat-item">
-              <span class="stat-value">v1.0.0</span>
-              <span class="stat-label">版本</span>
+              <span class="stat-value">v2.0</span>
+              <span class="stat-label">{{ t.stats.version }}</span>
             </div>
           </div>
           
@@ -165,20 +181,16 @@
           
           <div class="stats-links">
             <a href="#" @click.prevent="openSourceLink">
-              开源地址
+              {{ t.links.sourceCode }}
             </a>
             <span class="dot">·</span>
             <a href="#" @click.prevent="openAuthorBlog">
-              关于作者
+              {{ t.links.aboutAuthor }}
             </a>
             <span class="dot">·</span>
             <a href="#" @click.prevent="showAboutProject">
-              项目介绍
+              {{ t.links.aboutProject }}
             </a>
-            <!-- <span class="dot">·</span>
-            <a href="#" @click.prevent="showUserManual">
-              使用说明
-            </a> -->
           </div>
         </div>
       </div>
@@ -348,6 +360,8 @@ import axios from 'axios'
 import MinimizedToolsBar from '@/components/MinimizedToolsBar.vue'
 import { tools } from '@/config/tools'
 import { track } from '@vercel/analytics'
+import { translations } from '@/config/i18n'
+import { toolsTranslations } from '@/config/tools.i18n'
 
 const isSearchFocused = ref(false)
 const showEngineDropdown = ref(false)
@@ -762,6 +776,12 @@ onMounted(() => {
       document.documentElement.classList.toggle('dark', isDarkMode.value)
     }
   })
+
+  // 初始化语言设置
+  const savedLanguage = localStorage.getItem('language')
+  if (savedLanguage) {
+    isEnglish.value = savedLanguage === 'en'
+  }
 })
 
 // 对话框控制
@@ -978,6 +998,29 @@ const handleToolClick = (tool: any) => {
   })
   
   router.push(tool.path)
+}
+
+// 添加语言切换相关的状态
+const isEnglish = ref(false)
+
+// 添加语言切换方法
+const toggleLanguage = () => {
+  isEnglish.value = !isEnglish.value
+  // 保存语言偏好
+  localStorage.setItem('language', isEnglish.value ? 'en' : 'zh')
+  // 这里可以触发语言切换事件
+}
+
+// 添加翻译相关的计算属性
+const t = computed(() => translations[isEnglish.value ? 'en' : 'zh'])
+
+// 修改工具卡片的显示逻辑
+const getToolTranslation = (tool: any) => {
+  const lang = isEnglish.value ? 'en' : 'zh'
+  return toolsTranslations[lang][tool.code] || {
+    name: tool.name,
+    description: tool.description
+  }
 }
 
 </script>
@@ -2696,5 +2739,65 @@ const handleToolClick = (tool: any) => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 语言切换按钮样式 */
+.lang-toggle {
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0, 122, 255, 0.9);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+  margin-left: 8px;
+}
+
+.lang-toggle:hover {
+  background: rgba(0, 122, 255, 1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.lang-toggle:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+}
+
+.lang-text {
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+/* 暗色模式样式 */
+:root.dark .lang-toggle {
+  background: rgba(0, 122, 255, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark .lang-toggle:hover {
+  background: rgba(0, 122, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .lang-toggle {
+    width: 28px;
+    height: 28px;
+    padding: 5px;
+    margin-left: 6px;
+  }
+
+  .lang-text {
+    font-size: 12px;
+  }
 }
 </style>
