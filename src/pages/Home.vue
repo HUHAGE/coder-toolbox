@@ -352,6 +352,7 @@ import pixelBreakoutIcon from '@/assets/icons/pixel-breakout.svg' // 添加这�
 import tanchisheIcon from '@/assets/icons/贪吃蛇.svg'
 import fanyinliIcon from '@/assets/icons/反应力.svg'
 import twoIcon from '@/assets/icons/2048.svg'
+import paopaoIcon from '@/assets/icons/paopao.svg'
 
 import { minimizeTools } from '@/stores/minimizeTools'
 import { MinimizeTools } from '@/stores/minimizeTools'
@@ -666,6 +667,14 @@ const tools = [
     description: '2048游戏',
     icon: twoIcon,
     path: '/games/2048',
+    category: 'fun'
+  },
+  {
+    code: 'paopao',
+    name: '泡泡的魔法世界',
+    description: '泡泡的魔法世界',
+    icon: paopaoIcon,
+    path: '/games/paopao',
     category: 'fun'
   }
 ]
