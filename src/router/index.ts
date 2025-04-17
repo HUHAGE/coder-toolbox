@@ -20,6 +20,7 @@ import BasketballGroup from '@/pages/tools/BasketballGroup.vue'
 import PixelBreakoutMaster from '@/pages/games/pixel-breakout-master/pixel-breakout-master.vue'
 import SnakeGame from '@/pages/games/tanchishe/tanchishe.vue'
 import Fanyingli from '@/pages/games/fanyingli/fanyingli.vue'
+import Game2048 from '@/pages/games/2048/2048.vue'
 
 import { trackToolUsage } from '@/utils/analytics'
 
@@ -215,6 +216,15 @@ const router = createRouter({
       meta: {
         title: '反应力',
         keepAlive: true 
+      }
+    },
+    {
+      path: '/games/2048',
+      name: 'Game2048',
+      component: Game2048,
+      meta: {
+        title: '2048',
+        keepAlive: true
       }
     }
   ],

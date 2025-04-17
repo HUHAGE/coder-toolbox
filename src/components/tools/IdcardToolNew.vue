@@ -329,49 +329,48 @@ const verifyIdcard = () => {
   gap: 2rem;
 }
 
-.result-card {
-  .result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-  }
+/* 修复嵌套语法 - result-card */
+.result-card .result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
 
-  .result-actions {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
+.result-card .result-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
 
-  .count-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
+.result-card .count-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
 
-  .count-label {
-    font-size: 0.9rem;
-    color: #2c3e50;
-    font-weight: 500;
-    white-space: nowrap;
-  }
+.result-card .count-label {
+  font-size: 0.9rem;
+  color: #2c3e50;
+  font-weight: 500;
+  white-space: nowrap;
+}
 
-  .count-input {
-    width: 120px;
-  }
+.result-card .count-input {
+  width: 120px;
+}
 
-  .result-content {
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    padding: 1rem;
-  }
+.result-card .result-content {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1rem;
+}
 
-  .result-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1rem;
-  }
+.result-card .result-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
 }
 
 .textarea-wrapper {
@@ -458,6 +457,23 @@ const verifyIdcard = () => {
   box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
 }
 
+/* 暗黑模式适配 - 文本框 */
+:root.dark :deep(.el-textarea__inner) {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--el-text-color-primary);
+}
+
+:root.dark :deep(.el-textarea__inner:focus) {
+  border-color: #007aff;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+/* 暗黑模式适配 - 结果区域 */
+:root.dark .result-card .result-content {
+  background: rgba(255, 255, 255, 0.03);
+}
+
 /* 保持原有的其他样式 */
 .form-group label {
   font-size: 0.9rem;
@@ -505,6 +521,42 @@ const verifyIdcard = () => {
   margin-top: 0.5rem;
 }
 
+/* 暗黑模式适配 - 选择器和表单元素 */
+:root.dark .region-item label,
+:root.dark .birth-item label,
+:root.dark .gender-item label,
+:root.dark .count-label {
+  color: var(--el-text-color-regular);
+}
+
+:root.dark :deep(.el-select .el-input__wrapper),
+:root.dark :deep(.el-date-editor .el-input__wrapper) {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+:root.dark :deep(.el-select .el-input__wrapper:hover),
+:root.dark :deep(.el-date-editor .el-input__wrapper:hover) {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+:root.dark :deep(.el-select .el-input__wrapper.is-focus),
+:root.dark :deep(.el-date-editor .el-input__wrapper.is-focus) {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+}
+
+:root.dark :deep(.el-input__inner),
+:root.dark :deep(.el-radio__label) {
+  color: var(--el-text-color-primary);
+}
+
+:root.dark :deep(.el-radio__input.is-checked .el-radio__inner) {
+  background-color: #409eff;
+  border-color: #409eff;
+}
+
 /* 调整数字输入框样式 */
 :deep(.el-input-number.el-input-number--large) {
   width: 120px;
@@ -519,6 +571,41 @@ const verifyIdcard = () => {
 :deep(.el-input-number__inner) {
   color: #2c3e50;
   font-weight: 500;
+}
+
+/* 暗黑模式适配 - 数量控件 */
+:root.dark :deep(.el-input-number.el-input-number--large) {
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: transparent;
+}
+
+:root.dark :deep(.el-input-number__decrease),
+:root.dark :deep(.el-input-number__increase) {
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(40, 44, 52, 0.9);
+  color: var(--el-text-color-regular);
+}
+
+:root.dark :deep(.el-input-number__decrease:hover),
+:root.dark :deep(.el-input-number__increase:hover) {
+  background-color: rgba(64, 68, 75, 0.9);
+  color: white;
+}
+
+:root.dark :deep(.el-input-number__inner) {
+  background-color: transparent;
+  color: var(--el-text-color-primary);
+}
+
+/* 修复数量控件箭头图标颜色 */
+:root.dark :deep(.el-input-number__decrease .el-icon),
+:root.dark :deep(.el-input-number__increase .el-icon) {
+  color: var(--el-text-color-secondary);
+}
+
+:root.dark :deep(.el-input-number__decrease:hover .el-icon),
+:root.dark :deep(.el-input-number__increase:hover .el-icon) {
+  color: white;
 }
 
 /* 移动端适配 */
@@ -609,41 +696,72 @@ const verifyIdcard = () => {
   background-color: #218838;
 }
 
-/* 新增样式 */
-.verify-card {
-  .verify-content {
-    padding: 1rem;
-  }
+/* 暗黑模式适配 - 按钮 */
+:root.dark .generate-btn {
+  background-color: #0a84ff;
+}
 
-  :deep(.el-alert) {
-    margin: 0;
-    padding: 1rem;
-    
-    .el-alert__title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
+:root.dark .generate-btn:hover {
+  background-color: #409eff;
+}
 
-    .disclaimer-content {
-      padding: 0.5rem 0;
-      
-      p {
-        margin: 0.75rem 0;
-        line-height: 1.6;
-        font-size: 1rem;
-        color: var(--el-text-color-primary);
-      }
-    }
-  }
+:root.dark .random-btn {
+  background-color: #2ecc71;
+}
+
+:root.dark .random-btn:hover {
+  background-color: #27ae60;
+}
+
+/* 修复嵌套语法 - verify-card */
+.verify-card .verify-content {
+  padding: 1rem;
+}
+
+.verify-card :deep(.el-alert) {
+  margin: 0;
+  padding: 1rem;
+}
+
+.verify-card :deep(.el-alert .el-alert__title) {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.verify-card :deep(.el-alert .disclaimer-content) {
+  padding: 0.5rem 0;
+}
+
+.verify-card :deep(.el-alert .disclaimer-content p) {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+  font-size: 1rem;
+  color: var(--el-text-color-primary);
+}
+
+/* 暗黑模式适配 - 免责声明 */
+:root.dark .verify-card :deep(.el-alert) {
+  background-color: rgba(255, 229, 100, 0.15);
+  border-color: rgba(255, 229, 100, 0.3);
+}
+
+:root.dark .verify-card :deep(.el-alert .el-alert__title) {
+  color: #e6a23c;
+}
+
+:root.dark .verify-card :deep(.el-alert .disclaimer-content p) {
+  color: var(--el-text-color-regular);
+}
+
+:root.dark .verify-card :deep(.el-alert .el-alert__icon) {
+  color: #e6a23c;
 }
 
 /* 适配移动端 */
 @media (max-width: 768px) {
-  .verify-card {
-    .verify-input-wrapper {
-      max-width: 100%;
-    }
+  .verify-card .verify-input-wrapper {
+    max-width: 100%;
   }
 }
 
