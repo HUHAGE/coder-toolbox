@@ -684,7 +684,7 @@ const tools = [
     description: 'markdown转精美的图片',
     icon: mdIcon,
     path: 'https://markly-style-craft.netlify.app/',
-    category: 'convert'
+    category: ['convert', 'format']
   }
 ]
 
