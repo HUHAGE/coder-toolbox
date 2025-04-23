@@ -353,6 +353,7 @@ import tanchisheIcon from '@/assets/icons/贪吃蛇.svg'
 import fanyinliIcon from '@/assets/icons/反应力.svg'
 import twoIcon from '@/assets/icons/2048.svg'
 import paopaoIcon from '@/assets/icons/paopao.svg'
+import mdIcon from '@/assets/icons/markdown.svg'
 
 import { minimizeTools } from '@/stores/minimizeTools'
 import { MinimizeTools } from '@/stores/minimizeTools'
@@ -676,6 +677,14 @@ const tools = [
     icon: paopaoIcon,
     path: '/games/paopao',
     category: 'fun'
+  },
+  {
+    code: 'mdtoimg',
+    name: 'markdown转图片',
+    description: 'markdown转精美的图片',
+    icon: mdIcon,
+    path: 'https://markly-style-craft.netlify.app/',
+    category: 'convert'
   }
 ]
 
