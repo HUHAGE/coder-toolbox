@@ -1109,8 +1109,12 @@ const getToolTranslation = (tool: any) => {
   font-size: 2.5rem;
   font-weight: 600;
   margin: 0;
-  color: var(--primary-color);
+  background-image: linear-gradient(45deg, #2b5876, #7c3aed);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
   letter-spacing: -0.5px;
+  display: inline-block;
 }
 
 .search-container {
@@ -1273,7 +1277,7 @@ const getToolTranslation = (tool: any) => {
 /* 暗色模式适配 */
 @media (prefers-color-scheme: dark) {
   .title {
-    background: linear-gradient(120deg, var(--text-primary), var(--text-secondary));
+    background-image: linear-gradient(120deg, #00c6ff, #9333ea);
     -webkit-background-clip: text;
   }
 
@@ -1936,7 +1940,12 @@ const getToolTranslation = (tool: any) => {
 .about-content {
   h3 {
     margin: 0 0 16px;
-    color: var(--text-primary);
+    background-image: linear-gradient(45deg, #2b5876, #7c3aed);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    display: inline-block;
+    font-weight: 600;
   }
   
   p {
