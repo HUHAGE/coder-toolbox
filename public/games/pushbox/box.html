@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推箱子游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>推箱子</h1>
+        <div class="game-info">
+            <span>关卡: <span id="level-display">1</span></span>
+            <span>步数: <span id="moves-display">0</span></span>
+            <span>当前角色: <span id="player-display">1</span></span>
+        </div>
+        <div id="game-board">
+            <!-- 游戏区域将由 JavaScript 动态生成 -->
+        </div>
+        <div class="controls">
+            <button id="reset-button">重置关卡</button>
+            <button id="prev-level-button" disabled>上一关</button>
+            <button id="next-level-button" disabled>下一关</button>
+        </div>
+        <div id="win-message" class="win-message hidden">
+            恭喜！你完成了本关！
+        </div>
+        <div class="instructions">
+            <p><strong>操作:</strong> 使用方向键 (↑ ↓ ← →) 移动，tab切换人物</p>
+            <p><strong>目标:</strong> 将所有箱子 (📦) 推到目标点 (🎯)</p>
+        </div>
+    </div>
+
+    <script src="levels.js"></script> <!-- 关卡数据 -->
+    <script src="script.js"></script>   <!-- 游戏逻辑 -->
+</body>
+</html>

@@ -354,6 +354,7 @@ import fanyinliIcon from '@/assets/icons/反应力.svg'
 import twoIcon from '@/assets/icons/2048.svg'
 import paopaoIcon from '@/assets/icons/paopao.svg'
 import mdIcon from '@/assets/icons/markdown.svg'
+import pushboxIcon from '@/assets/icons/box.svg'
 
 import { minimizeTools } from '@/stores/minimizeTools'
 import { MinimizeTools } from '@/stores/minimizeTools'
@@ -685,6 +686,14 @@ const tools = [
     icon: mdIcon,
     path: 'https://markly-style-craft.netlify.app/',
     category: ['convert', 'format']
+  },
+  {
+    code: 'pushbox',
+    name: '推箱子',
+    description: '推箱子游戏',
+    icon: pushboxIcon,
+    path: '/games/pushbox',
+    category: 'fun'
   }
 ]
 

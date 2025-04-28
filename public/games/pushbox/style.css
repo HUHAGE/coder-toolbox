@@ -1,0 +1,187 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0; /* 淡灰色背景 */
+    margin: 0;
+    user-select: none; /* 禁止文本选择 */
+}
+
+.game-container {
+    background-color: #ffffff; /* 白色容器背景 */
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 2em;
+}
+
+.game-info {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.game-info span {
+    margin: 0 15px;
+}
+
+#game-board {
+    display: grid; /* 使用 Grid 布局 */
+    border: 2px solid #ccc; /* 游戏区域边框 */
+    margin: 0 auto 20px auto; /* 居中并添加底部边距 */
+    position: relative; /* 用于绝对定位元素 */
+    background-color: #e0e0e0; /* 浅灰色底板，增加对比 */
+    /* Grid 列和行将在 JS 中设置 */
+}
+
+/* --- 单元格样式 --- */
+.cell {
+    width: 40px;  /* 单元格宽度 */
+    height: 40px; /* 单元格高度 */
+    font-size: 28px; /* 图标大小 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box; /* 边框包含在宽高内 */
+    position: relative; /* 用于目标点的背景 */
+    transition: transform 0.1s ease-out; /* 轻微移动过渡 */
+}
+
+.wall {
+    background-color: #607d8b; /* 深蓝灰色墙壁 */
+    /* background-image: url('path/to/wall-texture.png'); 可选：纹理 */
+    border-radius: 3px; /* 轻微圆角 */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.3); /* 内阴影增加立体感 */
+    color: transparent; /* 隐藏可能存在的文本 */
+}
+
+.floor {
+    background-color: #f8f8f8; /* 非常浅的灰色地面 */
+    /* background-image: url('path/to/floor-texture.png'); 可选：纹理 */
+}
+
+.target::before { /* 使用伪元素绘制目标点 */
+    content: '';
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background-color: #ffcc80; /* 橙黄色目标点 */
+    border-radius: 50%;
+    border: 3px dashed #e65100; /* 橙色虚线边框 */
+    opacity: 0.7;
+    z-index: 0; /* 在其他元素之下 */
+}
+
+.player {
+    background-image: url('player.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 2; /* 在目标点之上 */
+    /* 移除其他不需要的样式 */
+}
+
+.box {
+    background-image: url('box.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #a1887f; /* 棕色箱子 */
+    border: 1px solid #5d4037; /* 深棕色边框 */
+    border-radius: 5px;
+    color: transparent; /* 隐藏 Emoji 文本（如果用背景色） */
+    z-index: 1; /* 在目标点之上，玩家之下 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    /* 或者使用背景图片 */
+    /* background-image: url('path/to/box.png'); */
+    /* background-size: contain; */
+    /* background-repeat: no-repeat; */
+    /* background-position: center; */
+}
+
+.box-on-target {
+    background-color: #8bc34a; /* 绿色表示箱子在目标点 */
+    border-color: #33691e; /* 深绿色边框 */
+}
+.box-on-target::after { /* 可选：添加一个小勾号 */
+    content: '✓';
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    position: absolute;
+}
+
+
+/* --- 控制按钮 --- */
+.controls {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 1em;
+    margin: 0 10px;
+    cursor: pointer;
+    background-color: #4CAF50; /* 绿色按钮 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background-color: #45a049; /* 悬停时深一点 */
+    transform: scale(1.05); /* 轻微放大 */
+}
+
+button:active {
+    transform: scale(0.98); /* 点击时缩小 */
+}
+
+button:disabled {
+    background-color: #cccccc; /* 灰色禁用状态 */
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* --- 胜利消息 --- */
+.win-message {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #a5d6a7; /* 浅绿色背景 */
+    color: #1b5e20; /* 深绿色文字 */
+    border: 1px solid #388e3c;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.win-message.hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+    height: 0; /* 隐藏时折叠 */
+    padding: 0;
+    margin: 0;
+    border: none;
+    overflow: hidden; /* 隐藏内容 */
+}
+
+/* --- 说明 --- */
+.instructions {
+    margin-top: 25px;
+    font-size: 0.9em;
+    color: #777;
+}
+.instructions p {
+    margin: 5px 0;
+}

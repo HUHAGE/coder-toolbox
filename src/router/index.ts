@@ -23,6 +23,7 @@ import Fanyingli from '@/pages/games/fanyingli/fanyingli.vue'
 import Game2048 from '@/pages/games/2048/2048.vue'
 import Paopao from '@/pages/games/paopao/paopao.vue'
 import yunnan2025 from '@/pages/travel/yunnan2025/yunnan2025.vue'
+import Pushbox from '@/pages/games/pushbox/pushbox.vue'
 
 import { trackToolUsage } from '@/utils/analytics'
 
@@ -246,7 +247,16 @@ const router = createRouter({
         title: '云南2025',
         keepAlive: true
       }
-    }
+    },
+    {
+      path: '/games/pushbox',
+      name: 'Pushbox',
+      component: Pushbox,
+      meta: {
+        title: '推箱子',
+        keepAlive: true
+      }
+    } 
   ],
   scrollBehavior(to, from, savedPosition) {
     // 总是滚动到顶部
