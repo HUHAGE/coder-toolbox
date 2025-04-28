@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>您的专属丽江大理行程 (带导航)</title>
+    <title>丽江大理行程</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
         html {
@@ -12,13 +12,21 @@
         .top-nav {
             position: relative;
             background: linear-gradient(135deg, #667eea, #764ba2);
-            padding: 10px 20px;
+            padding: 8px 12px;
             display: flex;
-            justify-content: center;
-            gap: 15px;
+            justify-content: flex-start;
+            gap: 10px;
             z-index: 1000;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+            white-space: nowrap;
+        }
+        .top-nav::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
         }
         .top-nav.fixed {
             position: fixed;
@@ -29,11 +37,14 @@
         .top-nav a {
             color: #fff;
             text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 6px 12px;
+            border-radius: 4px;
             transition: all 0.3s ease;
             background: rgba(255,255,255,0.1);
             font-weight: 500;
+            font-size: 0.9em;
+            display: inline-block;
+            white-space: nowrap;
         }
         .top-nav a:hover,
         .top-nav a:focus {
@@ -309,6 +320,7 @@
             }
             .top-nav, .top-nav.fixed {
                 left: 0;
+                padding: 6px 10px;
             }
             .main-content {
                 margin-left: 0;
@@ -358,22 +370,22 @@
         </div>
         <nav class="top-nav">
     <a href="#tips" class="active">行前准备</a>
-    <a href="#day1">第一天</a>
-    <a href="#day2">第二天</a>
-    <a href="#day3">第三天</a>
-    <a href="#day4">第四天</a>
-    <a href="#day5">第五天</a>
+    <a href="#day1">Day1</a>
+    <a href="#day2">Day2</a>
+    <a href="#day3">Day3</a>
+    <a href="#day4">Day4</a>
+    <a href="#day5">Day5</a>
 </nav>
 
 <nav class="sidebar-nav">
     <h3><i class="fas fa-map-signs"></i> 行程安排</h3>
     <ul>
         <li><a href="#tips"><i class="fas fa-suitcase"></i> 行前准备TIPS</a></li>
-        <li><a href="#day1"><i class="fas fa-flag"></i> Day 1: 抵达丽江</a></li>
-        <li><a href="#day2"><i class="fas fa-mountain-sun"></i> Day 2: 玉龙风光</a></li>
-        <li><a href="#day3"><i class="fas fa-water"></i> Day 3: 洱海风情</a></li>
-        <li><a href="#day4"><i class="fas fa-landmark"></i> Day 4: 古城时光</a></li>
-        <li><a href="#day5"><i class="fas fa-plane-arrival"></i> Day 5: 告别大理</a></li>
+        <li><a href="#day1"><i class="fas fa-flag"></i> D1: 抵达丽江</a></li>
+        <li><a href="#day2"><i class="fas fa-mountain-sun"></i> D2: 玉龙风光</a></li>
+        <li><a href="#day3"><i class="fas fa-water"></i> D3: 洱海风情</a></li>
+        <li><a href="#day4"><i class="fas fa-landmark"></i> D4: 古城时光</a></li>
+        <li><a href="#day5"><i class="fas fa-plane-arrival"></i> D5: 告别大理</a></li>
     </ul>
 </nav>
 
