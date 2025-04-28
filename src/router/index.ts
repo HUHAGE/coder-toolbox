@@ -22,6 +22,7 @@ import SnakeGame from '@/pages/games/tanchishe/tanchishe.vue'
 import Fanyingli from '@/pages/games/fanyingli/fanyingli.vue'
 import Game2048 from '@/pages/games/2048/2048.vue'
 import Paopao from '@/pages/games/paopao/paopao.vue'
+import yunnan2025 from '@/pages/travel/yunnan2025/yunnan2025.vue'
 
 import { trackToolUsage } from '@/utils/analytics'
 
@@ -234,6 +235,15 @@ const router = createRouter({
       component: Paopao,
       meta: {
         title: '泡泡的魔法世界',
+        keepAlive: true
+      }
+    },
+    {
+      path: '/travel/yunnan2025',
+      name: 'yunnan2025',
+      component: yunnan2025,
+      meta: {
+        title: '云南2025',
         keepAlive: true
       }
     }

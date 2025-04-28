@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>您的专属丽江大理行程 (带导航)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        html {
+            scroll-behavior: smooth; /* 实现平滑滚动 */
+        }
+        .top-nav {
+            position: relative;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .top-nav.fixed {
+            position: fixed;
+            top: 0;
+            left: 200px;
+            right: 0;
+        }
+        .top-nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.1);
+            font-weight: 500;
+        }
+        .top-nav a:hover,
+        .top-nav a:focus {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        .top-nav a.active {
+            background: rgba(255,255,255,0.3);
+            font-weight: 600;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, 'Microsoft Yahei', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+        .sidebar-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200px; /* 侧边栏宽度 */
+            height: 100vh; /* 视口高度 */
+            background-color: #ffffff; /* 背景色 */
+            padding: 25px 15px;
+            border-right: 1px solid #e0e0e0;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            z-index: 1000; /* 确保在最上层 */
+            overflow-y: auto; /* 如果内容过多则允许滚动 */
+            box-sizing: border-box; /* padding包含在宽度内 */
+        }
+        .sidebar-nav h3 {
+            text-align: center;
+            color: #764ba2;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-nav li {
+            margin-bottom: 8px;
+        }
+        .sidebar-nav a {
+            display: block;
+            padding: 10px 15px;
+            color: #555;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-size: 0.95em;
+        }
+        .sidebar-nav a:hover,
+        .sidebar-nav a:focus { /* focus 增加可访问性 */
+            background-color: #e9eafc;
+            color: #667eea;
+            font-weight: 500;
+        }
+        .sidebar-nav a i {
+            margin-right: 8px;
+            width: 16px; /* 固定图标宽度 */
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 200px; /* 左边距等于侧边栏宽度 */
+            padding: 60px 0 1px; /* 为顶部导航栏留出空间 */
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background-color: #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 30px 40px;
+            text-align: center;
+            border-bottom: 5px solid #764ba2;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .day-card {
+            border-bottom: 1px solid #eee;
+            padding: 40px; /* 增加顶部内边距，避免被导航栏遮挡 */
+            margin-bottom: 20px;
+            scroll-margin-top: 20px; /* 增加滚动定位时的顶部偏移 */
+        }
+        .day-card:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .day-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .day-header .day-icon {
+            font-size: 2em;
+            color: #667eea;
+            margin-right: 15px;
+            width: 40px;
+            text-align: center;
+        }
+        .day-header h2 {
+            margin: 0;
+            font-size: 1.8em;
+            color: #333;
+            font-weight: 600;
+        }
+        .day-summary {
+            background-color: #e9eafc;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+            font-style: italic;
+            color: #555;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section h4 {
+            font-size: 1.3em;
+            color: #764ba2;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px dashed #ddd;
+            padding-bottom: 8px;
+        }
+        .section h4 i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .section ul {
+            list-style: none;
+            padding-left: 20px;
+            margin: 0;
+        }
+        .section li {
+            margin-bottom: 10px;
+            padding-left: 15px;
+            position: relative;
+        }
+        .section li::before {
+            content: '•';
+            color: #667eea;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .flight-option, .car-details, .hotel-details, .attraction-details, .restaurant-details {
+            background-color: #f8f9fa;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .flight-option strong, .restaurant-details strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+        .rating {
+            color: #f39c12;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .details {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .tip {
+            background-color: #fff9e6;
+            border: 1px solid #ffeeba;
+            border-left: 4px solid #ffc107;
+            padding: 12px 18px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            margin-top: 15px;
+            color: #856404;
+        }
+        .tip i {
+            margin-right: 8px;
+            color: #ffc107;
+        }
+        .food-guide h5 {
+            font-size: 1.1em;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .food-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-left: 0; /* Override ul default padding */
+        }
+        .food-list li {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            margin-bottom: 0; /* Override li default margin */
+            padding-left: 12px; /* Override li default padding */
+        }
+        .food-list li::before {
+            content: none; /* Remove bullet */
+        }
+        .restaurant-details {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+            background-color: #fafafa;
+        }
+        .restaurant-details p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: #555;
+        }
+        .restaurant-details .name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #764ba2;
+        }
+        .restaurant-details .rating-stars {
+            color: #f39c12;
+        }
+        .attraction-details p {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+        .attraction-details .name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #667eea;
+        }
+         .address i, .phone i, .time i {
+            margin-right: 5px;
+            color: #999;
+         }
+
+        /* 响应式设计：PC端隐藏顶部导航，移动端隐藏侧边栏 */
+        @media (min-width: 992px) { /* PC端 */
+            .top-nav {
+                display: none;
+            }
+        }
+        @media (max-width: 991px) { /* 移动端 */
+            .sidebar-nav {
+                display: none;
+            }
+            .top-nav, .top-nav.fixed {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .container {
+                margin: 15px;
+                width: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
+            .day-card {
+                padding: 25px 20px; /* 调整内边距 */
+            }
+            .day-header h2 {
+                font-size: 1.5em;
+            }
+            .section h4 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+<script>
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('.header');
+        const nav = document.querySelector('.top-nav');
+        const headerBottom = header.offsetTop + header.offsetHeight;
+        
+        if (window.pageYOffset > headerBottom) {
+            nav.classList.add('fixed');
+        } else {
+            nav.classList.remove('fixed');
+        }
+    });
+</script>
+
+<div class="header">
+            <h1>✨ 丽江 & 大理 5日游 ✨</h1>
+        </div>
+        <nav class="top-nav">
+    <a href="#tips" class="active">行前准备</a>
+    <a href="#day1">第一天</a>
+    <a href="#day2">第二天</a>
+    <a href="#day3">第三天</a>
+    <a href="#day4">第四天</a>
+    <a href="#day5">第五天</a>
+</nav>
+
+<nav class="sidebar-nav">
+    <h3><i class="fas fa-map-signs"></i> 行程安排</h3>
+    <ul>
+        <li><a href="#tips"><i class="fas fa-suitcase"></i> 行前准备TIPS</a></li>
+        <li><a href="#day1"><i class="fas fa-flag"></i> Day 1: 抵达丽江</a></li>
+        <li><a href="#day2"><i class="fas fa-mountain-sun"></i> Day 2: 玉龙风光</a></li>
+        <li><a href="#day3"><i class="fas fa-water"></i> Day 3: 洱海风情</a></li>
+        <li><a href="#day4"><i class="fas fa-landmark"></i> Day 4: 古城时光</a></li>
+        <li><a href="#day5"><i class="fas fa-plane-arrival"></i> Day 5: 告别大理</a></li>
+    </ul>
+</nav>
+
+<div class="main-content">
+    <div class="container">
+        <!-- 行前准备TIPS -->
+        <div class="day-card" id="tips">
+            <div class="day-header">
+                <span class="day-icon"><i class="fas fa-suitcase"></i></span>
+                <h2>行前准备TIPS</h2>
+            </div>
+            <p class="day-summary">为即将开始的旅行做好充分的准备~</p>
+
+            <div class="section">
+                <h4><i class="fas fa-list-check"></i> 行前准备清单/携带物品清单</h4>
+                <div class="attraction-details">
+                    <p><i class="fas fa-id-card"></i> <strong>证件类：</strong>身份证件+学生证or老年证or军人证等</p>
+                    <p><i class="fas fa-shirt"></i> <strong>衣物与装备：</strong>轻薄外套+短袖，云南近期温度在10到20度之间</p>
+                    <p><i class="fas fa-shoe-prints"></i> <strong>舒适鞋履：</strong>平底鞋or休闲鞋</p>
+                    <p><i class="fas fa-umbrella"></i> <strong>其他装备：</strong>背包+雨具（携带伞具可挡雨防晒两用哦~）</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h4><i class="fas fa-sun"></i> 护肤与防晒物品建议</h4>
+                <div class="attraction-details">
+                    <p><i class="fas fa-bottle-droplet"></i> <strong>防晒霜：</strong>云南紫外线强，建议携带SPF50+ PA++++的防晒霜，并定期补涂。</p>
+                    <p><i class="fas fa-hat-cowboy"></i> <strong>全方位防护：</strong>防晒帽+墨镜+防晒口罩，全方位保护皮肤免受紫外线伤害。</p>
+                    <p><i class="fas fa-pump-soap"></i> <strong>护肤品：</strong></p>
+                    <ul style="list-style: none; padding-left: 25px;">
+                        <li><i class="fas fa-circle-dot"></i> 面霜+身体乳：保持皮肤滋润，防止干燥。</li>
+                        <li><i class="fas fa-circle-dot"></i> 润唇膏：防止嘴唇干裂。</li>
+                        <li><i class="fas fa-circle-dot"></i> 面膜：高原地区天气干燥，及时补水。</li>
+                    </ul>
+                </div>
+                <div class="tip"><i class="fas fa-lightbulb"></i> 小提示：云南地区紫外线强，请做好防晒措施，定期补涂防晒霜。</div>
+            </div>
+        </div>
+
+        <!-- DAY 1: 丽江 -->
+        <div class="day-card" id="day1">
+            <div class="day-header">
+                <span class="day-icon"><i class="fas fa-calendar-day"></i></span>
+                <h2>DAY 1: 4月30日 (周三) - 抵达丽江</h2>
+            </div>
+            <p class="day-summary"><strong>【夜遇之都】</strong> 成都飞往丽江，抵达后自由探索丽江古城、四方街，打卡网红樱花餐厅和油纸伞。</p>
+
+            <div class="section">
+                <h4><i class="fas fa-plane-departure"></i> 交通：航班信息</h4>
+                <div class="flight-option">
+                    <p><strong>西藏航空 TV9924 (空客319)</strong></p>
+                    <p><i class="fas fa-plane-departure"></i> 成都双流国际机场T2 <i class="fas fa-long-arrow-alt-right"></i> 丽江三义机场</p>
+                    <p><i class="fas fa-clock"></i> 09:20 - 11:00 (1小时40分钟)</p>
+                </div>
+                <!-- <div class="flight-option">
+                    <p><strong>选项二：昆明航空 KY3193 (波音737)</strong></p>
+                    <p><i class="fas fa-plane-departure"></i> 成都天府国际机场T2 <i class="fas fa-long-arrow-alt-right"></i> 丽江三义机场</p>
+                    <p><i class="fas fa-clock"></i> 15:05 - 16:40 (1小时35分钟)</p>
+                </div> -->
+            </div>
+
+            <div class="section">
+                <h4><i class="fas fa-map-marker-alt"></i> 景点：丽江古城 & 四方街</h4>
+                <div class="attraction-details">
+                    <p class="name">丽江古城</p>
+                    <p><i class="fas fa-star"></i> 评分: <span class="rating">4.7 分</span> (7322条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 全天开放</p>
+                    <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 2-3小时</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 地址: 云南省丽江市古城区七星街</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 入内参观，自由闲逛，感受古城韵味，寻找网红打卡点（如樱花餐厅、油纸伞街）。</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h4><i class="fas fa-bed"></i> 住宿：慕茗·美宿（丽江古城店）</h4>
+                 <div class="hotel-details">
+                    <p><strong>慕茗·美宿（丽江古城店）</strong> <span class="rating">4.8分</span> (121条评论)</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 地址: 丽江古城文明巷131号</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h4><i class="fas fa-car"></i> 用车：丽江接机</h4>
+                <div class="car-details">
+                    <p><i class="fas fa-car-side"></i> 车型: 经济7座 (大通或同级)</p>
+                    <p><i class="fas fa-users"></i> 乘客: 7人 | <i class="fas fa-suitcase-rolling"></i> 行李: 3件</p>
+                    <p><i class="fas fa-check-circle"></i> 包含: 油费、停车费、过路费、司机服务费及食宿</p>
+                    <p><i class="fas fa-pump-soap"></i> 消毒: 车辆每日消毒</p>
+                    <p><i class="fas fa-clock"></i> 用车时长: 约1小时</p>
+                    <div class="tip"><i class="fas fa-info-circle"></i> 小提示：司机不提供导游服务，仅负责行程接待（不含景区讲解）。</div>
+                </div>
+            </div>
+
+            <div class="section food-guide">
+                <h4><i class="fas fa-utensils"></i> 美食推荐：丽江</h4>
+                <h5><i class="fas fa-list-alt"></i> 特色美食排行榜：</h5>
+                <ul class="food-list">
+                    <li>丽江腊排骨</li>
+                    <li>丽江粑粑</li>
+                    <li>鸡豆凉粉</li>
+                    <li>丽江三文鱼</li>
+                    <li>黑山羊火锅</li>
+                </ul>
+                 <h5><i class="fas fa-store"></i> 人气餐厅推荐：</h5>
+                 <div class="restaurant-details">
+                     <p class="name">阿婆腊排骨火锅（大水车店） <span class="rating-stars">🌟🌟🌟🌟🌟</span></p>
+                     <p>人均: ¥50元</p>
+                     <p class="address"><i class="fas fa-location-dot"></i> 古城区北门坡玉缘路洲芳停车场入口对面</p>
+                     <p class="phone"><i class="fas fa-phone"></i> 15126070617</p>
+                     <p class="time"><i class="fas fa-clock"></i> 10:30-21:30</p>
+                 </div>
+                 <div class="restaurant-details">
+                     <p class="name">云雪丽丨丽江木府土司文化餐厅 <span class="rating-stars">🌟🌟🌟🌟</span></p>
+                     <p>人均: ¥25元</p>
+                     <p class="address"><i class="fas fa-location-dot"></i> 古城区忠义巷107号（木府大门往西50米）</p>
+                     <p class="phone"><i class="fas fa-phone"></i> 0888-5550996</p>
+                     <p class="time"><i class="fas fa-clock"></i> 11:00-22:00</p>
+                 </div>
+                 <div class="restaurant-details">
+                     <p class="name">文氏奶奶•云南民间菜 <span class="rating-stars">🌟🌟🌟🌟🌟</span></p>
+                     <p>人均: ¥63元</p>
+                     <p class="address"><i class="fas fa-location-dot"></i> 古城区束河古镇清泉路飞花触水旁</p>
+                     <p class="phone"><i class="fas fa-phone"></i> 0888-5353111</p>
+                     <p class="time"><i class="fas fa-clock"></i> 11:00-22:00</p>
+                 </div>
+                  <div class="restaurant-details">
+                     <p class="name">花香识花园餐吧•云南菜野生菌火锅果木碳烤 <span class="rating-stars">🌟🌟🌟🌟🌟</span></p>
+                     <p>人均: ¥50元</p>
+                     <p class="address"><i class="fas fa-location-dot"></i> 古城区茗园巷A栋1号</p>
+                     <p class="phone"><i class="fas fa-phone"></i> 0888-8883098</p>
+                     <p class="time"><i class="fas fa-clock"></i> 09:00-02:00</p>
+                 </div>
+                <div class="tip"><i class="fas fa-lightbulb"></i> 小提示：以上美食仅为个人推荐，请根据您的实际口味选择。</div>
+            </div>
+        </div>
+
+        <!-- DAY 2: 玉龙雪山区域 -->
+        <div class="day-card" id="day2">
+             <div class="day-header">
+                <span class="day-icon"><i class="fas fa-mountain-sun"></i></span>
+                <h2>DAY 2: 5月1日 (周四) - 玉龙风光</h2>
+            </div>
+            <p class="day-summary"><strong>『俗称小九寨』</strong> 游览玉龙雪山（不上索道），打卡网红蓝月谷、白水河，探访白沙古镇——“玉龙雪山下的扎染小村”。</p>
+
+            <div class="section">
+                <h4><i class="fas fa-map-marker-alt"></i> 景点：玉龙雪山区域 & 白沙古镇</h4>
+                 <div class="attraction-details">
+                    <p class="name">玉龙雪山风景区 (不上索道)</p>
+                    <p><i class="fas fa-star"></i> 评分: <span class="rating">4.5 分</span> (9982条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 07:30-16:30</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 云南省丽江市玉龙纳西族自治县雪花村</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 主要游览山脚及周边区域。</p>
+                </div>
+                <div class="attraction-details">
+                    <p class="name">蓝月谷</p>
+                     <p><i class="fas fa-star"></i> 评分: <span class="rating">4.6 分</span> (1300条评论)</p>
+                     <p><i class="fas fa-clock"></i> 开放时间: 08:00-16:30 (16:00停止入园)</p>
+                     <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 2-4小时</p>
+                     <p class="address"><i class="fas fa-location-dot"></i> 玉龙雪山国家级风景名胜区内</p>
+                     <p><i class="fas fa-info-circle"></i> 备注: 玉龙雪山景区内景点，以其“小九寨”般的湖水颜色闻名。</p>
+                </div>
+                 <div class="attraction-details">
+                    <p class="name">白水河</p>
+                     <p><i class="fas fa-star"></i> 评分: <span class="rating">4.3 分</span> (67条评论)</p>
+                     <p><i class="fas fa-clock"></i> 开放时间: 全天开放</p>
+                     <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 1-3小时</p>
+                     <p class="address"><i class="fas fa-location-dot"></i> 玉龙雪山国家级风景名胜区内</p>
+                     <p><i class="fas fa-info-circle"></i> 备注: 蓝月谷上游，费用自理部分可能指电瓶车等。</p>
+                </div>
+                 <div class="attraction-details">
+                    <p class="name">白沙古镇</p>
+                    <p><i class="fas fa-star"></i> 评分: <span class="rating">4.6 分</span> (641条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 全天开放</p>
+                    <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 1-2小时</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 云南省丽江市玉龙纳西族自治县</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 免费景点，感受纳西族文化和扎染艺术。</p>
+                </div>
+            </div>
+
+             <div class="section">
+                <h4><i class="fas fa-bed"></i> 住宿：慕茗·美宿（丽江古城店）</h4>
+                 <div class="hotel-details">
+                    <p><strong>慕茗·美宿（丽江古城店）</strong> <span class="rating">4.8分</span> (121条评论)</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 地址: 丽江古城文明巷131号</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h4><i class="fas fa-car"></i> 用车：全天包车</h4>
+                 <div class="car-details">
+                    <p><i class="fas fa-car-side"></i> 车型: 经济7座 (大通或同级)</p>
+                    <p><i class="fas fa-users"></i> 乘客: 7人 | <i class="fas fa-suitcase-rolling"></i> 行李: 3件</p>
+                    <p><i class="fas fa-check-circle"></i> 包含: 油费、停车费、过路费、司机服务费及食宿</p>
+                    <p><i class="fas fa-pump-soap"></i> 消毒: 车辆每日消毒</p>
+                    <p><i class="fas fa-clock"></i> 用车时长: 平均8小时/天左右</p>
+                    <div class="tip"><i class="fas fa-info-circle"></i> 小提示：司机不提供导游服务，仅负责行程接待（不含景区讲解）。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DAY 3: 前往大理 -->
+        <div class="day-card" id="day3">
+            <div class="day-header">
+                <span class="day-icon"><i class="fas fa-water"></i></span>
+                <h2>DAY 3: 5月2日 (周五) - 洱海风情</h2>
+            </div>
+            <p class="day-summary"><strong>【漫步云端】</strong> 乘坐专车从丽江前往大理，游览双廊古镇，乘船探访南诏风情岛，随后汽车环游洱海东线，打卡文笔村、圣托里尼。</p>
+
+            <div class="section">
+                 <h4><i class="fas fa-route"></i> 交通：丽江 - 大理</h4>
+                 <div class="car-details">
+                     <p><i class="fas fa-car-side"></i> 类型: 专车接送 (包含在包车内)</p>
+                     <p><i class="fas fa-clock"></i> 预计车程: 约2.5-3小时</p>
+                 </div>
+             </div>
+
+            <div class="section">
+                <h4><i class="fas fa-map-marker-alt"></i> 景点：双廊 & 洱海</h4>
+                 <div class="attraction-details">
+                    <p class="name">双廊古镇</p>
+                    <p><i class="fas fa-star"></i> 评分: <span class="rating">4.6 分</span> (1968条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 全天开放</p>
+                    <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 3-4小时</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 大理白族自治州大理市环海东路</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 免费景点，体验洱海边的惬意生活。</p>
+                </div>
+                 <div class="attraction-details">
+                    <p class="name">南诏风情岛</p>
+                    <p><i class="fas fa-star"></i> 评分: <span class="rating">4.3 分</span> (1408条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 08:00-17:30 (17:00停止入园)</p>
+                    <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 1-2小时</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 大理白族自治州大理市双廊镇</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 需乘坐洱海摆渡船上岛，入内参观。</p>
+                </div>
+                 <div class="attraction-details">
+                    <p class="name">洱海 (环海东路段)</p>
+                    <p><i class="fas fa-star"></i> 评分: <span class="rating">4.6 分</span> (5203条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 全天开放</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 大理州大理市下关洱河南路1号 (泛指)</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 汽车环游，走走停停，欣赏湖光山色。</p>
+                </div>
+                 <div class="attraction-details">
+                    <p class="name">文笔村</p>
+                    <p><i class="fas fa-star"></i> 评分: <span class="rating">4.0 分</span> (20条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 全天开放</p>
+                    <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 3-4小时 (含拍照停留)</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 大理白族自治州海东镇</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 免费景点，网红打卡地，有“小圣托里尼”之称的建筑群。</p>
+                </div>
+            </div>
+
+             <div class="section">
+                <h4><i class="fas fa-bed"></i> 住宿：素说·轻奢民宿（大理古城店）</h4>
+                 <div class="hotel-details">
+                    <p><strong>素说·轻奢民宿（大理古城店）</strong> <span class="rating">4.6分</span> (999条评论)</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 地址: 大理古城水碓村219号</p>
+                </div>
+            </div>
+
+            <div class="section food-guide">
+                <h4><i class="fas fa-utensils"></i> 美食推荐：大理</h4>
+                <h5><i class="fas fa-list-alt"></i> 特色美食排行榜：</h5>
+                <ul class="food-list">
+                    <li>喜洲粑粑</li>
+                    <li>生皮</li>
+                    <li>洱海鱼</li>
+                    <li>大理鸡丝米线</li>
+                    <li>烤乳扇</li>
+                    <li>耙肉饵丝</li>
+                </ul>
+                 <h5><i class="fas fa-store"></i> 人气餐厅推荐：</h5>
+                 <div class="restaurant-details">
+                     <p class="name">陈氏海稍鱼（古城五分点） <span class="rating-stars">🌟🌟🌟🌟</span></p>
+                     <p>人均: ¥66元</p>
+                     <p class="address"><i class="fas fa-location-dot"></i> 大理214国道与三月街交叉口北行400米</p>
+                     <p class="phone"><i class="fas fa-phone"></i> 0872-2478088</p>
+                 </div>
+                 <div class="restaurant-details">
+                     <p class="name">再回首（一店） <span class="rating-stars">🌟🌟🌟🌟🌟</span></p>
+                     <p>人均: ¥25元</p>
+                     <p class="address"><i class="fas fa-location-dot"></i> 大理古城人民路198号（斑马酒吧隔壁）</p>
+                     <p class="phone"><i class="fas fa-phone"></i> 18687285766</p>
+                     <p class="time"><i class="fas fa-clock"></i> 09:00-20:00</p>
+                 </div>
+                 <div class="restaurant-details">
+                     <p class="name">双廊文化大院餐厅 <span class="rating-stars">🌟🌟🌟🌟🌟</span></p>
+                     <p>人均: ¥63元</p>
+                     <p class="address"><i class="fas fa-location-dot"></i> 大理环海东路双廊玉几岛玉几桥旁，杨丽萍艺术馆对面</p>
+                     <p class="phone"><i class="fas fa-phone"></i> 15887319951</p>
+                     <p class="time"><i class="fas fa-clock"></i> 10:30-22:00</p>
+                 </div>
+                  <div class="restaurant-details">
+                     <p class="name">若水三千亲水餐厅 <span class="rating-stars">🌟🌟🌟🌟</span></p>
+                     <p>人均: ¥66元</p>
+                     <p class="address"><i class="fas fa-location-dot"></i> 大理崇圣寺(三塔路)3号</p>
+                     <p class="phone"><i class="fas fa-phone"></i> 0872-2666198</p>
+                     <p class="time"><i class="fas fa-clock"></i> 09:30-21:00</p>
+                 </div>
+                <div class="tip"><i class="fas fa-lightbulb"></i> 小提示：以上美食仅为个人推荐，请根据您的实际口味选择。</div>
+            </div>
+
+            <div class="section">
+                <h4><i class="fas fa-car"></i> 用车：全天包车</h4>
+                 <div class="car-details">
+                    <p><i class="fas fa-car-side"></i> 车型: 经济7座 (大通或同级)</p>
+                    <p><i class="fas fa-users"></i> 乘客: 7人 | <i class="fas fa-suitcase-rolling"></i> 行李: 3件</p>
+                    <p><i class="fas fa-check-circle"></i> 包含: 油费、停车费、过路费、司机服务费及食宿</p>
+                    <p><i class="fas fa-pump-soap"></i> 消毒: 车辆每日消毒</p>
+                    <p><i class="fas fa-clock"></i> 用车时长: 平均8小时/天左右</p>
+                    <div class="tip"><i class="fas fa-info-circle"></i> 小提示：司机不提供导游服务，仅负责行程接待（不含景区讲解）。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DAY 4: 大理古城及周边 -->
+        <div class="day-card" id="day4">
+            <div class="day-header">
+                <span class="day-icon"><i class="fas fa-landmark"></i></span>
+                <h2>DAY 4: 5月3日 (周六) - 古城慢时光</h2>
+            </div>
+            <p class="day-summary"><strong>【南诏王国】</strong> 漫步大理古城、洋人街，游览洱海生态廊道，探访磻溪村S湾（可租自行车骑行），前往喜洲古镇，欣赏麦田风光，体验非遗扎染或乘坐小火车（自费）。</p>
+
+            <div class="section">
+                <h4><i class="fas fa-map-marker-alt"></i> 景点：大理古城 & 洱海西线</h4>
+                 <div class="attraction-details">
+                    <p class="name">大理古城 & 洋人街</p>
+                    <p><i class="fas fa-star"></i> 古城评分: <span class="rating">4.7 分</span> (6765条评论) | 洋人街评分: <span class="rating">4.4 分</span> (170条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 全天开放</p>
+                    <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 2-3小时 (古城) + 1小时 (洋人街)</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 云南省大理白族自治州大理市一塔路42号 (古城)</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 免费景点，感受古城生活气息，洋人街是古城内著名街道。</p>
+                </div>
+                 <div class="attraction-details">
+                    <p class="name">洱海生态廊道</p>
+                    <p><i class="fas fa-star"></i> 评分: <span class="rating">4.7 分</span> (93条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 全天开放</p>
+                    <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 2-3小时</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 云南省大理白族自治州大理市</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 免费景点，适合散步或骑行，亲近洱海。</p>
+                </div>
+                <div class="attraction-details">
+                    <p class="name">磻溪村 & S湾</p>
+                    <p><i class="fas fa-star"></i> 评分: <span class="rating">4.7 分</span> (141条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 全天开放</p>
+                    <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 1-2小时 (拍照打卡)</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 大理白族自治州大理市环海西路北50米</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 免费景点，网红S型公路所在地，洱海生态廊道的一部分。</p>
+                </div>
+                <div class="attraction-details">
+                    <p class="name">喜洲古镇</p>
+                    <p><i class="fas fa-star"></i> 评分: <span class="rating">4.5 分</span> (1480条评论)</p>
+                    <p><i class="fas fa-clock"></i> 开放时间: 全天开放</p>
+                    <p><i class="fas fa-hourglass-half"></i> 建议游玩时间: 3-4小时</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 大理白族自治州大理市大丽线东</p>
+                    <p><i class="fas fa-info-circle"></i> 备注: 免费景点，体验白族民居建筑，欣赏麦田（季节性），可自费体验扎染、小火车。</p>
+                </div>
+            </div>
+
+             <div class="section">
+                <h4><i class="fas fa-bed"></i> 住宿：素说·轻奢民宿（大理古城店）</h4>
+                 <div class="hotel-details">
+                    <p><strong>素说·轻奢民宿（大理古城店）</strong> <span class="rating">4.6分</span> (999条评论)</p>
+                    <p class="address"><i class="fas fa-location-dot"></i> 地址: 大理古城水碓村219号</p>
+                </div>
+            </div>
+
+             <div class="section food-guide">
+                 <h4><i class="fas fa-utensils"></i> 美食推荐：大理 (参考DAY 3)</h4>
+                 <p>今日可继续探索大理美食，参考昨日推荐或在古城、喜洲自行发掘当地特色小吃。</p>
+             </div>
+
+
+            <div class="section">
+                <h4><i class="fas fa-car"></i> 用车：全天包车</h4>
+                <div class="car-details">
+                    <p><i class="fas fa-car-side"></i> 车型: 经济7座 (大通或同级)</p>
+                    <p><i class="fas fa-users"></i> 乘客: 7人 | <i class="fas fa-suitcase-rolling"></i> 行李: 3件</p>
+                    <p><i class="fas fa-check-circle"></i> 包含: 油费、停车费、过路费、司机服务费及食宿</p>
+                    <p><i class="fas fa-pump-soap"></i> 消毒: 车辆每日消毒</p>
+                    <p><i class="fas fa-clock"></i> 用车时长: 平均8小时/天左右</p>
+                    <div class="tip"><i class="fas fa-info-circle"></i> 小提示：司机不提供导游服务，仅负责行程接待（不含景区讲解）。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DAY 5: 返程 -->
+        <div class="day-card" id="day5">
+            <div class="day-header">
+                <span class="day-icon"><i class="fas fa-plane-arrival"></i></span>
+                <h2>DAY 5: 5月4日 (周日) - 告别大理</h2>
+            </div>
+            <p class="day-summary"><strong>【再见又见】</strong> 享受在大理的最后时光，根据航班时间安排送机，乘飞机返回成都。</p>
+
+            <div class="section">
+                <h4><i class="fas fa-plane-departure"></i> 交通：航班信息</h4>
+                <div class="flight-option">
+                    <p><strong>四川航空 3U6668 (空客320)</strong></p>
+                    <p><i class="fas fa-plane-departure"></i> 大理凤仪机场 <i class="fas fa-long-arrow-alt-right"></i> 成都天府国际机场T2</p>
+                    <p><i class="fas fa-clock"></i> 09:40 - 11:10 (1小时30分钟)</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h4><i class="fas fa-car"></i> 用车：大理送机</h4>
+                 <div class="car-details">
+                    <p><i class="fas fa-car-side"></i> 车型: 经济7座 (大通或同级)</p>
+                    <p><i class="fas fa-users"></i> 乘客: 7人 | <i class="fas fa-suitcase-rolling"></i> 行李: 3件</p>
+                    <p><i class="fas fa-check-circle"></i> 包含: 油费、停车费、过路费、司机服务费及食宿</p>
+                    <p><i class="fas fa-pump-soap"></i> 消毒: 车辆每日消毒</p>
+                    <p><i class="fas fa-clock"></i> 用车时长: 约1小时</p>
+                     <div class="tip"><i class="fas fa-info-circle"></i> 小提示：司机不提供导游服务，仅负责行程接待。请根据航班时间提前与司机确认出发时间。</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h4><i class="fas fa-heart"></i> 结束语</h4>
+                <p>愉快的丽江大理之旅即将结束，希望大家都留下美好的回忆！</p>
+            </div>
+        </div>
+
+    </div><!-- end .container -->
+</div><!-- end .main-content -->
+
+<script>
+    // 监听滚动事件，更新顶部导航栏的激活状态
+    window.addEventListener('scroll', function() {
+        const sections = document.querySelectorAll('.day-card');
+        const navLinks = document.querySelectorAll('.top-nav a');
+        
+        let currentSection = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (window.pageYOffset >= sectionTop - 100) {
+                currentSection = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').substring(1) === currentSection) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+</body>
+</html>
