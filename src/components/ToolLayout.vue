@@ -1,5 +1,6 @@
 <template>
   <div class="tool-layout">
+    <ParticleSnow />
     <!-- 顶部导航栏 -->
     <div class="tool-header">
       <div class="header-content">
@@ -106,6 +107,7 @@
 <script setup lang="ts">
 import { ref, onMounted, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import ParticleSnow from './ParticleSnow.vue'
 import { 
   ArrowLeft,
   Document,

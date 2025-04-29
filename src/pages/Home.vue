@@ -1,5 +1,6 @@
 <template>
   <div class="home-container">
+    <ParticleSnow />
     <!-- 顶部搜索区域 -->
     <div class="search-section">
       <div class="brand">
@@ -366,6 +367,7 @@ import { tools } from '@/config/tools'
 import { track } from '@vercel/analytics'
 import { translations } from '@/config/i18n'
 import { toolsTranslations } from '@/config/tools.i18n'
+import ParticleSnow from '@/components/ParticleSnow.vue'
 
 const isSearchFocused = ref(false)
 const showEngineDropdown = ref(false)
