@@ -21,31 +21,28 @@ interface Particle {
 
 const particles: Particle[] = []
 const colors = [
+  '#ffffff',  // 白色（增加数量，提高白色出现概率）
+  '#ffffff',
+  '#ffffff',
   '#ff9a9e',  // 粉红
   '#fad0c4',  // 浅粉
   '#ffecd2',  // 米色
-  '#fcb69f',  // 珊瑚色
-  '#ffffff',  // 白色
   '#a8edea',  // 浅青
   '#fed6e3',  // 浅玫瑰
-  '#d4fc79',  // 浅绿
-  '#96e6a1',  // 薄荷绿
-  '#84fab0',  // 青绿
   '#c2e9fb',  // 天蓝
   '#a6c1ee',  // 淡紫蓝
-  '#fccb90',  // 杏色
   '#e9defa'   // 淡紫
 ]
-const particleCount = 150
+const particleCount = 200  // 增加粒子数量
 
 function createParticle(): Particle {
   return {
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
-    radius: Math.random() * 4 + 2, // 增大粒子尺寸范围：2-6px
-    speed: Math.random() * 1 + 0.5,
+    radius: Math.random() * 6 + 3, // 保持大小不变：3-9px
+    speed: Math.random() * 0.8 + 0.3, // 降低速度范围：0.3-1.1
     color: colors[Math.floor(Math.random() * colors.length)],
-    alpha: Math.random() * 0.5 + 0.5,
+    alpha: Math.random() * 0.3 + 0.7, // 提高透明度范围：0.7-1
     direction: Math.random() * 2 - 1
   }
 }
@@ -66,11 +63,11 @@ function resizeCanvas() {
 function updateParticles() {
   particles.forEach(particle => {
     particle.y += particle.speed
-    particle.x += particle.direction * 0.3
+    particle.x += particle.direction * 0.2  // 降低水平摆动速度，从0.3改为0.2
 
-    // 添加摆动效果
-    particle.direction += (Math.random() - 0.5) * 0.1
-    particle.direction = Math.max(-1, Math.min(1, particle.direction))
+    // 减小摆动幅度
+    particle.direction += (Math.random() - 0.5) * 0.05  // 从0.1改为0.05
+    particle.direction = Math.max(-0.8, Math.min(0.8, particle.direction))  // 限制摆动范围
 
     if (particle.y > window.innerHeight) {
       particle.y = -10
@@ -101,6 +98,7 @@ function drawParticles() {
       particle.radius
     )
     gradient.addColorStop(0, `${particle.color}`)
+    gradient.addColorStop(0.6, `${particle.color}80`) // 调整渐变效果，使粒子边缘更柔和
     gradient.addColorStop(1, `${particle.color}00`)
     
     ctx!.fillStyle = gradient
