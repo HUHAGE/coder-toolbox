@@ -240,7 +240,6 @@ function checkWinCondition(showWinMessage) {
     if (boxesOnTarget === totalTargets && totalTargets > 0) {
         if (showWinMessage) {
             winMessage.classList.remove('hidden');
-            nextLevelButton.disabled = currentLevelIndex >= levels.length - 1; // 最后一关禁用下一关
         }
         return true; // 返回胜利状态
     } else {
@@ -260,7 +259,7 @@ function updateUI() {
 // --- 更新关卡切换按钮状态 ---
 function updateLevelButtons() {
     prevLevelButton.disabled = currentLevelIndex === 0;
-    nextLevelButton.disabled = checkWinCondition(false) ? (currentLevelIndex >= levels.length - 1) : true; // 只有胜利后才能启用下一关（且非最后一关）
+    nextLevelButton.disabled = currentLevelIndex >= levels.length - 1; // 只在最后一关禁用下一关按钮
 }
 
 // --- 事件监听 ---
