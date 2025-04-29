@@ -2872,4 +2872,196 @@ const getToolTranslation = (tool: any) => {
     font-size: 12px;
   }
 }
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  /* 标题区域优化 */
+  .brand {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .brand-content {
+    display: flex;
+    align-items: center;
+  }
+
+  .toollogo {
+    width: 40px;
+    height: 24px;
+    margin-right: 0.5rem;
+  }
+
+  .title {
+    font-size: 1.2rem;
+    white-space: nowrap;
+  }
+
+  /* 操作按钮组优化 */
+  .header-actions {
+    position: relative;
+    right: 0;
+    transform: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .action-btn,
+  .theme-toggle,
+  .lang-toggle {
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+  }
+
+  .divider {
+    height: 20px;
+    margin: 0 2px;
+  }
+
+  /* 搜索框优化 */
+  .search-container {
+    padding: 0 1rem;
+  }
+
+  .search-box {
+    height: 40px;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .search-input {
+    font-size: 14px;
+  }
+
+  .engine-selector {
+    white-space: nowrap;
+    padding: 4px 8px;
+  }
+
+  .engine-name {
+    font-size: 13px;
+  }
+
+  /* 导航标签优化 */
+  .category-tags {
+    position: fixed;
+    top: 120px;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .category-tags::-webkit-scrollbar {
+    display: none;
+  }
+
+  :deep(.el-radio-group) {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    padding: 0.25rem;
+    gap: 0.25rem;
+  }
+
+  :deep(.el-radio-button__inner) {
+    height: 32px;
+    line-height: 32px;
+    padding: 0 0.75rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  /* 调整内容区域的上边距 */
+  .tools-scroll-container {
+    top: 180px;
+  }
+
+  /* 调整搜索区域的样式 */
+  .search-section {
+    padding: 0.5rem 0;
+  }
+
+  /* 优化搜索引擎下拉菜单 */
+  .engine-dropdown {
+    right: 1rem;
+    left: 1rem;
+    min-width: auto;
+  }
+
+  .engine-item {
+    padding: 8px;
+  }
+
+  .engine-label {
+    font-size: 14px;
+  }
+}
+
+/* 更小屏幕的优化 */
+@media (max-width: 360px) {
+  .title {
+    font-size: 1rem;
+  }
+
+  .action-btn,
+  .theme-toggle,
+  .lang-toggle {
+    width: 24px;
+    height: 24px;
+    padding: 3px;
+  }
+
+  .divider {
+    height: 16px;
+  }
+
+  :deep(.el-radio-button__inner) {
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* 添加滑动指示器 */
+.category-tags::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 100%;
+  background: linear-gradient(to left, var(--bg-primary) 0%, transparent 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.category-tags.has-overflow::after {
+  opacity: 1;
+}
+
+/* 优化搜索框在不同尺寸下的布局 */
+.search-box {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .search-box {
+    gap: 4px;
+  }
+
+  .search-divider {
+    margin: 0;
+  }
+}
 </style>
