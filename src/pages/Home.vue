@@ -2067,12 +2067,13 @@ const getToolTranslation = (tool: any) => {
   height: 70px; /* 从100px改为70px */
 }
 
+/* 修改统计信息模块的样式 */
 .stats-section {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 99; /* 降低统计区域的层级，确保在最小化工具栏下方 */
+  z-index: 99;
   background: var(--bg-primary);
   border-top: 1px solid var(--border-color);
   padding: 1rem 0;
@@ -2080,6 +2081,30 @@ const getToolTranslation = (tool: any) => {
   -webkit-backdrop-filter: blur(10px);
 }
 
+/* 在移动端隐藏统计区域 */
+@media (max-width: 768px) {
+  .stats-section {
+    display: none;
+  }
+  
+  .stats-placeholder {
+    display: none;
+  }
+
+  /* 调整工具滚动容器的底部间距 */
+  .tools-scroll-container {
+    bottom: 0;
+    padding-bottom: 1rem;
+  }
+
+  /* 当有最小化工具时的底部间距 */
+  .tools-scroll-container.has-minimized-tools {
+    bottom: 70px;
+    padding-bottom: calc(70px + 1rem);
+  }
+}
+
+/* 保持其他样式不变 */
 .stats-container {
   max-width: 1200px;
   margin: 0 auto;
