@@ -231,7 +231,11 @@ const disabledDate = (time: Date) => {
 
 const generateIdcard = () => {
   const region = selectedDistrict.value ? 
-    [selectedProvince.value, selectedCity.value, selectedDistrict.value] : 
+    [
+      selectedProvince.value.padStart(6, '0').slice(0, 2),
+      selectedCity.value.padStart(6, '0').slice(0, 4),
+      selectedDistrict.value
+    ] : 
     undefined
 
   const newIdcards = Array(generateCount.value).fill(null).map(() => 
@@ -486,6 +490,7 @@ const verifyIdcard = () => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .region-item {
@@ -494,8 +499,17 @@ const verifyIdcard = () => {
   gap: 0.5rem;
 }
 
-.region-select,
-.date-picker {
+.region-item label {
+  font-size: 0.9rem;
+  color: #606266;
+  font-weight: 500;
+}
+
+:root.dark .region-item label {
+  color: #e0e0e0;
+}
+
+.region-select {
   width: 100%;
 }
 
@@ -529,83 +543,96 @@ const verifyIdcard = () => {
   color: var(--el-text-color-regular);
 }
 
-:root.dark :deep(.el-select .el-input__wrapper),
-:root.dark :deep(.el-date-editor .el-input__wrapper) {
-  background-color: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.1);
+/* 修改下拉控件样式 */
+:deep(.el-select .el-input__wrapper) {
+  background-color: #ffffff;
+  border: 1px solid #e4e7ed;
   box-shadow: none;
+  transition: all 0.3s;
 }
 
-:root.dark :deep(.el-select .el-input__wrapper:hover),
-:root.dark :deep(.el-date-editor .el-input__wrapper:hover) {
-  border-color: rgba(255, 255, 255, 0.2);
+:deep(.el-select .el-input__wrapper:hover) {
+  border-color: #c0c4cc;
 }
 
-:root.dark :deep(.el-select .el-input__wrapper.is-focus),
-:root.dark :deep(.el-date-editor .el-input__wrapper.is-focus) {
+:deep(.el-select .el-input__wrapper.is-focus) {
   border-color: #409eff;
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
 }
 
-:root.dark :deep(.el-input__inner),
-:root.dark :deep(.el-radio__label) {
-  color: var(--el-text-color-primary);
+/* 下拉面板样式 */
+:deep(.el-select-dropdown) {
+  background: #ffffff !important;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  backdrop-filter: none;
 }
 
-:root.dark :deep(.el-radio__input.is-checked .el-radio__inner) {
-  background-color: #409eff;
-  border-color: #409eff;
+:deep(.el-popper) {
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* 调整数字输入框样式 */
-:deep(.el-input-number.el-input-number--large) {
-  width: 120px;
+:deep(.el-select-dropdown__item) {
+  padding: 0 20px;
+  height: 40px;
+  line-height: 40px;
+  color: #606266;
+  background: #ffffff !important;
 }
 
-:deep(.el-input-number__decrease),
-:deep(.el-input-number__increase) {
-  border-color: #e9ecef;
-  background-color: #f8f9fa;
+:deep(.el-select-dropdown__item.hover),
+:deep(.el-select-dropdown__item:hover) {
+  background-color: #f5f7fa !important;
 }
 
-:deep(.el-input-number__inner) {
-  color: #2c3e50;
-  font-weight: 500;
+:deep(.el-select-dropdown__item.selected) {
+  color: #409eff;
+  font-weight: 600;
+  background-color: #ecf5ff !important;
 }
 
-/* 暗黑模式适配 - 数量控件 */
-:root.dark :deep(.el-input-number.el-input-number--large) {
-  border-color: rgba(255, 255, 255, 0.2);
-  background-color: transparent;
+/* 暗黑模式下拉面板样式 */
+:root.dark :deep(.el-select-dropdown),
+:root.dark :deep(.el-popper) {
+  background: #1a1a1a !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
-:root.dark :deep(.el-input-number__decrease),
-:root.dark :deep(.el-input-number__increase) {
-  border-color: rgba(255, 255, 255, 0.2);
-  background-color: rgba(40, 44, 52, 0.9);
-  color: var(--el-text-color-regular);
+:root.dark :deep(.el-select-dropdown__item) {
+  color: #e0e0e0;
+  background: #1a1a1a !important;
 }
 
-:root.dark :deep(.el-input-number__decrease:hover),
-:root.dark :deep(.el-input-number__increase:hover) {
-  background-color: rgba(64, 68, 75, 0.9);
-  color: white;
+:root.dark :deep(.el-select-dropdown__item.hover),
+:root.dark :deep(.el-select-dropdown__item:hover) {
+  background-color: #2a2a2a !important;
 }
 
-:root.dark :deep(.el-input-number__inner) {
-  background-color: transparent;
-  color: var(--el-text-color-primary);
+:root.dark :deep(.el-select-dropdown__item.selected) {
+  color: #409eff;
+  background-color: #18222c !important;
 }
 
-/* 修复数量控件箭头图标颜色 */
-:root.dark :deep(.el-input-number__decrease .el-icon),
-:root.dark :deep(.el-input-number__increase .el-icon) {
-  color: var(--el-text-color-secondary);
+/* 移除所有可能的透明效果 */
+:deep(.el-popper__arrow::before) {
+  background: #ffffff !important;
+  border-color: transparent !important;
 }
 
-:root.dark :deep(.el-input-number__decrease:hover .el-icon),
-:root.dark :deep(.el-input-number__increase:hover .el-icon) {
-  color: white;
+:root.dark :deep(.el-popper__arrow::before) {
+  background: #1a1a1a !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 确保弹出层完全不透明 */
+:deep(.el-select__popper),
+:deep(.el-popper) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* 移动端适配 */
@@ -665,6 +692,16 @@ const verifyIdcard = () => {
   
   .float-btn :deep(.el-icon) {
     font-size: 14px !important;
+  }
+
+  .region-group {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  :deep(.el-select-dropdown__item) {
+    height: 44px;
+    line-height: 44px;
   }
 }
 
