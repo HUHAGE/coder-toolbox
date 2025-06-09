@@ -159,6 +159,12 @@ import IdcardNew from '@/pages/tools/IdcardNew.vue'
 ])
 
 
+### 打包成exe
+执行：
+```bash
+npm run electron:build
+```
+
 
 ## 🤝 参与贡献
 
