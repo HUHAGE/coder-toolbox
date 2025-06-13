@@ -331,9 +331,10 @@ const parseCreateTable = () => {
   const sql = createTableSql.value.trim()
   if (!sql) return false
 
+  console.log('Parsing create table SQL:', sql)
   try {
-    // 解析表名
-    const tableNameMatch = sql.match(/CREATE\s+TABLE\s+(\w+)\s*\(/i)
+    // 解析表名，支持带点号和下划线的表名
+    const tableNameMatch = sql.match(/CREATE\s+TABLE\s+([.\w_]+)\s*\(/i)
     if (!tableNameMatch) {
       ElMessage.error('无法解析表名')
       return false
@@ -342,31 +343,63 @@ const parseCreateTable = () => {
     const tableName = tableNameMatch[1]
     const columns = new Map<string, ColumnInfo>()
 
-    // 解析字段定义
-    const columnDefs = sql
-      .substring(sql.indexOf('(') + 1, sql.lastIndexOf(')'))
-      .split(',')
-      .map(def => def.trim())
-      .filter(def => def && !def.startsWith('PRIMARY KEY') && !def.startsWith('FOREIGN KEY'))
+          // 解析字段定义
+      const sqlContent = sql.substring(sql.indexOf('(') + 1, sql.lastIndexOf(')'))
+      console.log('SQL content to parse:', sqlContent)
+      
+      const columnDefs = sqlContent
+        .split(/,(?![^(]*\))/) // 避免分割括号内的逗号
+        .map(def => def.trim())
+        .filter(def => def && !def.startsWith('PRIMARY KEY') && !def.startsWith('FOREIGN KEY') && !def.startsWith('CONSTRAINT'))
+      
+      console.log('Column definitions:', columnDefs)
 
-    for (const def of columnDefs) {
-      const parts = def.split(/\s+/)
-      const name = parts[0]
-      const typeWithLength = parts[1].toUpperCase()
+      for (const def of columnDefs) {
+        console.log('Processing column definition:', def)
+      // 更精确的字段定义解析
+      const fieldMatch = def.match(/^(\w+)\s+([^(]+(?:\([^)]+\))?(?:\s+COLLATE\s+[^(]+)?)/i)
+      if (!fieldMatch) {
+        console.log('Failed to match field definition:', def)
+        continue
+      }
 
-      let type = typeWithLength
+      const name = fieldMatch[1]
+      const typeInfo = fieldMatch[2].trim().toUpperCase()
+      console.log('Field name:', name)
+      console.log('Type info:', typeInfo)
+
+      let type = typeInfo
       let length = 0
 
       // 解析类型中的长度信息
-      const lengthMatch = typeWithLength.match(/(\w+)\((\d+)\)/)
+      const lengthMatch = typeInfo.match(/(\w+)\s*\((\d+)\)/)
       if (lengthMatch) {
         type = lengthMatch[1]
         length = parseInt(lengthMatch[2])
-      } else if (type === 'TEXT') {
-        length = 65535 // MySQL TEXT类型默认长度
+        console.log(`Found length in type definition: type=${type}, length=${length}`)
+      } else {
+        // 处理特殊类型的默认长度
+        switch (type) {
+          case 'TEXT':
+          case 'NTEXT':
+            length = 1073741823 // SQL Server ntext 最大长度
+            console.log(`Using default length for ${type}: ${length}`)
+            break
+          case 'NVARCHAR':
+          case 'VARCHAR':
+            if (type.includes('MAX')) {
+              length = 1073741823 // SQL Server varchar(max)/nvarchar(max) 最大长度
+              console.log(`Using max length for ${type}: ${length}`)
+            }
+            break
+          default:
+            console.log(`No length found for type: ${type}`)
+        }
       }
 
-      columns.set(name, { name, type, length })
+      const columnInfo = { name, type, length }
+      console.log('Adding column:', columnInfo)
+      columns.set(name.toLowerCase(), columnInfo) // 存储时转为小写以便不区分大小写
     }
 
     tableInfo.value = {
@@ -403,18 +436,58 @@ const parseParams = () => {
   }
   
   // 处理其他格式
-  let paramsList = paramsInput.value.includes('@@@') 
-    ? paramsInput.value.split('@@@')
-    : paramsInput.value.split(/\r?\n/)
+  let paramsList: string[] = []
   
-  if (paramsList.length === 1 && paramsList[0].includes(',')) {
-    paramsList = paramsList[0].split(',')
+  // 如果包含 @@@，使用它作为分隔符
+  if (paramsInput.value.includes('@@@')) {
+    paramsList = paramsInput.value.split('@@@')
+  } else {
+    // 尝试按行分割
+    const lines = paramsInput.value.split(/\r?\n/)
+    
+    // 如果只有一行且包含逗号，按逗号分割
+    if (lines.length === 1 && lines[0].includes(',')) {
+      // 使用更智能的逗号分割，考虑引号内的逗号
+      let inQuote = false
+      let quoteChar = ''
+      let current = ''
+      const line = lines[0]
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i]
+        if ((char === '"' || char === "'") && (i === 0 || line[i-1] !== '\\')) {
+          if (!inQuote) {
+            inQuote = true
+            quoteChar = char
+          } else if (char === quoteChar) {
+            inQuote = false
+          }
+          current += char
+        } else if (char === ',' && !inQuote) {
+          paramsList.push(current.trim())
+          current = ''
+        } else {
+          current += char
+        }
+      }
+      if (current) {
+        paramsList.push(current.trim())
+      }
+    } else {
+      paramsList = lines
+    }
   }
   
   return paramsList
     .map((param, index) => {
-      const value = param.trim()
+      let value = param.trim()
       if (!value) return null
+      
+      // 处理引号包裹的值
+      if ((value.startsWith("'") && value.endsWith("'")) ||
+          (value.startsWith('"') && value.endsWith('"'))) {
+        value = value.slice(1, -1)
+      }
       
       return {
         name: `:p${index + 1}`,
@@ -441,28 +514,57 @@ const checkTruncation = async () => {
     // 获取SQL语句中的值
     let values: string[]
     if (options.value.inputMode === 'separate') {
+      console.log('Using separate mode')
+      console.log('Params input:', paramsInput.value)
       params.value = parseParams()
+      console.log('Parsed params:', params.value)
       values = params.value.map(p => p.value)
+      console.log('Extracted values:', values)
     } else {
       // 从完整SQL中提取值，需要处理引号包裹的情况
       const valueMatches = sqlInput.value.match(/VALUES\s*\(([\s\S]*?)\)/i)
       if (valueMatches) {
-        // 使用更精确的正则表达式来匹配值
-        const valueStr = valueMatches[1].replace(/\s+/g, ' ').trim()
-        const valueRegex = /'((?:[^']|'')*)'|"((?:[^"]|"")*)"|\b([\w.-]+)\b/g
+        console.log('Found VALUES clause:', valueMatches[1])
+        
+        // 首先将值部分按逗号分割，但要避免分割括号内的逗号
+        const valueStr = valueMatches[1].trim()
+        let depth = 0
+        let current = ''
         values = []
-        let match
-        while ((match = valueRegex.exec(valueStr)) !== null) {
-          let value = match[1] || match[2] || match[3]
-          // 处理转义的引号
-          if (match[1]) {
-            value = value.replace(/''/g, "'")
-          } else if (match[2]) {
-            value = value.replace(/""/g, '"')
+        
+        for (let i = 0; i < valueStr.length; i++) {
+          const char = valueStr[i]
+          if (char === '(' || char === '[' || char === '{') {
+            depth++
+            current += char
+          } else if (char === ')' || char === ']' || char === '}') {
+            depth--
+            current += char
+          } else if (char === ',' && depth === 0) {
+            values.push(current.trim())
+            current = ''
+          } else {
+            current += char
           }
-          values.push(value)
         }
+        if (current) {
+          values.push(current.trim())
+        }
+        
+        // 处理每个值，去掉引号
+        values = values.map(value => {
+          value = value.trim()
+          // 如果值被引号包裹，去掉引号
+          if ((value.startsWith("'") && value.endsWith("'")) ||
+              (value.startsWith('"') && value.endsWith('"'))) {
+            value = value.slice(1, -1)
+          }
+          return value
+        })
+        
+        console.log('Extracted values:', values)
       } else {
+        console.log('No VALUES clause found')
         values = []
       }
     }
@@ -470,13 +572,26 @@ const checkTruncation = async () => {
     // 解析SQL语句中的字段
     const fields: string[] = []
     if (sqlInput.value.toUpperCase().startsWith('INSERT')) {
-      // 更精确地匹配INSERT语句中的字段列表
-      const match = sqlInput.value.match(/INSERT\s+INTO\s+\w+\s*\((.*?)\)/i)
+      // 更精确地匹配INSERT语句中的字段列表，支持多行和注释
+      const sql = sqlInput.value.replace(/--.*$/gm, '') // 移除单行注释
+      console.log('Processing SQL:', sql)
+      
+      const match = sql.match(/INSERT\s+INTO\s+[\w_.]+\s*\(([\s\S]*?)\)\s*VALUES/i)
       if (match) {
+        console.log('Found field list:', match[1])
+        // 将字段列表按逗号分割，处理多行情况
+        const fieldList = match[1]
+          .split('\n')
+          .map(line => line.trim())
+          .join(' ')
+          .split(',')
+        
         // 确保字段名去掉可能的反引号或其他包裹符号
-        fields.push(...match[1].split(',').map(f => {
+        fields.push(...fieldList.map(f => {
           f = f.trim()
-          return f.replace(/[`'"]/g, '') // 去掉可能的反引号、单引号或双引号
+          const cleanField = f.replace(/[`'"]/g, '') // 去掉可能的反引号、单引号或双引号
+          console.log(`Cleaned field: "${f}" -> "${cleanField}"`)
+          return cleanField
         }))
       }
     } else if (sqlInput.value.toUpperCase().startsWith('UPDATE')) {
@@ -488,24 +603,45 @@ const checkTruncation = async () => {
         }))
       }
     }
+    
+    console.log('Extracted fields:', fields)
 
     console.log('Fields:', fields)
     console.log('Values:', values)
     
     // 检查每个字段的值是否超长
+    console.log('All fields:', fields)
+    console.log('All values:', values)
+    console.log('All columns:', Array.from(tableInfo.value.columns.entries()))
+    
     fields.forEach((field, index) => {
-      const columnInfo = tableInfo.value.columns.get(field)
-      console.log('Checking field:', field, 'columnInfo:', columnInfo)
-      if (!columnInfo || !columnInfo.length) return
+      const lowerField = field.toLowerCase()
+      console.log(`Processing field "${field}" (lowercase: "${lowerField}")`)
+      
+      const columnInfo = tableInfo.value.columns.get(lowerField)
+      console.log('Found column info:', columnInfo)
+      
+      if (!columnInfo || !columnInfo.length) {
+        console.log(`Skipping field "${field}" - no column info or length`)
+        return
+      }
       
       const value = values[index]
-      console.log('Value for field:', field, 'is:', value, 'length:', value?.length)
-      if (!value) return
+      console.log(`Value for field "${field}":`, value)
+      console.log(`Value length: ${value?.length}`)
+      
+      if (!value) {
+        console.log(`Skipping field "${field}" - no value`)
+        return
+      }
       
       const actualLength = value.length
+      console.log(`Comparing lengths for "${field}": actual=${actualLength}, max=${columnInfo.length}`)
+      
       if (actualLength > columnInfo.length) {
+        console.log(`Found truncation risk for "${field}"`)
         checkResults.value.push({
-          field,
+          field: columnInfo.name,
           type: columnInfo.type,
           maxLength: columnInfo.length,
           actualLength,
