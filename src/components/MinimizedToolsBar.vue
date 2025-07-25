@@ -40,7 +40,12 @@ import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { Delete, Close } from '@element-plus/icons-vue'
 import { MinimizeTools } from '@/stores/minimizeTools'
-import type { MinimizedTool } from '@/types'
+import type { MinimizedTool } from '@/stores/minimizeTools'
+
+// 添加组件名称
+defineOptions({
+  name: 'MinimizedToolsBar'
+})
 
 const props = defineProps<{
   hasStats?: boolean

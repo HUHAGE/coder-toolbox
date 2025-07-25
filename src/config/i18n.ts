@@ -1,4 +1,19 @@
-export const translations = {
+interface Translation {
+  title: string
+  searchPlaceholder: string
+  allTools: string
+  categories: Record<string, string>
+  tooltips: Record<string, string>
+  stats: Record<string, string>
+  links: Record<string, string>
+}
+
+interface Translations {
+  zh: Translation
+  en: Translation
+}
+
+export const translations: Translations = {
   zh: {
     title: '呼哈开发者工具箱',
     searchPlaceholder: '搜索工具...',
@@ -12,22 +27,23 @@ export const translations = {
       other: '其他',
       fun: '趣味'
     },
+    tooltips: {
+      toggleTheme: '切换主题',
+      aboutProject: '关于项目',
+      aboutAuthor: '关于作者',
+      github: '查看源码',
+      enableAnimation: '开启背景动画',
+      disableAnimation: '关闭背景动画'
+    },
     stats: {
       tools: '工具',
       categories: '分类',
       version: '版本'
     },
     links: {
-      sourceCode: '开源地址',
+      sourceCode: '源代码',
       aboutAuthor: '关于作者',
-      aboutProject: '项目介绍'
-    },
-    tooltips: {
-      aboutProject: '项目介绍',
-      aboutAuthor: '关于作者',
-      github: 'GitHub',
-      toggleTheme: '切换主题',
-      toggleLang: '切换为英文'
+      aboutProject: '关于项目'
     }
   },
   en: {
@@ -43,6 +59,14 @@ export const translations = {
       other: 'Others',
       fun: 'Fun'
     },
+    tooltips: {
+      toggleTheme: 'Toggle Theme',
+      aboutProject: 'About Project',
+      aboutAuthor: 'About Author',
+      github: 'View Source',
+      enableAnimation: 'Enable Animation',
+      disableAnimation: 'Disable Animation'
+    },
     stats: {
       tools: 'Tools',
       categories: 'Categories',
@@ -52,13 +76,6 @@ export const translations = {
       sourceCode: 'Source Code',
       aboutAuthor: 'About Author',
       aboutProject: 'About Project'
-    },
-    tooltips: {
-      aboutProject: 'About Project',
-      aboutAuthor: 'About Author',
-      github: 'GitHub',
-      toggleTheme: 'Toggle Theme',
-      toggleLang: 'Switch to Chinese'
     }
   }
 } 

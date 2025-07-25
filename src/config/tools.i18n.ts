@@ -1,4 +1,14 @@
-export const toolsTranslations = {
+interface ToolTranslation {
+  name: string
+  description: string
+}
+
+interface ToolsTranslations {
+  zh: Record<string, ToolTranslation>
+  en: Record<string, ToolTranslation>
+}
+
+export const toolsTranslations: ToolsTranslations = {
   zh: {
     json: {
       name: 'JSON 格式化',
@@ -131,6 +141,22 @@ export const toolsTranslations = {
     fanyinli: {
       name: '反应力测试',
       description: '测试你的反应力'
+    },
+    '2048': {
+      name: '2048',
+      description: '2048游戏'
+    },
+    paopao: {
+      name: '泡泡的魔法世界',
+      description: '泡泡的魔法世界'
+    },
+    mdtoimg: {
+      name: 'markdown转图片',
+      description: 'markdown转精美的图片'
+    },
+    pushbox: {
+      name: '推箱子',
+      description: '推箱子游戏'
     }
   },
   en: {
@@ -144,15 +170,15 @@ export const toolsTranslations = {
     },
     timestamp: {
       name: 'Timestamp Converter',
-      description: 'Convert between timestamp and date formats'
+      description: 'Convert between timestamp and date format'
     },
     base64: {
       name: 'Base64',
-      description: 'Base64 encoding and decoding'
+      description: 'Base64 encode and decode'
     },
     url: {
       name: 'URL Encoder',
-      description: 'URL encoding and decoding'
+      description: 'URL encode and decode'
     },
     uuid: {
       name: 'UUID Generator',
@@ -160,7 +186,7 @@ export const toolsTranslations = {
     },
     qrcode: {
       name: 'QR Code Generator',
-      description: 'Generate QR codes'
+      description: 'Generate QR code'
     },
     md5: {
       name: 'MD5 Encryption',
@@ -168,23 +194,23 @@ export const toolsTranslations = {
     },
     unicode: {
       name: 'Unicode Encoder',
-      description: 'Unicode encoding and decoding'
+      description: 'Unicode Chinese encode and decode'
     },
     'http-status': {
-      name: 'HTTP Status Codes',
-      description: 'HTTP status codes quick reference'
+      name: 'HTTP Status Code',
+      description: 'HTTP status code quick reference'
     },
     idcard: {
       name: 'ID Card Generator',
-      description: 'Generate virtual ID card numbers'
+      description: 'Generate virtual ID card number'
     },
     'idcard-new': {
       name: 'ID Card Generator (New)',
-      description: 'Generate virtual ID card numbers'
+      description: 'Generate virtual ID card number'
     },
     'sql-in': {
       name: 'SQL IN Generator',
-      description: 'Generate SQL IN statements'
+      description: 'Generate SQL IN statement'
     },
     cron: {
       name: 'Cron Expression',
@@ -200,15 +226,15 @@ export const toolsTranslations = {
     },
     'sql-params': {
       name: 'SQL Parameter Filler',
-      description: 'Smart SQL parameter placeholder filler'
+      description: 'Smart fill SQL statement parameter placeholders'
     },
     'credit-code': {
-      name: 'Credit Code Generator',
+      name: 'Credit Code',
       description: 'Generate unified social credit code'
     },
     'sql-format': {
       name: 'SQL Formatter',
-      description: 'Smart SQL formatter with multiple options'
+      description: 'Smart SQL statement formatter with multiple options'
     },
     'config-editor': {
       name: 'Config Editor',
@@ -219,40 +245,40 @@ export const toolsTranslations = {
       description: 'Elegant and comprehensive Linux command reference'
     },
     aes: {
-      name: 'AES Crypto',
-      description: 'AES encryption/decryption with multiple modes'
+      name: 'AES Encryption',
+      description: 'AES encryption and decryption with multiple modes'
     },
     rsa: {
-      name: 'RSA Crypto',
-      description: 'RSA asymmetric encryption/decryption'
+      name: 'RSA Encryption',
+      description: 'RSA asymmetric encryption and decryption'
     },
     'sql-convert': {
       name: 'SQL Syntax Converter',
-      description: 'SQL syntax conversion tool'
+      description: 'SQL syntax converter'
     },
     'sql-truncate': {
       name: 'SQL Truncation Detector',
-      description: 'Smart SQL field truncation risk detector'
+      description: 'Smart detection of field truncation risk in SQL statements'
     },
     'sql-parser': {
       name: 'SQL Insert Parser',
-      description: 'Parse SQL INSERT statement fields and values'
+      description: 'Smart parse fields and values from SQL INSERT statements'
     },
     'word-to-html': {
       name: 'Word to HTML',
-      description: 'Convert Word documents to HTML'
+      description: 'Convert Word to HTML'
     },
     fun: {
       name: 'What to Eat',
       description: 'Help you decide what to eat today'
     },
     'basketball-group': {
-      name: 'Basketball Groups',
-      description: 'Smart basketball team grouping tool'
+      name: 'Basketball Group',
+      description: 'Smart basketball player grouping tool'
     },
     lottery: {
       name: 'Lucky Draw',
-      description: 'Fair and fun lucky draw tool'
+      description: 'Fair and just random lucky draw tool'
     },
     'pixel-breakout': {
       name: 'Pixel Breakout',
@@ -260,11 +286,27 @@ export const toolsTranslations = {
     },
     tanchishe: {
       name: 'Super Snake',
-      description: 'A unique take on the classic snake game'
+      description: 'A different snake game'
     },
     fanyinli: {
       name: 'Reaction Test',
       description: 'Test your reaction speed'
+    },
+    '2048': {
+      name: '2048',
+      description: '2048 game'
+    },
+    paopao: {
+      name: 'Bubble World',
+      description: 'Magic world of bubbles'
+    },
+    mdtoimg: {
+      name: 'Markdown to Image',
+      description: 'Convert markdown to beautiful image'
+    },
+    pushbox: {
+      name: 'Push Box',
+      description: 'Push box game'
     }
   }
 } 

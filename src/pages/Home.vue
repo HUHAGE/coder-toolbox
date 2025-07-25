@@ -33,6 +33,18 @@
 
           <div class="divider"></div>
 
+          <!-- 添加动画开关按钮 -->
+          <el-tooltip :content="isAnimationEnabled ? t.tooltips.disableAnimation : t.tooltips.enableAnimation" placement="bottom">
+            <button class="animation-toggle" @click="toggleAnimation" :class="{ 'is-disabled': !isAnimationEnabled }">
+              <div class="toggle-icon">
+                <el-icon>
+                  <VideoPlay v-if="isAnimationEnabled" />
+                  <VideoPause v-else />
+                </el-icon>
+              </div>
+            </button>
+          </el-tooltip>
+
           <!-- 修改主题切换按钮 -->
           <el-tooltip :content="t.tooltips.toggleTheme" placement="bottom">
             <button class="theme-toggle" @click="toggleTheme" :class="{ 'is-dark': isDarkMode }">
@@ -316,58 +328,26 @@ import {
   Delete,
   ArrowRight,
   ArrowLeft,
-  WarningFilled
+  WarningFilled,
+  VideoPlay,
+  VideoPause
 } from '@element-plus/icons-vue'
 import toolLogo from '@/assets/logo/tool_logo.png'
-import jsonIcon from '@/assets/icons/json.svg'
-import xmlIcon from '@/assets/icons/xml.svg'
-import timestampIcon from '@/assets/icons/timestamp.svg'
-import base64Icon from '@/assets/icons/base64.svg'
-import urlIcon from '@/assets/icons/url.svg'
-import uuidIcon from '@/assets/icons/uuid.svg'
-import qrcodeIcon from '@/assets/icons/qrcode.svg'
-import md5Icon from '@/assets/icons/md5.svg'
-import unicodeIcon from '@/assets/icons/unicode.svg'
-import httpIcon from '@/assets/icons/http.svg'
-import idcardIcon from '@/assets/icons/idcard.svg'
-import sqlIcon from '@/assets/icons/sql.svg'
-import cronIcon from '@/assets/icons/cron.svg'
-import regexIcon from '@/assets/icons/regex.svg'
-import diffIcon from '@/assets/icons/diff.svg'
-import sqlParamsIcon from '@/assets/icons/sql-params.svg'
 import authorAvatar from '@/assets/avatar.png'
-import creditIcon from '@/assets/icons/credit.svg'
-import sqlFormatIcon from '@/assets/icons/sql-format.svg'
-import configEditorIcon from '@/assets/icons/config.svg'
-import linuxIcon from '@/assets/icons/linux.svg'
-import aesIcon from '@/assets/icons/aes.svg'
-import rsaIcon from '@/assets/icons/rsa.svg'
-import sqlZHIcon from '@/assets/icons/sql-zh.svg'
-import sqlTruncateIcon from '@/assets/icons/sql-truncate.svg'
-import sqlAddIcon from '@/assets/icons/sql-add.svg'
-import wordToHtmlIcon from '@/assets/icons/word-to-html.svg'
-import hanBao from '@/assets/icons/汉堡.svg'
-import lanQiu from '@/assets/icons/篮球.svg'
-import lotteryIcon from '@/assets/icons/抽奖.svg'
-import pixelBreakoutIcon from '@/assets/icons/pixel-breakout.svg' // 添加这一行
-import tanchisheIcon from '@/assets/icons/贪吃蛇.svg'
-import fanyinliIcon from '@/assets/icons/反应力.svg'
-import twoIcon from '@/assets/icons/2048.svg'
-import paopaoIcon from '@/assets/icons/paopao.svg'
-import mdIcon from '@/assets/icons/markdown.svg'
-import pushboxIcon from '@/assets/icons/box.svg'
-
-import { minimizeTools } from '@/stores/minimizeTools'
-import { MinimizeTools } from '@/stores/minimizeTools'
+import type { MinimizeTools, MinimizedTool } from '@/stores/minimizeTools'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { marked } from 'marked'
 import axios from 'axios'
 import MinimizedToolsBar from '@/components/MinimizedToolsBar.vue'
-import { tools } from '@/config/tools'
-import { track } from '@vercel/analytics'
 import { translations } from '@/config/i18n'
 import { toolsTranslations } from '@/config/tools.i18n'
 import ParticleSnow from '@/components/ParticleSnow.vue'
+import { useAnimationStore } from '@/stores/animationStore'
+import { tools } from '@/config/tools'
+import { inject as injectVercel, track } from '@vercel/analytics'
+
+// 初始化 analytics
+injectVercel()
 
 const isSearchFocused = ref(false)
 const showEngineDropdown = ref(false)
@@ -386,318 +366,23 @@ const searchText = ref('')
 const router = useRouter()
 
 // 工具分类配置
-const categories = [
+interface Category {
+  key: string
+  name: string
+  icon: any // 这里使用 any 是因为 element-plus 的图标类型比较复杂
+}
+
+const categories: Category[] = [
   { key: 'format', name: '格式化', icon: Document },
   { key: 'encode', name: '编解码', icon: Connection },
   { key: 'convert', name: '转换', icon: Histogram },
   { key: 'generate', name: '生成', icon: Collection },
-  { key: 'sql', name: 'SQL工具', icon: Connection }, // 添加 SQL 工具分类
+  { key: 'sql', name: 'SQL工具', icon: Connection },
   { key: 'other', name: '其他', icon: Grid },
-  { key: 'fun', name: '趣味', icon: Grid },
+  { key: 'fun', name: '趣味', icon: Grid }
 ]
 
 const currentCategory = ref('all')
-
-// 工具列表
-const tools = [
-  {
-    code: 'json',
-    name: 'JSON 格式化',
-    description: 'JSON 数据格式化、验证、压缩',
-    icon: jsonIcon,
-    path: '/tools/json',
-    category: 'format'
-  },
-  {
-    code: 'xml',
-    name: 'XML 格式化',
-    description: 'XML 数据格式化、验证、压缩',
-    icon: xmlIcon,
-    path: '/tools/xml',
-    category: 'format'
-  },
-  {
-    code: 'timestamp',
-    name: '时间戳转换',
-    description: '时间戳与日期格式互转',
-    icon: timestampIcon,
-    path: '/tools/timestamp',
-    category: 'convert'
-  },
-  {
-    code: 'base64',
-    name: 'Base64',
-    description: 'Base64 编码解码转换',
-    icon: base64Icon,
-    path: '/tools/base64',
-    category: 'encode'
-  },
-  {
-    code: 'url',
-    name: 'URL编码',
-    description: 'URL 编码解码转换',
-    icon: urlIcon,
-    path: '/tools/url',
-    category: 'encode'
-  },
-  {
-    code: 'uuid',
-    name: 'UUID生成',
-    description: '生成UUID/GUID',
-    icon: uuidIcon,
-    path: '/tools/uuid',
-    category: 'generate'
-  },
-  {
-    code: 'qrcode',
-    name: '二维码生成',
-    description: '生成二维码',
-    icon: qrcodeIcon,
-    path: '/tools/qrcode',
-    category: 'generate'
-  },
-  {
-    code: 'md5',
-    name: 'MD5 加密',
-    description: 'MD5 加密与校验',
-    icon: md5Icon,
-    path: '/tools/md5',
-    category: 'encode'
-  },
-  {
-    code: 'unicode',
-    name: 'Unicode编码',
-    description: 'Unicode 中文编码解码转换',
-    icon: unicodeIcon,
-    path: '/tools/unicode',
-    category: 'encode'
-  },
-  {
-    code: 'http-status',
-    name: 'HTTP状态码',
-    description: 'HTTP状态码速查手册',
-    icon: httpIcon,
-    path: '/tools/http-status',
-    category: 'other'
-  },
-  {
-    code: 'idcard',
-    name: '身份证号生成',
-    description: '生成虚拟身份证号码',
-    icon: idcardIcon,
-    path: '/tools/idcard',
-    category: 'generate'
-  },
-  {
-  code: 'idcard-new',
-  name: '身份证号生成(新版)',
-  description: '生成虚拟身份证号码',
-  icon: idcardIcon,
-  path: '/tools/idcard-new',
-  category: 'generate'
-},
-  {
-    code: 'sql-in',
-    name: 'SQL IN生成',
-    description: '生成 SQL IN 语句',
-    icon: sqlIcon,
-    path: '/tools/sql-in',
-    category: ['sql', 'generate'] // 支持多分类
-  },
-  
-  {
-    code: 'cron',
-    name: 'Cron 表达式',
-    description: 'Cron 表达式生成与解析工具',
-    icon: cronIcon,
-    path: '/tools/cron',
-    category: 'other'
-  },
-  {
-    code: 'regex',
-    name: '正则表达式',
-    description: '正则表达式生成器与测试工具',
-    icon: regexIcon,
-    path: '/tools/regex',
-    category: 'format'
-  },
-  {
-    code: 'diff',
-    name: '代码对比器',
-    description: '优雅的代码差异对比工具',
-    icon: diffIcon,
-    path: '/tools/diff',
-    category: 'format'
-  },
-  {
-    code: 'sql-params',
-    name: 'SQL参数填充',
-    description: '智能填充SQL语句中的参数占位符',
-    icon: sqlParamsIcon,
-    path: '/tools/sql-params',
-    category: ['sql', 'generate']
-  },
-  {
-    code: 'credit-code',
-    name: '统一社会信用代码',
-    description: '生成统一社会信用代码',
-    icon: creditIcon,
-    path: '/tools/credit-code',
-    category: 'generate'
-  },
-  {
-    code: 'sql-format',
-    name: 'SQL 格式化',
-    description: '智能格式化SQL语句，支持多种格式化选项',
-    icon: sqlFormatIcon,
-    path: '/tools/sql-format',
-    category: ['sql', 'format']
-  },
-  {
-    code: 'config-editor',
-    name: '配置文件编辑器',
-    description: '智能可视化的配置文件编辑工具',
-    icon: configEditorIcon,
-    path: '/tools/config-editor',
-    category: 'other'
-  },
-  {
-    code: 'linux-manual',
-    name: 'Linux命令手册',
-    description: '优雅且全面的Linux命令查询工具',
-    icon: linuxIcon,
-    path: '/tools/linux-manual',
-    category: 'other'
-  },
-  {
-    code: 'aes',
-    name: 'AES 加解密',
-    description: '支持多种模式的 AES 加密解密工具',
-    icon: aesIcon,
-    path: '/tools/aes',
-    category: 'encode'
-  },
-  {
-    code: 'rsa',
-    name: 'RSA 加解密',
-    description: 'RSA 非对称加密解密工具',
-    icon: rsaIcon,
-    path: '/tools/rsa',
-    category: 'encode'
-  },
-  {
-    code: 'sql-convert',
-    name: 'SQL 语法转换',
-    description: 'SQL 语法转换工具',
-    icon: sqlZHIcon,
-    path: '/tools/sql-convert',
-    category: ['sql', 'convert']
-  },
-  {
-    code: 'sql-truncate',
-    name: 'SQL 截断检测',
-    description: '智能检测 SQL 语句中的字段截断风险',
-    icon: sqlTruncateIcon,
-    path: '/tools/sql-truncate',
-    category: ['sql', 'other']
-  },
-  {
-    code: 'sql-parser',
-    name: 'SQL 插入语句解析器',
-    description: '智能解析SQL INSERT语句的字段与值',
-    icon: sqlAddIcon,
-    path: '/tools/sql-parser',
-    category: ['sql', 'format']
-  },
-  {
-    code: 'word-to-html',
-    name: 'word转html',
-    description: 'word转html',
-    icon: wordToHtmlIcon,
-    path: '/tools/word-to-html',
-    category: ['convert', 'format']
-  },
-  {
-    code: 'fun',
-    name: '今天吃什么',
-    description: '帮你决定今天吃什么',
-    icon: hanBao,
-    path: 'https://www.soutzz.top/', // 直接使用部署好的网站链接
-    category: 'fun'
-  },
-  {
-    code: 'basketball-group',
-    name: '篮球分组',
-    description: '智能篮球队员分组工具',
-    icon: lanQiu,
-    path: '/tools/basketball-group',
-    category: 'fun'
-  },
-  {
-    code: 'lottery',
-    name: '年会抽奖工具',
-    description: '公平公正的随机抽奖工具',
-    icon: lotteryIcon, 
-    path: 'https://lucky-draw-lottery-alpha.vercel.app/', // 直接使用部署好的网站链接
-    category: 'fun'
-  },
-  {
-    code: 'pixel-breakout',
-    name: '像素弹球大师',
-    description: '红白机风格的经典弹球游戏',
-    icon: pixelBreakoutIcon,
-    path: '/games/pixel-breakout-master',
-    category: 'fun'
-  },
-  {
-    code: 'tanchishe',
-    name: '超级贪吃蛇',
-    description: '不一样的贪吃蛇游戏',
-    icon: tanchisheIcon,
-    path: '/games/tanchishe',
-    category: 'fun'
-  },
-  {
-    code: 'fanyinli',
-    name: '反应力测试',
-    description: '测试你的反应力', 
-    icon: fanyinliIcon,
-    path: '/games/fanyingli',
-    category: 'fun'
-  },
-  {
-    code: '2048',
-    name: '2048',
-    description: '2048游戏',
-    icon: twoIcon,
-    path: '/games/2048',
-    category: 'fun'
-  },
-  {
-    code: 'paopao',
-    name: '泡泡的魔法世界',
-    description: '泡泡的魔法世界',
-    icon: paopaoIcon,
-    path: '/games/paopao',
-    category: 'fun'
-  },
-  {
-    code: 'mdtoimg',
-    name: 'markdown转图片',
-    description: 'markdown转精美的图片',
-    icon: mdIcon,
-    path: 'https://markly-style-craft.netlify.app/',
-    category: ['convert', 'format']
-  },
-  {
-    code: 'pushbox',
-    name: '推箱子',
-    description: '推箱子游戏',
-    icon: pushboxIcon,
-    path: '/games/pushbox',
-    category: 'fun'
-  }
-]
 
 // 修改过滤工具的计算属性
 const filteredTools = computed(() => {
@@ -725,13 +410,13 @@ const filteredTools = computed(() => {
 })
 
 // 获取分类名称
-const getCategoryName = (categoryKey: string) => {
+const getCategoryName = (categoryKey: string): string => {
   const category = categories.find(c => c.key === categoryKey)
   return category ? category.name : ''
 }
 
 // 获取分类图标
-const getCategoryIcon = (categoryKey: string) => {
+const getCategoryIcon = (categoryKey: string): any => {
   const category = categories.find(c => c.key === categoryKey)
   return category ? category.icon : Document
 }
@@ -878,6 +563,7 @@ watch([searchText, currentCategory], () => {
   // }
 })
 
+// 获取 minimizeTools 实例
 const minimizeTools = inject('minimizeTools') as MinimizeTools
 
 // 添加一个计算属性来获取排序后的最小化工具列表
@@ -984,17 +670,12 @@ const manualContent = ref('')
 const manualLoadError = ref(false)
 
 // 修改加载方法
-const showUserManual = async () => {
-  showManualDialog.value = true
-  await loadManual()
-}
-
-// 分离加载逻辑
 const loadManual = async () => {
   try {
     manualLoadError.value = false
     const response = await axios.get('/manual.md')
-    manualContent.value = marked(response.data)
+    const content = marked(response.data) as string
+    manualContent.value = content
   } catch (error) {
     console.error('Failed to load manual:', error)
     manualLoadError.value = true
@@ -1052,20 +733,40 @@ const toggleLanguage = () => {
 // 添加翻译相关的计算属性
 const t = computed(() => translations[isEnglish.value ? 'en' : 'zh'])
 
-// 修改工具卡片的显示逻辑
-const getToolTranslation = (tool: any) => {
+// 修改获取工具翻译的函数
+interface Tool {
+  code: string
+  name: string
+  description: string
+  icon: string
+  path: string
+  category: string | string[]
+}
+
+interface ToolTranslation {
+  name: string
+  description: string
+}
+
+const getToolTranslation = (tool: Tool): ToolTranslation => {
   const lang = isEnglish.value ? 'en' : 'zh'
-  return toolsTranslations[lang][tool.code] || {
+  const translations = toolsTranslations[lang] as Record<string, ToolTranslation>
+  return translations[tool.code] || {
     name: tool.name,
     description: tool.description
   }
 }
 
+// 添加动画控制相关的代码
+const { isAnimationEnabled, toggleAnimation } = useAnimationStore()
+
+// 移除重复定义的 translations 对象，因为已经从 i18n.ts 导入了
+
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .home-container {
-  padding-top: 240px; /* 增加顶部内边距，为固定定位的搜索区域和分类标签预留空间 */
+  padding-top: 240px;
   padding-left: 2rem;
   padding-right: 2rem;
   max-width: 1200px;
@@ -1734,13 +1435,65 @@ const getToolTranslation = (tool: any) => {
   }
 }
 
-.theme-toggle {
+/* 修改操作按钮组样式 */
+.header-actions {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
   width: 32px;
   height: 32px;
   padding: 6px;
   border: none;
   border-radius: 6px;
-  background: rgba(0, 122, 255, 0.9); /* 使用 #007aff 并添加透明度 */
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.github-icon {
+  width: 1.2em;
+  height: 1.2em;
+}
+
+/* 修改分隔线样式 */
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-color);
+  margin: 0 4px;
+}
+
+/* 修改功能按钮样式 */
+.theme-toggle,
+.animation-toggle,
+.lang-toggle {
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0, 122, 255, 0.9);
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1748,42 +1501,89 @@ const getToolTranslation = (tool: any) => {
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+  margin-left: 8px;
+
+  &:hover {
+    background: rgba(0, 122, 255, 1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+  }
+
+  .toggle-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+
+    .el-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
 }
 
-.theme-toggle:hover {
-  background: rgba(0, 122, 255, 1); /* 悬停时移除透明度 */
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+/* 语言切换按钮文本 */
+.lang-toggle {
+  .toggle-icon {
+    .lang-text {
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
 }
 
-.theme-toggle:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+/* 动画按钮禁用状态 */
+.animation-toggle.is-disabled {
+  background: rgba(128, 128, 128, 0.9);
+  box-shadow: 0 2px 6px rgba(128, 128, 128, 0.2);
+
+  &:hover {
+    background: rgba(128, 128, 128, 1);
+    box-shadow: 0 4px 12px rgba(128, 128, 128, 0.3);
+  }
 }
 
-.toggle-icon {
-  font-size: 16px;
+/* 语言切换按钮文本 */
+.lang-text {
+  font-size: 14px;
+  font-weight: 500;
   transition: all 0.3s ease;
 }
 
-/* 亮色模式样式 */
-.theme-toggle:not(.is-dark) .toggle-icon {
-  color: white;
-}
-
 /* 暗色模式样式 */
-.theme-toggle.is-dark {
-  background: rgba(0, 122, 255, 0.8); /* 暗色模式下降低亮度 */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
+:root.dark {
+  .theme-toggle,
+  .animation-toggle,
+  .lang-toggle {
+    background: rgba(0, 122, 255, 0.8);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 
-.theme-toggle.is-dark:hover {
-  background: rgba(0, 122, 255, 0.9);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
+    &:hover {
+      background: rgba(0, 122, 255, 0.9);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+  }
 
-.theme-toggle.is-dark .toggle-icon {
-  color: #ffd700;
+  .animation-toggle.is-disabled {
+    background: rgba(128, 128, 128, 0.8);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      background: rgba(128, 128, 128, 0.9);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+  }
 }
 
 /* 响应式调整 */
@@ -1794,14 +1594,34 @@ const getToolTranslation = (tool: any) => {
   }
 
   .action-btn,
-  .theme-toggle {
+  .theme-toggle,
+  .animation-toggle,
+  .lang-toggle {
     width: 28px;
     height: 28px;
     padding: 5px;
+    margin-left: 6px;
+
+    .toggle-icon {
+      .el-icon {
+        width: 14px;
+        height: 14px;
+        font-size: 14px;
+      }
+    }
+  }
+
+  .lang-toggle {
+    .toggle-icon {
+      .lang-text {
+        font-size: 12px;
+      }
+    }
   }
 
   .divider {
     height: 20px;
+    margin: 0 3px;
   }
 }
 
@@ -1894,46 +1714,6 @@ const getToolTranslation = (tool: any) => {
 
 .brand {
   position: relative;
-}
-
-.header-actions {
-  position: absolute;
-  right: 2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.action-btn {
-  width: 32px;
-  height: 32px;
-  padding: 6px;
-  border: none;
-  border-radius: 6px;
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.action-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--primary-color);
-  transform: translateY(-1px);
-}
-
-.action-btn:active {
-  transform: translateY(0);
-}
-
-.github-icon {
-  width: 1.2em;
-  height: 1.2em;
 }
 
 .about-dialog {
@@ -2035,10 +1815,21 @@ const getToolTranslation = (tool: any) => {
   }
   
   .action-btn,
-  .theme-toggle {
+  .theme-toggle,
+  .animation-toggle,
+  .lang-toggle {
     width: 28px;
     height: 28px;
     padding: 5px;
+    margin-left: 6px;
+
+    .toggle-icon {
+      .el-icon {
+        width: 14px;
+        height: 14px;
+        font-size: 14px;
+      }
+    }
   }
   
   .about-dialog {
@@ -2911,6 +2702,7 @@ const getToolTranslation = (tool: any) => {
 
   .action-btn,
   .theme-toggle,
+  .animation-toggle,
   .lang-toggle {
     width: 28px;
     height: 28px;
@@ -3013,6 +2805,7 @@ const getToolTranslation = (tool: any) => {
 
   .action-btn,
   .theme-toggle,
+  .animation-toggle,
   .lang-toggle {
     width: 24px;
     height: 24px;
@@ -3062,6 +2855,74 @@ const getToolTranslation = (tool: any) => {
 
   .search-divider {
     margin: 0;
+  }
+}
+
+/* 添加动画开关按钮样式 */
+.animation-toggle {
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0, 122, 255, 0.9);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+}
+
+.animation-toggle:hover {
+  background: rgba(0, 122, 255, 1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.animation-toggle:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+}
+
+.animation-toggle.is-disabled {
+  background: rgba(128, 128, 128, 0.9);
+  box-shadow: 0 2px 6px rgba(128, 128, 128, 0.2);
+}
+
+.animation-toggle.is-disabled:hover {
+  background: rgba(128, 128, 128, 1);
+  box-shadow: 0 4px 12px rgba(128, 128, 128, 0.3);
+}
+
+/* 暗色模式样式 */
+:root.dark .animation-toggle {
+  background: rgba(0, 122, 255, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark .animation-toggle:hover {
+  background: rgba(0, 122, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark .animation-toggle.is-disabled {
+  background: rgba(128, 128, 128, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark .animation-toggle.is-disabled:hover {
+  background: rgba(128, 128, 128, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .animation-toggle {
+    width: 28px;
+    height: 28px;
+    padding: 5px;
   }
 }
 </style>

@@ -1,13 +1,22 @@
 <template>
-  <canvas ref="canvas" class="particle-snow"></canvas>
+  <canvas ref="canvas" class="particle-snow" :class="{ 'hidden': !isEnabled }"></canvas>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useAnimationStore } from '@/stores/animationStore'
+
+// 添加组件名称
+defineOptions({
+  name: 'ParticleSnow'
+})
 
 const canvas = ref<HTMLCanvasElement | null>(null)
 let animationFrame: number
 let ctx: CanvasRenderingContext2D | null = null
+
+// 获取动画状态
+const { isAnimationEnabled: isEnabled } = useAnimationStore()
 
 interface Particle {
   x: number
@@ -108,17 +117,35 @@ function drawParticles() {
 }
 
 function animate() {
+  if (!isEnabled.value) {
+    return
+  }
   updateParticles()
   drawParticles()
   animationFrame = requestAnimationFrame(animate)
 }
+
+// 监听动画状态变化
+watch(isEnabled, (newValue) => {
+  if (newValue) {
+    animate()
+  } else {
+    cancelAnimationFrame(animationFrame)
+    // 清空画布
+    if (ctx && canvas.value) {
+      ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    }
+  }
+})
 
 onMounted(() => {
   if (canvas.value) {
     ctx = canvas.value.getContext('2d')
     resizeCanvas()
     initParticles()
-    animate()
+    if (isEnabled.value) {
+      animate()
+    }
   }
 
   window.addEventListener('resize', resizeCanvas)
@@ -139,5 +166,10 @@ onUnmounted(() => {
   height: 100%;
   pointer-events: none;
   z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.particle-snow.hidden {
+  opacity: 0;
 }
 </style> 

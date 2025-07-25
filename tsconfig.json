@@ -3,7 +3,7 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "Node",
     "strict": true,
     "jsx": "preserve",
     "sourceMap": true,
@@ -20,7 +20,8 @@
     "types": [
       "vite/client",
       "@vercel/speed-insights",
-      "@vercel/analytics"
+      "@vercel/analytics",
+      "element-plus/global"
     ]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
