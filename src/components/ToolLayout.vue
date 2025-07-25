@@ -174,7 +174,7 @@ const copyLink = () => {
 }
 
 const showFeedback = () => {
-  const url = 'https://gitee.com/huhage/programmers-assistant-utools/issues'
+  const url = 'https://y6ero6gpth.feishu.cn/share/base/form/shrcnAvgnsb468GYfZr4gH7XU0d'
   
   // 判断是否在 uTools 环境中
   if (window.utools) {
