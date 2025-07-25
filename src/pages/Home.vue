@@ -1083,20 +1083,19 @@ const { isAnimationEnabled, toggleAnimation } = useAnimationStore()
   background: var(--bg-primary);
   padding: 1rem 0;
   text-align: center;
-}
 
-/* Radio 按钮组的基础样式 */
-:deep(.el-radio-group) {
-  background: var(--bg-secondary);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  padding: 0.375rem;
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05),
-    0 0 0 1px rgba(0, 0, 0, 0.03);
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
+  :deep(.el-radio-group) {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 0.375rem;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05),
+      0 0 0 1px rgba(0, 0, 0, 0.03);
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
 }
 
 /* Radio 按钮的基础样式 */
@@ -1121,35 +1120,32 @@ const { isAnimationEnabled, toggleAnimation } = useAnimationStore()
 }
 
 /* 暗色模式的样式覆盖 */
-:root.dark {
-  /* Radio 按钮组暗色模式 */
+:root.dark .category-tags {
+  background: var(--bg-primary);
+
   :deep(.el-radio-group) {
-    background: rgba(35, 35, 38, 0.9);
+    background: var(--bg-overlay);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2),
       0 0 0 1px rgba(255, 255, 255, 0.1);
   }
 
-  /* Radio 按钮暗色模式 */
   :deep(.el-radio-button__inner) {
-    background-color: rgba(35, 35, 38, 0.6);
+    background: var(--bg-overlay);
     color: var(--text-secondary);
     border: none !important;
   }
 
-  /* 暗色模式悬停状态 */
   :deep(.el-radio-button__inner:hover) {
-    background-color: rgba(45, 45, 48, 0.8);
+    background: var(--bg-overlay-hover);
     color: var(--text-primary);
   }
 
-  /* 暗色模式选中状态 */
   :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
     background-color: var(--primary-color);
     color: #ffffff;
     box-shadow: none;
   }
 
-  /* 移除按钮间的边框 */
   :deep(.el-radio-button:not(:first-child) .el-radio-button__inner) {
     border-left: none;
   }
