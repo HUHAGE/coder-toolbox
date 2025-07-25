@@ -774,7 +774,7 @@ const clearSelection = () => {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .cron-tool {
   background: var(--bg-secondary);
   border-radius: 12px;
@@ -821,53 +821,68 @@ const clearSelection = () => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .scenario-card {
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid var(--el-border-color-light);
-  border-radius: 16px;
-  overflow: hidden;
-}
+  
+  :deep(.el-card__body) {
+    padding: 0.75rem;
+  }
 
-.scenario-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  &.active {
+    border-color: var(--el-color-primary);
+    transform: translateY(-2px);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--el-box-shadow-light);
+  }
 }
 
 .scenario-content {
   display: flex;
   gap: 0.75rem;
   align-items: flex-start;
-  padding: 0.75rem;
 }
 
 .scenario-icon {
   color: var(--el-color-primary);
   flex-shrink: 0;
-  font-size: 20px;
+  margin-top: 0.25rem;
 }
 
-.scenario-info h4 {
-  margin: 0 0 0.25rem;
-  font-size: 0.9rem;
-}
+.scenario-info {
+  flex: 1;
+  min-width: 0;
 
-.scenario-info p {
-  margin: 0 0 0.25rem;
-  font-size: 0.8rem;
-  color: var(--el-text-color-secondary);
-  line-height: 1.3;
-}
+  h4 {
+    margin: 0 0 0.25rem;
+    font-size: 0.95rem;
+    color: var(--el-text-color-primary);
+  }
 
-.scenario-info code {
-  font-family: monospace;
-  font-size: 0.8rem;
-  color: var(--el-color-primary);
-  background: var(--el-color-primary-light-9);
-  padding: 0.2rem 0.4rem;
-  border-radius: 12px;
+  p {
+    margin: 0 0 0.25rem;
+    font-size: 0.85rem;
+    color: var(--el-text-color-secondary);
+    line-height: 1.3;
+  }
+
+  code {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--el-color-primary);
+    background: var(--el-fill-color-light);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .config-card {
