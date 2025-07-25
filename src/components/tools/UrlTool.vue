@@ -14,6 +14,9 @@
         <el-button @click="clearContent" class="action-button">
           <el-icon><Delete /></el-icon>清空
         </el-button>
+        <el-button @click="loadExample" class="action-button">
+          <el-icon><Document /></el-icon>示例
+        </el-button>
       </el-button-group>
     </div>
 
@@ -55,6 +58,7 @@ import { ElMessage } from 'element-plus'
 import { 
   Upload,
   Download,
+  Document,
   Document as CopyDocument,
   Delete 
 } from '@element-plus/icons-vue'
@@ -93,6 +97,12 @@ const clearContent = () => {
   inputContent.value = ''
   outputContent.value = ''
   ElMessage.success('已清空')
+}
+
+const loadExample = () => {
+  inputContent.value = 'https%3A%2F%2Fexample.com%2Fpath%3Fname%3D%E5%BC%A0%E4%B8%89%26age%3D25%26title%3DWeb%20Developer'
+  outputContent.value = ''
+  ElMessage.success('已加载示例')
 }
 </script>
 
