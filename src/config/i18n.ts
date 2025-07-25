@@ -43,7 +43,8 @@ export const translations: Translations = {
     links: {
       sourceCode: '源代码',
       aboutAuthor: '关于作者',
-      aboutProject: '关于项目'
+      aboutProject: '关于项目',
+      feedback: '问题反馈'
     }
   },
   en: {
@@ -75,7 +76,8 @@ export const translations: Translations = {
     links: {
       sourceCode: 'Source Code',
       aboutAuthor: 'About Author',
-      aboutProject: 'About Project'
+      aboutProject: 'About Project',
+      feedback: 'Feedback'
     }
   }
 } 

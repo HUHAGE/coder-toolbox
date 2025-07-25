@@ -204,6 +204,10 @@
             <a href="#" @click.prevent="showAboutProject">
               {{ t.links.aboutProject }}
             </a>
+            <span class="dot">·</span>
+            <a href="#" @click.prevent="openFeedback">
+              {{ t.links.feedback }}
+            </a>
           </div>
         </div>
       </div>
@@ -705,6 +709,16 @@ const openAuthorBlog = () => {
   }
 }
 
+// 添加反馈方法
+const openFeedback = () => {
+  const url = 'https://y6ero6gpth.feishu.cn/share/base/form/shrcnAvgnsb468GYfZr4gH7XU0d'
+  if (window.utools) {
+    window.utools.shellOpenExternal(url)
+  } else {
+    window.open(url, '_blank')
+  }
+}
+
 // 工具点击处理
 const handleToolClick = (tool: any) => {
   // 添加工具点击统计
@@ -819,14 +833,55 @@ const { isAnimationEnabled, toggleAnimation } = useAnimationStore()
 
 .title {
   font-size: 2.5rem;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
-  background-image: linear-gradient(45deg, #2b5876, #7c3aed);
+  background-image: linear-gradient(120deg, #ff0080, #7928ca, #00dfd8, #ff4d4d);
+  background-size: 300% 300%;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
   letter-spacing: -0.5px;
   display: inline-block;
+  animation: gradient 6s ease infinite; /* 加快动画速度 */
+  text-shadow: 
+    0 2px 10px rgba(255, 0, 128, 0.3),
+    0 4px 20px rgba(121, 40, 202, 0.3);
+  position: relative;
+}
+
+/* 添加渐变动画 */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 暗色模式下的标题样式 */
+:root.dark .title {
+  background-image: linear-gradient(120deg, #ff3d00, #ff0080, #00ff9d, #00b8ff);
+  text-shadow: 
+    0 2px 10px rgba(255, 61, 0, 0.3),
+    0 4px 20px rgba(255, 0, 128, 0.3);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.5rem;
+    background-size: 200% 200%;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.25rem;
+  }
 }
 
 .search-container {
