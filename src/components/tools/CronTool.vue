@@ -8,15 +8,17 @@
         <el-tab-pane label="生成表达式" name="generator">
           <div class="tab-content">
             <!-- 快速场景选择 -->
-            <div class="quick-scenarios">
-              <div class="section-header">
-                <h3>常用场景</h3>
-                <el-button-group>
-                  <el-button @click="clearSelection">
-                    <el-icon><Delete /></el-icon>清除选择
-                  </el-button>
-                </el-button-group>
-              </div>
+            <el-card class="section-card">
+              <template #header>
+                <div class="section-header">
+                  <h3>常用场景</h3>
+                  <el-button-group>
+                    <el-button @click="clearSelection">
+                      <el-icon><Delete /></el-icon>清除选择
+                    </el-button>
+                  </el-button-group>
+                </div>
+              </template>
               <div class="scenario-grid">
                 <el-card 
                   v-for="scenario in commonScenarios" 
@@ -37,87 +39,87 @@
                   </div>
                 </el-card>
               </div>
-            </div>
+            </el-card>
 
             <!-- 自定义配置区域 -->
-            <div class="custom-config">
-              <div class="section-header">
-                <h3>自定义配置</h3>
-              </div>
-              <el-card class="config-card">
-                <div class="config-grid">
-                  <div class="config-section">
-                    <h4>执行频率</h4>
-                    <el-radio-group v-model="frequency" @change="updateExpression" size="large">
-                      <el-radio-button label="once">一次</el-radio-button>
-                      <el-radio-button label="minutely">每分钟</el-radio-button>
-                      <el-radio-button label="hourly">每小时</el-radio-button>
-                      <el-radio-button label="daily">每天</el-radio-button>
-                      <el-radio-button label="weekly">每周</el-radio-button>
-                      <el-radio-button label="monthly">每月</el-radio-button>
-                      <el-radio-button label="yearly">每年</el-radio-button>
-                      <el-radio-button label="custom">自定义</el-radio-button>
-                    </el-radio-group>
-                  </div>
-
-                  <!-- 时间选择 -->
-                  <div v-if="showTimeSelect" class="config-section">
-                    <h4>执行时间</h4>
-                    <el-time-picker 
-                      v-model="executionTime"
-                      format="HH:mm:ss"
-                      placeholder="选择时间"
-                      @change="updateExpression"
-                    />
-                  </div>
-
-                  <!-- 日期选择 -->
-                  <div v-if="showDateSelect" class="config-section">
-                    <h4>执行日期</h4>
-                    <el-date-picker
-                      v-model="executionDate"
-                      type="date"
-                      placeholder="选择日期"
-                      @change="updateExpression"
-                    />
-                  </div>
-
-                  <!-- 周几选择 -->
-                  <div v-if="frequency === 'weekly'" class="config-section">
-                    <h4>选择星期</h4>
-                    <el-checkbox-group v-model="selectedDays" @change="updateExpression">
-                      <el-checkbox-button 
-                        v-for="day in weekDays" 
-                        :key="day.value" 
-                        :label="day.value"
-                      >
-                        {{ day.label }}
-                      </el-checkbox-button>
-                    </el-checkbox-group>
-                  </div>
-
-                  <!-- 月份日期选择 -->
-                  <div v-if="frequency === 'monthly'" class="config-section">
-                    <h4>选择日期</h4>
-                    <el-select v-model="selectedMonthDay" @change="updateExpression">
-                      <el-option
-                        v-for="i in 31"
-                        :key="i"
-                        :label="`每月${i}号`"
-                        :value="i"
-                      />
-                      <el-option label="每月最后一天" value="L" />
-                      <el-option label="每月最后一个工作日" value="LW" />
-                    </el-select>
-                  </div>
+            <el-card class="section-card">
+              <template #header>
+                <div class="section-header">
+                  <h3>自定义配置</h3>
                 </div>
-              </el-card>
-            </div>
+              </template>
+              <div class="config-grid">
+                <div class="config-section">
+                  <h4>执行频率</h4>
+                  <el-radio-group v-model="frequency" @change="updateExpression" size="large">
+                    <el-radio-button label="once">一次</el-radio-button>
+                    <el-radio-button label="minutely">每分钟</el-radio-button>
+                    <el-radio-button label="hourly">每小时</el-radio-button>
+                    <el-radio-button label="daily">每天</el-radio-button>
+                    <el-radio-button label="weekly">每周</el-radio-button>
+                    <el-radio-button label="monthly">每月</el-radio-button>
+                    <el-radio-button label="yearly">每年</el-radio-button>
+                    <el-radio-button label="custom">自定义</el-radio-button>
+                  </el-radio-group>
+                </div>
+
+                <!-- 时间选择 -->
+                <div v-if="showTimeSelect" class="config-section">
+                  <h4>执行时间</h4>
+                  <el-time-picker 
+                    v-model="executionTime"
+                    format="HH:mm:ss"
+                    placeholder="选择时间"
+                    @change="updateExpression"
+                  />
+                </div>
+
+                <!-- 日期选择 -->
+                <div v-if="showDateSelect" class="config-section">
+                  <h4>执行日期</h4>
+                  <el-date-picker
+                    v-model="executionDate"
+                    type="date"
+                    placeholder="选择日期"
+                    @change="updateExpression"
+                  />
+                </div>
+
+                <!-- 周几选择 -->
+                <div v-if="frequency === 'weekly'" class="config-section">
+                  <h4>选择星期</h4>
+                  <el-checkbox-group v-model="selectedDays" @change="updateExpression">
+                    <el-checkbox-button 
+                      v-for="day in weekDays" 
+                      :key="day.value" 
+                      :label="day.value"
+                    >
+                      {{ day.label }}
+                    </el-checkbox-button>
+                  </el-checkbox-group>
+                </div>
+
+                <!-- 月份日期选择 -->
+                <div v-if="frequency === 'monthly'" class="config-section">
+                  <h4>选择日期</h4>
+                  <el-select v-model="selectedMonthDay" @change="updateExpression">
+                    <el-option
+                      v-for="i in 31"
+                      :key="i"
+                      :label="`每月${i}号`"
+                      :value="i"
+                    />
+                    <el-option label="每月最后一天" value="L" />
+                    <el-option label="每月最后一个工作日" value="LW" />
+                  </el-select>
+                </div>
+              </div>
+            </el-card>
 
             <!-- 表达式结果展示 -->
-            <div class="result-section">
-              <el-card class="result-card">
-                <div class="result-header">
+            <el-card class="section-card">
+              <template #header>
+                <div class="section-header">
                   <h3>Cron 表达式</h3>
                   <el-button-group>
                     <el-button type="primary" @click="copyCron">
@@ -128,33 +130,33 @@
                     </el-button>
                   </el-button-group>
                 </div>
-                <div class="expression-content">
-                  <el-input v-model="cronExpression" readonly>
-                    <template #prepend>
-                      <el-tooltip 
-                        content="秒 分 时 日 月 周" 
-                        placement="top"
-                      >
-                        <el-icon><InfoFilled /></el-icon>
-                      </el-tooltip>
-                    </template>
-                  </el-input>
-                  <div class="expression-description">
-                    {{ expressionDescription }}
-                  </div>
+              </template>
+              <div class="expression-content">
+                <el-input v-model="cronExpression" readonly>
+                  <template #prepend>
+                    <el-tooltip 
+                      content="秒 分 时 日 月 周" 
+                      placement="top"
+                    >
+                      <el-icon><InfoFilled /></el-icon>
+                    </el-tooltip>
+                  </template>
+                </el-input>
+                <div class="expression-description">
+                  {{ expressionDescription }}
                 </div>
+              </div>
 
-                <div class="preview-section">
-                  <h4>执行预览</h4>
-                  <div class="next-runs">
-                    <div class="next-run-item" v-for="(time, index) in nextRunTimes" :key="index">
-                      <el-icon><Timer /></el-icon>
-                      <span>{{ formatDateTime(time) }}</span>
-                    </div>
+              <div class="preview-section">
+                <h4>执行预览</h4>
+                <div class="next-runs">
+                  <div class="next-run-item" v-for="(time, index) in nextRunTimes" :key="index">
+                    <el-icon><Timer /></el-icon>
+                    <span>{{ formatDateTime(time) }}</span>
                   </div>
                 </div>
-              </el-card>
-            </div>
+              </div>
+            </el-card>
           </div>
         </el-tab-pane>
 
@@ -776,12 +778,11 @@ const clearSelection = () => {
 
 <style lang="scss" scoped>
 .cron-tool {
-  background: var(--bg-secondary);
-  border-radius: 12px;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  background-color: #f5f7fa;
 }
 
 .main-content {
@@ -791,47 +792,64 @@ const clearSelection = () => {
 }
 
 .function-tabs {
-  background: var(--bg-primary);
-  border-radius: 8px;
-  padding: 1rem;
+  :deep(.el-tabs__content) {
+    padding: 1rem 0;
+  }
 }
 
 .tab-content {
-  padding: 1rem 0;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.section-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  :deep(.el-card__header) {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #ebeef5;
+  }
+
+  :deep(.el-card__body) {
+    padding: 1.25rem;
+  }
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-}
-
-.section-header h3 {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--el-text-color-primary);
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #303133;
+  }
 }
 
 .scenario-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: 1rem;
 }
 
 .scenario-card {
   cursor: pointer;
   transition: all 0.2s ease;
+  border: 1px solid #ebeef5;
+  background: #fff;
+  border-radius: 8px;
   
-  :deep(.el-card__body) {
-    padding: 0.75rem;
-  }
-
   &.active {
     border-color: var(--el-color-primary);
     transform: translateY(-2px);
@@ -839,7 +857,11 @@ const clearSelection = () => {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: var(--el-box-shadow-light);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  :deep(.el-card__body) {
+    padding: 0.75rem;
   }
 }
 
