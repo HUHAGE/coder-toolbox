@@ -539,7 +539,7 @@ const showAboutAuthor = () => {
 }
 
 const openGitHub = () => {
-  const url = 'https://gitee.com/huhage/programmers-assistant-utools/tree/master'
+  const url = 'https://github.com/HUHAGE/coder-toolbox'
   
   // 判断是否在 uTools 环境中
   if (window.utools) {
@@ -709,9 +709,9 @@ const retryLoadManual = () => {
 // 添加打开链接的方法
 const openSourceLink = () => {
   if (window.utools) {
-    window.utools.shellOpenExternal('https://gitee.com/huhage/programmers-assistant-utools')
+    window.utools.shellOpenExternal('https://github.com/HUHAGE/coder-toolbox')
   } else {
-    window.open('https://gitee.com/huhage/programmers-assistant-utools', '_blank')
+    window.open('https://github.com/HUHAGE/coder-toolbox', '_blank')
   }
 }
 
