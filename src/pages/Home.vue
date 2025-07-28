@@ -1188,16 +1188,46 @@ const checkMobileView = () => {
   border-radius: 12px !important;
   font-size: 0.9rem;
   font-weight: 500;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: transparent;
+  color: var(--text-secondary);
   transition: all 0.3s ease;
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+  }
 }
 
 /* 选中状态的样式 */
 :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-  background-color: var(--primary-color);
+  background: var(--primary-color);
   color: #ffffff;
   box-shadow: none;
+  font-weight: 600;
+}
+
+/* 暗色模式的样式覆盖 */
+:root.dark {
+  :deep(.el-radio-button__inner) {
+    background: transparent;
+    color: var(--text-secondary);
+    border: none !important;
+
+    &:hover {
+      background: var(--bg-overlay-hover);
+      color: var(--text-primary);
+    }
+  }
+
+  :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+    background: var(--primary-color);
+    color: #ffffff;
+    box-shadow: none;
+  }
+
+  :deep(.el-radio-button:not(:first-child) .el-radio-button__inner) {
+    border-left: none;
+  }
 }
 
 /* 暗色模式的样式覆盖 */
