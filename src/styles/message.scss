@@ -1,0 +1,154 @@
+// 自定义消息通知样式
+.custom-message {
+  position: fixed !important;
+  top: auto !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  left: auto !important;
+  transform: translateX(0) !important;
+  margin: 0 !important;
+  
+  &.el-message {
+    min-width: 240px;
+    max-width: 400px;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
+                0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex !important;
+    align-items: center !important;
+
+    &.el-message--success {
+      background: rgba(0, 179, 126, 0.95);
+      .el-message__content,
+      .el-message__icon {
+        color: white;
+      }
+    }
+    
+    &.el-message--warning {
+      background: rgba(250, 173, 20, 0.95);
+      .el-message__content,
+      .el-message__icon {
+        color: white;
+      }
+    }
+    
+    &.el-message--info {
+      background: rgba(28, 100, 242, 0.95);
+      .el-message__content,
+      .el-message__icon {
+        color: white;
+      }
+    }
+    
+    &.el-message--error {
+      background: rgba(255, 77, 79, 0.95);
+      .el-message__content,
+      .el-message__icon {
+        color: white;
+      }
+    }
+    
+    .el-message__content {
+      font-size: 14px;
+      line-height: 1.6;
+      font-weight: 500;
+      padding-right: 32px;
+      color: var(--el-text-color-primary);
+      margin: 0;
+    }
+    
+    .el-message__icon {
+      font-size: 18px;
+      margin-right: 12px;
+      height: auto;
+      line-height: inherit;
+    }
+    
+    .el-message__closeBtn {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 16px;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 0;
+      margin: 0;
+      line-height: 1;
+      
+      &:hover {
+        color: white;
+      }
+
+      i {
+        width: 16px;
+        height: 16px;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+    }
+  }
+}
+
+// 消息进入和离开动画
+.el-message-fade-enter-from,
+.el-message-fade-leave-to {
+  opacity: 0;
+  transform: translateX(100%) !important;
+}
+
+.el-message-fade-enter-active,
+.el-message-fade-leave-active {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+// 暗色模式适配
+:root.dark {
+  .custom-message.el-message {
+    background: rgba(35, 35, 38, 0.95);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2),
+                0 2px 8px rgba(0, 0, 0, 0.1);
+                
+    .el-message__content {
+      color: white;
+    }
+  }
+}
+
+// 移动端适配
+@media (max-width: 768px) {
+  .custom-message.el-message {
+    width: calc(100% - 32px);
+    max-width: none;
+    bottom: 16px !important;
+    right: 16px !important;
+    padding: 14px 20px;
+    
+    .el-message__content {
+      font-size: 13px;
+    }
+    
+    .el-message__icon {
+      font-size: 16px;
+      margin-right: 10px;
+    }
+  }
+  
+  // 确保多个消息堆叠时的间距
+  .custom-message.el-message + .custom-message.el-message {
+    margin-bottom: 8px !important;
+  }
+} 

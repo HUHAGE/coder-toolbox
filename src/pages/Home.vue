@@ -121,10 +121,13 @@
     <!-- 添加一个新的滚动容器 -->
     <div 
       class="tools-scroll-container" 
-      :class="{ 'has-minimized-tools': minimizedTools.length > 0 }"
+      :class="{ 
+        'has-minimized-tools': minimizedTools.length > 0,
+        'mobile-view': isMobileView
+      }"
     >
-      <!-- 添加分类标签区域 -->
-      <div class="category-tags">
+      <!-- 添加分类标签区域，使用 v-show 控制显示 -->
+      <div class="category-tags" v-show="!isMobileView">
         <el-radio-group v-model="currentCategory" size="large">
           <el-radio-button value="all">
             <el-icon>
@@ -304,7 +307,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, inject, nextTick } from 'vue'
+import { ref, computed, onMounted, watch, inject, nextTick, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { keepAliveComponents } from '@/stores/keepAliveStore'
 import {
@@ -509,6 +512,17 @@ onMounted(() => {
   if (savedLanguage) {
     isEnglish.value = savedLanguage === 'en'
   }
+
+  // 初始检查
+  checkMobileView()
+  
+  // 添加窗口大小变化监听
+  window.addEventListener('resize', checkMobileView)
+})
+
+// 在组件卸载时移除事件监听
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobileView)
 })
 
 // 对话框控制
@@ -775,6 +789,18 @@ const getToolTranslation = (tool: Tool): ToolTranslation => {
 const { isAnimationEnabled, toggleAnimation } = useAnimationStore()
 
 // 移除重复定义的 translations 对象，因为已经从 i18n.ts 导入了
+
+// 添加移动端视图检测
+const isMobileView = ref(false)
+
+// 监听窗口大小变化
+const checkMobileView = () => {
+  isMobileView.value = window.innerWidth <= 768
+  // 在移动端视图下，重置分类为全部
+  if (isMobileView.value) {
+    currentCategory.value = 'all'
+  }
+}
 
 </script>
 
@@ -2974,6 +3000,53 @@ const { isAnimationEnabled, toggleAnimation } = useAnimationStore()
     width: 28px;
     height: 28px;
     padding: 5px;
+  }
+}
+
+/* 移动端视图的工具滚动容器样式 */
+.tools-scroll-container.mobile-view {
+  top: 140px; /* 减小顶部距离，因为没有分类标签 */
+  padding-top: 1rem;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .home-container {
+    padding-top: 140px; /* 减小顶部内边距 */
+  }
+  
+  .tools-scroll-container {
+    padding: 0 1rem;
+  }
+  
+  .tools-grid {
+    padding: 0;
+    gap: 12px;
+  }
+  
+  .tool-card {
+    width: 100%;
+    margin: 0;
+  }
+  
+  /* 隐藏分类标签 */
+  .category-tags {
+    display: none;
+  }
+}
+
+/* 更小屏幕的优化 */
+@media (max-width: 480px) {
+  .home-container {
+    padding-top: 120px;
+  }
+  
+  .tools-scroll-container.mobile-view {
+    top: 120px;
+  }
+  
+  .tools-grid {
+    gap: 10px;
   }
 }
 </style>
