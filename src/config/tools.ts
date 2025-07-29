@@ -35,8 +35,17 @@ import paopaoIcon from '@/assets/icons/paopao.svg'
 import mdIcon from '@/assets/icons/markdown.svg'
 import pushboxIcon from '@/assets/icons/box.svg'
 import invoiceIcon from '@/assets/icons/invoice.svg'
+import messageWallIcon from '@/assets/icons/message-wall.svg'
 
 export const tools = [
+  {
+    code: 'message-wall',
+    name: '留言墙',
+    description: '在线留言墙，分享你的想法',
+    icon: messageWallIcon,
+    path: 'https://www.huhawall.fun/',
+    category: 'fun'
+  },
   {
     code: 'invoice',
     name: '发票打印助手',

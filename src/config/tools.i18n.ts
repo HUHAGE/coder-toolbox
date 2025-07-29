@@ -10,6 +10,10 @@ interface ToolsTranslations {
 
 export const toolsTranslations: ToolsTranslations = {
   zh: {
+    'message-wall': {
+      name: '留言墙',
+      description: '在线留言墙，分享你的想法'
+    },
     invoice: {
       name: '发票打印助手',
       description: '专业的发票打印工具'
@@ -164,6 +168,10 @@ export const toolsTranslations: ToolsTranslations = {
     }
   },
   en: {
+    'message-wall': {
+      name: 'Message Wall',
+      description: 'Online message wall, share your thoughts'
+    },
     invoice: {
       name: 'Invoice Printer Assistant',
       description: 'Professional invoice printing tool'
