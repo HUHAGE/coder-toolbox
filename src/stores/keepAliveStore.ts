@@ -28,4 +28,5 @@ export const keepAliveComponents = ref([
   'SqlParserTool',
   'WordToHtml',
   'BasketballGroupTool',
+  'HtmlFormatter',
 ])

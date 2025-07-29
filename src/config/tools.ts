@@ -271,6 +271,14 @@ export const tools = [
     category: ['convert', 'format']
   },
   {
+    code: 'html',
+    name: 'HTML 格式化',
+    description: 'HTML 格式化、压缩、净化、折叠、预览',
+    icon: wordToHtmlIcon,
+    path: '/tools/html',
+    category: 'format'
+  },
+  {
     code: 'fun',
     name: '今天吃什么',
     description: '帮你决定今天吃什么',

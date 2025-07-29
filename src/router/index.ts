@@ -24,6 +24,7 @@ import Game2048 from '@/pages/games/2048/2048.vue'
 import Paopao from '@/pages/games/paopao/paopao.vue'
 import yunnan2025 from '@/pages/travel/yunnan2025/yunnan2025.vue'
 import Pushbox from '@/pages/games/pushbox/pushbox.vue'
+import Html from '@/pages/tools/Html.vue'
 
 import { trackToolUsage } from '@/utils/analytics'
 
@@ -193,6 +194,11 @@ const router = createRouter({
         title: '篮球分组',
         keepAlive: true
       }
+    },
+    {
+      path: '/tools/html',
+      name: 'HtmlFormatter',
+      component: Html
     },
     {
       path: '/games/pixel-breakout-master',

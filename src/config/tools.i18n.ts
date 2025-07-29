@@ -165,6 +165,10 @@ export const toolsTranslations: ToolsTranslations = {
     pushbox: {
       name: '推箱子',
       description: '推箱子游戏'
+    },
+    html: {
+      name: 'HTML 格式化',
+      description: 'HTML 格式化、压缩、净化、折叠、预览'
     }
   },
   en: {
@@ -323,6 +327,10 @@ export const toolsTranslations: ToolsTranslations = {
     pushbox: {
       name: 'Push Box',
       description: 'Push box game'
+    },
+    html: {
+      name: 'HTML Formatter',
+      description: 'HTML formatting, minify, purify, fold, preview'
     }
   }
 } 
