@@ -170,7 +170,7 @@
             <div class="header-content">
               <h3 class="section-title">
                 <el-icon class="title-icon"><Document /></el-icon>
-                HTML转换结果
+                转换结果
               </h3>
               <p class="section-subtitle">转换后的HTML代码</p>
             </div>
@@ -183,7 +183,7 @@
                 class="action-btn"
               >
                 <el-icon><CopyDocument /></el-icon>
-                复制HTML
+                复制
               </el-button>
               <el-button
                 v-if="convertedHtml"
@@ -195,6 +195,13 @@
                 <el-icon><Download /></el-icon>
                 下载
               </el-button>
+              <el-switch
+                v-if="convertedHtml"
+                v-model="separateStyles"
+                class="style-switch"
+                active-text="分离样式"
+                @change="applySeparateStyles"
+              />
               <el-button
                 v-if="convertedHtml"
                 class="action-btn"
@@ -298,6 +305,7 @@ const professionalLoading = ref(false)
 const professionalContent = ref('')
 const zoomLevel = ref(0.85)
 const showHtmlPreview = ref(false)
+const separateStyles = ref(false)
 
 // 处理文件选择
 const handleFileChange = async (file: UploadFile) => {
@@ -1507,6 +1515,72 @@ const zoomOut = () => {
 const resetZoom = () => {
   zoomLevel.value = 0.95
 }
+
+// 分离样式函数
+const applySeparateStyles = () => {
+  if (!convertedHtml.value) return
+  
+  if (separateStyles.value) {
+    // 分离样式
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(convertedHtml.value, 'text/html')
+    
+    // 收集所有内联样式
+    const styleMap = new Map()
+    let classCounter = 0
+    
+    // 处理所有带有style属性的元素
+    doc.querySelectorAll('[style]').forEach(element => {
+      const style = element.getAttribute('style')
+      if (!style) return
+      
+      // 为每个唯一的样式创建一个类名
+      let className = ''
+      if (styleMap.has(style)) {
+        className = styleMap.get(style)
+      } else {
+        className = `extracted-style-${classCounter++}`
+        styleMap.set(style, className)
+      }
+      
+      // 添加类名并移除内联样式
+      element.classList.add(className)
+      element.removeAttribute('style')
+    })
+    
+    // 创建样式内容
+    let styleContent = ''
+    for (const [style, className] of styleMap.entries()) {
+      styleContent += `.${className} { ${style} }\n`
+    }
+    
+    // 查找现有的style标签
+    const existingStyle = doc.querySelector('style')
+    if (existingStyle) {
+      // 将新样式添加到现有样式中
+      existingStyle.innerHTML += '\n' + styleContent
+    } else {
+      // 创建新的style标签
+      const styleElement = doc.createElement('style')
+      styleElement.textContent = styleContent
+      
+      // 在文档头部添加新的style标签
+      const head = doc.querySelector('head') || doc.createElement('head')
+      head.appendChild(styleElement)
+      if (!doc.querySelector('head')) {
+        doc.documentElement.prepend(head)
+      }
+    }
+    
+    // 更新转换后的HTML
+    convertedHtml.value = doc.documentElement.outerHTML
+  } else {
+    // 如果关闭分离样式，重新转换文档
+    if (selectedFile.value) {
+      convertToHtml()
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -2576,5 +2650,18 @@ const resetZoom = () => {
   box-shadow: none !important;
   margin-top: 0 !important;
   background: #fff !important;
+}
+
+/* 分离样式开关样式 */
+.style-switch {
+  margin: 0 8px;
+}
+
+.style-switch .el-switch__label {
+  font-size: 12px;
+}
+
+.dark .style-switch .el-switch__label {
+  color: #e0e0e0;
 }
 </style>
