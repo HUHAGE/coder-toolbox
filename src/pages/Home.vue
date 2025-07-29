@@ -859,41 +859,44 @@ const checkMobileView = () => {
 
 .title {
   font-size: 2.5rem;
-  font-weight: 700;
+  font-weight: 800;
   margin: 0;
-  background-image: linear-gradient(120deg, #ff0080, #7928ca, #00dfd8, #ff4d4d);
-  background-size: 300% 300%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  letter-spacing: -0.5px;
+  color: #1a1a1a;
+  letter-spacing: -1px;
   display: inline-block;
-  animation: gradient 6s ease infinite; /* 加快动画速度 */
-  text-shadow: 
-    0 2px 10px rgba(255, 0, 128, 0.3),
-    0 4px 20px rgba(121, 40, 202, 0.3);
   position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  transition: color 0.3s ease;
 }
 
-/* 添加渐变动画 */
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: #3b82f6;
+  border-radius: 2px;
+  transform: translateY(8px);
+  opacity: 0.8;
+  transition: width 0.3s ease, opacity 0.3s ease;
 }
+
+.title:hover::after {
+  width: 100%;
+  opacity: 1;
+}
+
+
 
 /* 暗色模式下的标题样式 */
 :root.dark .title {
-  background-image: linear-gradient(120deg, #ff3d00, #ff0080, #00ff9d, #00b8ff);
-  text-shadow: 
-    0 2px 10px rgba(255, 61, 0, 0.3),
-    0 4px 20px rgba(255, 0, 128, 0.3);
+  color: #ffffff;
+}
+
+:root.dark .title::after {
+  background: #60a5fa;
 }
 
 /* 响应式调整 */
