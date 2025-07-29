@@ -34,8 +34,17 @@ import twoIcon from '@/assets/icons/2048.svg'
 import paopaoIcon from '@/assets/icons/paopao.svg'
 import mdIcon from '@/assets/icons/markdown.svg'
 import pushboxIcon from '@/assets/icons/box.svg'
+import invoiceIcon from '@/assets/icons/invoice.svg'
 
 export const tools = [
+  {
+    code: 'invoice',
+    name: '发票打印助手',
+    description: '专业的发票打印工具',
+    icon: invoiceIcon,
+    path: 'https://invoice-artisan-print.vercel.app/',
+    category: 'other'
+  },
   {
     code: 'json',
     name: 'JSON 格式化',

@@ -10,6 +10,10 @@ interface ToolsTranslations {
 
 export const toolsTranslations: ToolsTranslations = {
   zh: {
+    invoice: {
+      name: '发票打印助手',
+      description: '专业的发票打印工具'
+    },
     json: {
       name: 'JSON 格式化',
       description: 'JSON 数据格式化、验证、压缩'
@@ -160,6 +164,10 @@ export const toolsTranslations: ToolsTranslations = {
     }
   },
   en: {
+    invoice: {
+      name: 'Invoice Printer Assistant',
+      description: 'Professional invoice printing tool'
+    },
     json: {
       name: 'JSON Formatter',
       description: 'Format, validate and compress JSON data'
