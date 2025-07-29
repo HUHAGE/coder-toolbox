@@ -78,11 +78,38 @@
               <p class="section-subtitle">原始文档预览</p>
             </div>
             <div class="header-actions">
-              <el-select v-model="previewMode" size="large" class="preview-select">
+              <el-select v-model="previewMode" size="default" class="preview-select">
                 <el-option label="本地预览" value="local" />
                 <el-option label="专业预览" value="professional" />
                 <el-option label="Office预览" value="office" />
               </el-select>
+              <!-- 专业预览缩放控制 -->
+              <div v-if="previewMode === 'professional'" class="zoom-controls">
+                <el-button
+                  size="default"
+                  @click="zoomOut"
+                  :disabled="zoomLevel <= 0.5"
+                  class="zoom-btn"
+                >
+                  <el-icon><ZoomOut /></el-icon>
+                </el-button>
+                <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
+                <el-button
+                  size="default"
+                  @click="zoomIn"
+                  :disabled="zoomLevel >= 2"
+                  class="zoom-btn"
+                >
+                  <el-icon><ZoomIn /></el-icon>
+                </el-button>
+                <el-button
+                  size="default"
+                  @click="resetZoom"
+                  class="zoom-btn reset-btn"
+                >
+                  <el-icon><Refresh /></el-icon>
+                </el-button>
+              </div>
             </div>
           </div>
           <div class="content-container">
@@ -189,7 +216,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Upload, Document, Download, Delete, Loading } from '@element-plus/icons-vue'
+import { Upload, Document, Download, Delete, Loading, ZoomIn, ZoomOut, Refresh } from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
 import mammoth from 'mammoth'
 import { renderAsync } from 'docx-preview'
@@ -252,6 +279,7 @@ const originalFileUrl = ref('')
 const previewMode = ref('local')
 const professionalLoading = ref(false)
 const professionalContent = ref('')
+const zoomLevel = ref(0.95)
 
 // 处理文件选择
 const handleFileChange = async (file: UploadFile) => {
@@ -757,6 +785,23 @@ const downloadHtml = () => {
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
 }
+
+// 缩放控制方法
+const zoomIn = () => {
+  if (zoomLevel.value < 2) {
+    zoomLevel.value = Math.min(2, zoomLevel.value + 0.1)
+  }
+}
+
+const zoomOut = () => {
+  if (zoomLevel.value > 0.5) {
+    zoomLevel.value = Math.max(0.5, zoomLevel.value - 0.1)
+  }
+}
+
+const resetZoom = () => {
+  zoomLevel.value = 0.95
+}
 </script>
 
 <style scoped>
@@ -1110,8 +1155,8 @@ const downloadHtml = () => {
 
 .preview-select {
   flex: 1;
-  max-width: 260px;
-  min-width: 220px;
+  max-width: 200px;
+  min-width: 160px;
 }
 
 .preview-select .el-select {
@@ -1119,15 +1164,15 @@ const downloadHtml = () => {
 }
 
 .preview-select .el-select .el-input__inner {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--el-text-color-primary);
   background: var(--el-bg-color-page);
   border: 1px solid var(--el-border-color-light);
-  border-radius: 8px;
-  padding: 10px 16px;
+  border-radius: 6px;
+  padding: 8px 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 40px;
+  min-height: 32px;
 }
 
 .preview-select .el-select .el-input__inner:hover {
@@ -1138,6 +1183,54 @@ const downloadHtml = () => {
 .preview-select .el-select .el-input__inner:focus {
   border-color: var(--el-color-primary);
   box-shadow: 0 0 0 2px var(--el-color-primary-light-7);
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 6px;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.zoom-btn:hover {
+  background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+}
+
+.zoom-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.zoom-level {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--el-text-color-primary);
+  min-width: 35px;
+  text-align: center;
+}
+
+.reset-btn {
+  background: var(--el-color-info-light-9);
+  color: var(--el-color-info);
+  border: 1px solid var(--el-color-info-light-7);
+}
+
+.reset-btn:hover {
+  background: var(--el-color-info-light-8);
+  color: var(--el-color-info-dark-2);
 }
 
 .action-btn {
@@ -1392,6 +1485,17 @@ const downloadHtml = () => {
 
 .professional-preview {
   height: 100%;
+}
+
+.docx-display-container {
+  height: 100%;
+  overflow: auto;
+  background: transparent;
+  margin: 0;
+  transform: scale(v-bind(zoomLevel));
+  transform-origin: top left;
+  width: calc(100% / v-bind(zoomLevel));
+  height: calc(100% / v-bind(zoomLevel));
 }
 
 .docx-container {
