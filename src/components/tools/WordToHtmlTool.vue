@@ -178,7 +178,7 @@
               <el-button
                 v-if="convertedHtml"
                 type="success"
-                size="large"
+                size="small"
                 @click="copyHtml"
                 class="action-btn"
               >
@@ -188,12 +188,22 @@
               <el-button
                 v-if="convertedHtml"
                 type="info"
-                size="large"
+                size="small"
                 @click="downloadHtml"
                 class="action-btn"
               >
                 <el-icon><Download /></el-icon>
                 下载
+              </el-button>
+              <el-button
+                v-if="convertedHtml"
+                class="action-btn"
+                type="primary"
+                size="small"
+                @click="showHtmlPreview = !showHtmlPreview"
+              >
+                <el-icon><Document /></el-icon>
+                {{ showHtmlPreview ? '显示代码' : '预览效果' }}
               </el-button>
             </div>
           </div>
@@ -206,7 +216,14 @@
               <p class="placeholder-text">点击转换按钮开始转换Word文档为HTML</p>
             </div>
             <div class="preview-content">
-              <div class="preview-frame" v-html="convertedHtml"></div>
+              <div v-if="!showHtmlPreview" class="preview-frame code-mode">
+                <pre style="white-space: pre-wrap; word-break: break-all; background: #f8f8f8; color: #222; padding: 12px; border-radius: 6px; font-size: 14px; line-height: 1.6; overflow-x: auto;">
+                  <code>{{ convertedHtml }}</code>
+                </pre>
+              </div>
+              <div v-else class="preview-frame render-mode" :style="previewMode === 'professional' ? `transform: scale(${zoomLevel}); transform-origin: top left; width: calc(100% / ${zoomLevel}); height: calc(100% / ${zoomLevel});` : ''">
+                <div v-html="convertedHtml"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -276,10 +293,11 @@ const originalText = ref('')
 const originalHtml = ref('')
 const originalFileUrl = ref('')
 
-const previewMode = ref('local')
+const previewMode = ref('professional')
 const professionalLoading = ref(false)
 const professionalContent = ref('')
-const zoomLevel = ref(0.95)
+const zoomLevel = ref(0.85)
+const showHtmlPreview = ref(false)
 
 // 处理文件选择
 const handleFileChange = async (file: UploadFile) => {
@@ -394,6 +412,12 @@ const handleFileChange = async (file: UploadFile) => {
     originalHtml.value = baseStyles + processedOriginalHtml
     
     ElMessage.success('文件选择成功，可以开始转换')
+    // 上传后自动切换到专业预览并触发渲染
+    if (previewMode.value === 'professional') {
+      previewMode.value = 'local';
+      await nextTick();
+    }
+    previewMode.value = 'professional';
   } catch (error) {
     ElMessage.error('文件读取失败，请重新选择')
     selectedFile.value = null
@@ -551,7 +575,7 @@ const convertToHtml = async () => {
 
   converting.value = true
   try {
-    // 重新读取文件进行转换（使用增强的转换选项）
+    // 读取文件为 arrayBuffer
     const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
       const reader = new FileReader()
       reader.onload = () => {
@@ -565,41 +589,88 @@ const convertToHtml = async () => {
       reader.readAsArrayBuffer(selectedFile.value!)
     })
 
-    // 第一步：使用mammoth进行基础转换，保留所有样式信息
+    // 优先用 docx-preview 渲染
+    let docxHtml = ''
+    let docxStyle = `
+      <style>
+        .docx-renderer {
+          background: #ffffff;
+          padding: 24px;
+          border: 1px solid #e4e7ed;
+          border-radius: 8px;
+          min-height: 100%;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          font-family: 'Times New Roman', serif;
+          line-height: 1.5;
+        }
+        .docx-renderer .docx {
+          background: #ffffff;
+          padding: 24px;
+          margin: 0;
+          font-family: 'Times New Roman', serif;
+          line-height: 1.5;
+        }
+        .docx-renderer .docx .page {
+          background: #ffffff;
+          margin: 12px 0;
+          padding: 24px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          border-radius: 8px;
+        }
+      </style>
+    `
+    try {
+      const container = document.createElement('div')
+      container.style.position = 'absolute'
+      container.style.left = '-9999px'
+      container.style.top = '-9999px'
+      document.body.appendChild(container)
+      await renderAsync(arrayBuffer, container, undefined, {
+        className: 'docx-renderer',
+        ignoreWidth: false,
+        ignoreHeight: false,
+        ignoreFonts: false,
+        ignoreLastRenderedPageBreak: false,
+        experimental: true
+      })
+      docxHtml = container.innerHTML
+      document.body.removeChild(container)
+      // 插入样式
+      convertedHtml.value = docxStyle + docxHtml
+      ElMessage.success('转换成功（专业预览样式）')
+      return
+    } catch (error) {
+      console.warn('docx-preview渲染失败，使用mammoth备用:', error)
+    }
+
+    // fallback: mammoth
     const mammothOptions = {
       arrayBuffer,
       styleMap: [
-        // 标题样式映射 - 保留原始样式名称
         "p[style-name='标题 1'] => h1.heading1:fresh",
         "p[style-name='标题 2'] => h2.heading2:fresh",
         "p[style-name='标题 3'] => h3.heading3:fresh",
         "p[style-name='标题 4'] => h4.heading4:fresh",
         "p[style-name='标题 5'] => h5.heading5:fresh",
         "p[style-name='标题 6'] => h6.heading6:fresh",
-        // 常用段落样式映射
         "p[style-name='正文'] => p.body-text:fresh",
         "p[style-name='引用'] => blockquote.quote:fresh",
         "p[style-name='列表段落'] => p.list-paragraph:fresh",
-        // 列表样式映射
         "ul[style-name='无序列表'] => ul.unordered-list:fresh",
         "ol[style-name='有序列表'] => ol.ordered-list:fresh",
-        // 对齐方式映射 - 更精确的映射
         "p[style-name='居中'] => p.text-center:fresh",
         "p[style-name='居右'] => p.text-right:fresh",
         "p[style-name='两端对齐'] => p.text-justify:fresh",
         "p[style-name='左对齐'] => p.text-left:fresh",
-        // 运行时样式映射 - 保留所有原始属性
         "r[color] => span[style='color: {color};']",
         "r[bold='true'] => strong",
         "r[italic='true'] => em",
         "r[underline='true'] => u",
         "r[strike='true'] => s",
         "r[highlight] => span[style='background-color: {highlight};']",
-        // 组合样式映射
         "r[bold='true'][italic='true'] => strong em",
         "r[bold='true'][underline='true'] => strong u",
         "r[italic='true'][underline='true'] => em u",
-        // 段落对齐映射
         "p[align='center'] => p.text-center:fresh",
         "p[align='right'] => p.text-right:fresh",
         "p[align='justify'] => p.text-justify:fresh",
@@ -617,43 +688,12 @@ const convertToHtml = async () => {
         })
       })
     }
-
     const mammothResult = await mammoth.convertToHtml(mammothOptions)
-    
-    // 第二步：使用docx-preview进行专业渲染，获取更精确的样式信息
-    let professionalHtml = ''
-    try {
-      const container = document.createElement('div')
-      container.style.position = 'absolute'
-      container.style.left = '-9999px'
-      container.style.top = '-9999px'
-      document.body.appendChild(container)
-      
-      await renderAsync(arrayBuffer, container, undefined, {
-        className: 'docx-renderer',
-        ignoreWidth: false,
-        ignoreHeight: false,
-        ignoreFonts: false,
-        ignoreLastRenderedPageBreak: false,
-        experimental: true
-      })
-      
-      professionalHtml = container.innerHTML
-      document.body.removeChild(container)
-    } catch (error) {
-      console.warn('docx-preview渲染失败，仅使用mammoth结果:', error)
-    }
-
-    // 第三步：增强的样式处理函数
-    let processedHtml = enhanceStyleProcessing(mammothResult.value, professionalHtml)
-    
-    // 第四步：添加增强的基础样式
+    // 你原有的样式增强处理
+    let processedHtml = enhanceStyleProcessing(mammothResult.value, '')
     const baseStyles = `
       <style>
-        /* 基础样式重置 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        /* 文档基础样式 */
         body {
           font-family: "Microsoft YaHei", Arial, sans-serif;
           line-height: 1.6;
@@ -662,128 +702,47 @@ const convertToHtml = async () => {
           margin: 0 auto;
           padding: 20px;
         }
-        
-        /* 表格样式 */
         table {
           border-collapse: collapse;
           width: 100%;
           margin: 1em 0;
         }
-        
         td, th {
           border: 1px solid #ddd;
           padding: 8px;
           vertical-align: top;
         }
-        
-        /* 标题样式 */
         h1, h2, h3, h4, h5, h6 {
           margin: 1em 0 0.5em;
           font-weight: bold;
           line-height: 1.2;
         }
-        
-        .heading1 { font-size: 2em; }
-        .heading2 { font-size: 1.5em; }
-        .heading3 { font-size: 1.17em; }
-        .heading4 { font-size: 1em; }
-        .heading5 { font-size: 0.83em; }
-        .heading6 { font-size: 0.67em; }
-        
-        /* 段落样式 */
+        h1 { font-size: 2em; }
+        h2 { font-size: 1.5em; }
+        h3 { font-size: 1.17em; }
         p { margin: 1em 0; }
-        .body-text { text-align: justify; }
-        .quote { 
-          margin: 1em 0;
-          padding: 1em;
-          border-left: 4px solid #ddd;
-          background: #f9f9f9;
-        }
-        
-        /* 列表样式 */
         ul, ol { margin: 1em 0; padding-left: 2em; }
         li { margin: 0.5em 0; }
-        
-        /* 图片样式 */
         img {
           max-width: 100%;
           height: auto;
           margin: 1em 0;
         }
-
-        /* 对齐方式样式 */
         .text-center { text-align: center !important; }
         .text-right { text-align: right !important; }
         .text-justify { text-align: justify !important; }
         .text-left { text-align: left !important; }
-        
-        /* 增强的文本样式 */
         strong { font-weight: bold; }
         em { font-style: italic; }
         u { text-decoration: underline; }
         s { text-decoration: line-through; }
-        
-        /* 确保样式优先级 */
-        [style*="text-align"] { text-align: inherit !important; }
-        [style*="color"] { color: inherit !important; }
-        [style*="background-color"] { background-color: inherit !important; }
-        
-        /* 样式优先级增强 */
-        .text-center { text-align: center !important; }
-        .text-right { text-align: right !important; }
-        .text-justify { text-align: justify !important; }
-        .text-left { text-align: left !important; }
-        
-        /* 确保内联样式优先级 */
-        span[style*="color"] { color: inherit !important; }
-        p[style*="text-align"] { text-align: inherit !important; }
-        p[style*="text-indent"] { text-indent: inherit !important; }
-        
-        /* 字体样式优先级 */
-        strong { font-weight: bold !important; }
-        em { font-style: italic !important; }
-        u { text-decoration: underline !important; }
-        s { text-decoration: line-through !important; }
-        
-        /* 段落缩进支持 */
-        .indent-1 { text-indent: 2em; }
-        .indent-2 { text-indent: 4em; }
-        .indent-3 { text-indent: 6em; }
-        
-        /* 行间距支持 */
-        .line-height-1 { line-height: 1.0; }
-        .line-height-1-5 { line-height: 1.5; }
-        .line-height-2 { line-height: 2.0; }
-        
-        /* 字体大小支持 */
-        .font-size-12 { font-size: 12pt; }
-        .font-size-14 { font-size: 14pt; }
-        .font-size-16 { font-size: 16pt; }
-        .font-size-18 { font-size: 18pt; }
-        .font-size-20 { font-size: 20pt; }
-        .font-size-24 { font-size: 24pt; }
-        .font-size-28 { font-size: 28pt; }
-        .font-size-32 { font-size: 32pt; }
-        .font-size-36 { font-size: 36pt; }
       </style>
     `
-    
     convertedHtml.value = baseStyles + processedHtml
-    
-    // 调试信息
-    console.log('原始HTML:', mammothResult.value.substring(0, 500))
-    console.log('处理后HTML:', processedHtml.substring(0, 500))
-    
-    if (mammothResult.messages.length > 0) {
-      console.warn('转换警告：', mammothResult.messages)
-    }
-    
-    ElMessage.success('转换成功')
+    ElMessage.success('转换成功（mammoth备用）')
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : '未知错误'
     console.error('转换错误详情：', error)
-    
-    // 提供更具体的错误提示
     if (errorMessage.includes('permission') || errorMessage.includes('could not be read')) {
       ElMessage.error('文件读取失败，请确保：\n1. 文件没有被其他程序打开\n2. 文件没有损坏\n3. 重新选择文件')
     } else if (errorMessage.includes('mammoth')) {
@@ -1714,6 +1673,11 @@ const resetZoom = () => {
   width: 100%;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(10px);
+  /* 新增：宽度限制，与下方展示区一致 */
+  max-width: 800px;
+  min-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .file-details {
@@ -1862,6 +1826,12 @@ const resetZoom = () => {
   overflow: hidden;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 新增：宽度限制 */
+  max-width: 800px;
+  min-width: 360px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .original-section:hover,
@@ -1910,8 +1880,8 @@ const resetZoom = () => {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .preview-select {
@@ -1999,13 +1969,15 @@ const resetZoom = () => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 0 10px;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 120px;
+  min-width: 80px;
   white-space: nowrap;
+  height: 32px;
+  box-sizing: border-box;
 }
 
 .action-btn .el-icon {
@@ -2123,7 +2095,31 @@ const resetZoom = () => {
 .preview-content {
   height: 100%;
   overflow: auto;
-  padding: 12px;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-frame.code-mode,
+.preview-frame.render-mode {
+  flex: 1 1 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.preview-frame.render-mode > div {
+  flex: 1 1 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .preview-text {
@@ -2547,5 +2543,38 @@ const resetZoom = () => {
   .file-size {
     font-size: 12px;
   }
+}
+
+/* 专业预览区域顶部无圆角、无阴影、无灰色块 */
+.professional-preview,
+.professional-preview .preview-content,
+.professional-preview .docx-display-container {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  background: #fff !important;
+}
+
+.professional-preview .preview-content {
+  padding: 0 !important;
+}
+
+.professional-preview .docx-display-container {
+  background: #fff !important;
+}
+
+.professional-preview .docx-renderer {
+  padding-top: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin-top: 0 !important;
+}
+
+/* HTML转换结果窗口在专业预览模式下样式与左侧一致 */
+.professional-preview ~ .converted-section .preview-frame {
+  padding-top: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin-top: 0 !important;
+  background: #fff !important;
 }
 </style>
