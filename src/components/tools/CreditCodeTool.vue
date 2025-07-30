@@ -591,7 +591,7 @@ const resultText = computed(() => {
   font-size: 1.25rem;
   color: var(--text-primary);
   font-weight: 600;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
 }
 
 .options-card .options-form {
@@ -617,7 +617,7 @@ const resultText = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .result-card .result-actions {
@@ -747,6 +747,9 @@ const resultText = computed(() => {
   color: #2c3e50;
   font-weight: 500;
   flex: 1;
+  font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', 'Roboto Mono', monospace;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
 }
 
 .copy-hint {
@@ -873,6 +876,12 @@ const resultText = computed(() => {
 .code-details li {
   margin: 0.5rem 0;
   line-height: 1.5;
+}
+
+.code-details li strong {
+  font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', 'Roboto Mono', monospace;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 /* 说明页面样式 */
@@ -1042,8 +1051,8 @@ const resultText = computed(() => {
 
 /* 修改文本框字体样式 */
 :deep(.el-textarea__inner) {
-  font-family: "Microsoft YaHei", monospace;
-  font-size: 1.1rem;
+  font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', 'Roboto Mono', monospace;
+  font-size: 1rem;
   color: #2c3e50;
   background: white;
   border: 1px solid #e9ecef;
@@ -1051,6 +1060,7 @@ const resultText = computed(() => {
   padding: 1rem;
   line-height: 1.6;
   resize: none;
+  letter-spacing: 0.5px;
 }
 
 :deep(.el-textarea__inner:focus) {
@@ -1166,6 +1176,11 @@ const resultText = computed(() => {
   .result-item {
     padding: 0.75rem;
     font-size: 1rem;
+  }
+
+  .code-text {
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
   }
 
   .copy-hint {
