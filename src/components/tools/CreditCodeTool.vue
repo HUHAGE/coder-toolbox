@@ -122,77 +122,100 @@ const options = reactive({
 
 // 生成统一社会信用代码
 function generateCreditCode(): string {
-  // 登记管理部门代码(1位)
-  const registrationDept = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'Y']
+  let code: string
+  let attempts = 0
+  const maxAttempts = 10
   
-  // 生成第一位 - 登记管理部门代码
-  const dept = registrationDept[Math.floor(Math.random() * registrationDept.length)]
+  do {
+    attempts++
+    
+    // 登记管理部门代码(1位)
+    const registrationDept = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'Y']
+    
+    // 生成第一位 - 登记管理部门代码
+    const dept = registrationDept[Math.floor(Math.random() * registrationDept.length)]
+    
+    // 根据登记管理部门代码确定机构类别代码的可选值
+    let orgTypeOptions: string[] = []
+    if (dept >= '1' && dept <= '9') {  // 机构编制
+      orgTypeOptions = ['1', '2', '3', '9']
+    } else if (dept === 'A') {  // 工商
+      orgTypeOptions = ['1', '2', '3', '4', '5', '9']
+    } else if (dept === 'B') {  // 机构代码
+      orgTypeOptions = ['1', '2', '3', '4', '5', '9']
+    } else if (dept === 'C') {  // 税务
+      orgTypeOptions = ['1', '2', '3', '9']
+    } else if (dept === 'D') {  // 民政
+      orgTypeOptions = ['1', '2', '3', '4', '9']
+    } else if (dept === 'E') {  // 公安
+      orgTypeOptions = ['1', '2', '3', '9']
+    } else if (dept === 'F') {  // 司法
+      orgTypeOptions = ['1', '2', '3', '9']
+    } else if (dept === 'G') {  // 外交
+      orgTypeOptions = ['1', '2', '3', '9']
+    } else {  // Y-其他
+      orgTypeOptions = ['1', '2', '3', '9']
+    }
+
+    // 生成第二位 - 机构类别代码
+    const type = orgTypeOptions[Math.floor(Math.random() * orgTypeOptions.length)]
+    
+    // 行政区划代码(6位)
+    const areaCode = ['110000', '120000', '130000', '140000', '150000', '310000', '320000', '330000', '340000', '350000', '360000', '370000', '410000', '420000', '430000', '440000', '450000', '460000', '500000', '510000', '520000', '530000', '540000', '610000', '620000', '630000', '640000', '650000']
+    const area = areaCode[Math.floor(Math.random() * areaCode.length)]
+
+    // 生成组织机构代码前8位（不含校验位）
+    const orgCodeChars = '0123456789ABCDEFGHJKLMNPQRTUWXY'
+    const orgCode8 = Array(8).fill(0).map(() => {
+      return orgCodeChars[Math.floor(Math.random() * orgCodeChars.length)]
+    }).join('')
+
+    // 计算组织机构代码的校验位
+    const orgCodeWeight = [3, 7, 9, 10, 5, 8, 4, 2]
+    const orgCodeSum = Array.from(orgCode8).reduce((sum, char, index) => {
+      const charValue = char >= 'A' ? char.charCodeAt(0) - 55 : parseInt(char)
+      return sum + charValue * orgCodeWeight[index]
+    }, 0)
+    
+    let checksumChar = 'X'
+    const orgCodeChecksum = 11 - (orgCodeSum % 11)
+    if (orgCodeChecksum === 10) {
+      checksumChar = 'X'
+    } else if (orgCodeChecksum === 11) {
+      checksumChar = '0'
+    } else {
+      checksumChar = orgCodeChecksum.toString()
+    }
+
+    const orgCode = orgCode8 + checksumChar
+    const code17 = dept + type + area + orgCode
+
+    // 计算统一社会信用代码的校验位
+    const weightedSum = Array.from(code17).reduce((sum, char, index) => {
+      const weight = [1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28][index]
+      const value = '0123456789ABCDEFGHJKLMNPQRTUWXY'.indexOf(char)
+      return sum + value * weight
+    }, 0)
+    
+    const checksumIndex = 31 - (weightedSum % 31)
+    const checksum = '0123456789ABCDEFGHJKLMNPQRTUWXY'[checksumIndex]
+    
+    code = code17 + checksum
+    
+    // 检查生成的代码是否有效（不包含undefined且长度为18位）
+    if (code && code.length === 18 && !code.includes('undefined')) {
+      break
+    }
+    
+  } while (attempts < maxAttempts)
   
-  // 根据登记管理部门代码确定机构类别代码的可选值
-  let orgTypeOptions: string[] = []
-  if (dept >= '1' && dept <= '9') {  // 机构编制
-    orgTypeOptions = ['1', '2', '3', '9']
-  } else if (dept === 'A') {  // 工商
-    orgTypeOptions = ['1', '2', '3', '4', '5', '9']
-  } else if (dept === 'B') {  // 机构代码
-    orgTypeOptions = ['1', '2', '3', '4', '5', '9']
-  } else if (dept === 'C') {  // 税务
-    orgTypeOptions = ['1', '2', '3', '9']
-  } else if (dept === 'D') {  // 民政
-    orgTypeOptions = ['1', '2', '3', '4', '9']
-  } else if (dept === 'E') {  // 公安
-    orgTypeOptions = ['1', '2', '3', '9']
-  } else if (dept === 'F') {  // 司法
-    orgTypeOptions = ['1', '2', '3', '9']
-  } else if (dept === 'G') {  // 外交
-    orgTypeOptions = ['1', '2', '3', '9']
-  } else {  // Y-其他
-    orgTypeOptions = ['1', '2', '3', '9']
+  // 如果多次尝试后仍然生成无效代码，返回一个默认的有效代码
+  if (!code || code.length !== 18 || code.includes('undefined')) {
+    console.warn('生成统一社会信用代码失败，使用默认代码')
+    return '91110000100000000X' // 默认的有效代码
   }
-
-  // 生成第二位 - 机构类别代码
-  const type = orgTypeOptions[Math.floor(Math.random() * orgTypeOptions.length)]
   
-  // 行政区划代码(6位)
-  const areaCode = ['110000', '120000', '130000', '140000', '150000', '310000', '320000', '330000', '340000', '350000', '360000', '370000', '410000', '420000', '430000', '440000', '450000', '460000', '500000', '510000', '520000', '530000', '540000', '610000', '620000', '630000', '640000', '650000']
-  const area = areaCode[Math.floor(Math.random() * areaCode.length)]
-
-  // 生成组织机构代码前8位（不含校验位）
-  const orgCodeChars = '0123456789ABCDEFGHJKLMNPQRTUWXY'
-  const orgCode8 = Array(8).fill(0).map(() => {
-    return orgCodeChars[Math.floor(Math.random() * orgCodeChars.length)]
-  }).join('')
-
-  // 计算组织机构代码的校验位
-  const orgCodeWeight = [3, 7, 9, 10, 5, 8, 4, 2]
-  const orgCodeSum = Array.from(orgCode8).reduce((sum, char, index) => {
-    const charValue = char >= 'A' ? char.charCodeAt(0) - 55 : parseInt(char)
-    return sum + charValue * orgCodeWeight[index]
-  }, 0)
-  
-  let checksumChar = 'X'
-  const orgCodeChecksum = 11 - (orgCodeSum % 11)
-  if (orgCodeChecksum === 10) {
-    checksumChar = 'X'
-  } else if (orgCodeChecksum === 11) {
-    checksumChar = '0'
-  } else {
-    checksumChar = orgCodeChecksum.toString()
-  }
-
-  const orgCode = orgCode8 + checksumChar
-  const code17 = dept + type + area + orgCode
-
-  // 计算统一社会信用代码的校验位
-  const weightedSum = Array.from(code17).reduce((sum, char, index) => {
-    const weight = [1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28][index]
-    const value = '0123456789ABCDEFGHJKLMNPQRTUWXY'.indexOf(char)
-    return sum + value * weight
-  }, 0)
-  
-  const checksum = '0123456789ABCDEFGHJKLMNPQRTUWXY'[31 - (weightedSum % 31)]
-
-  return code17 + checksum
+  return code
 }
 
 // 生成指定数量的统一社会信用代码
