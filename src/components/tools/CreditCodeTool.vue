@@ -18,21 +18,60 @@
           </div>
         </div>
       </div>
+      <div class="generate-section">
+        <el-button class="generate-btn" size="large" @click="generateCodes">
+          生 成
+        </el-button>
+      </div>
     </div>
 
     <!-- 生成结果卡片 -->
     <div class="tool-card result-card">
       <div class="result-header">
         <h3 class="card-title">生成结果</h3>
-        <div class="result-actions">
-          <el-button class="generate-btn" size="large" @click="generateCodes">
-            生 成
-          </el-button>
-        </div>
       </div>
 
       <div class="result-content">
-        <div class="textarea-wrapper">
+        <!-- 操作按钮区域 -->
+        <div class="result-actions-bar" v-if="codeList.length > 0">
+          <div class="actions-info">
+            <span class="result-count">已生成 {{ codeList.length }} 个代码</span>
+          </div>
+          <div class="actions-buttons">
+            <el-button
+              class="action-btn copy-all-btn"
+              size="large"
+              @click="copyResult"
+              title="复制所有结果"
+            >
+              <el-icon><CopyDocument /></el-icon>
+              复制全部
+            </el-button>
+            <el-button
+              class="action-btn clear-all-btn"
+              size="large"
+              @click="clearContent"
+              title="清空结果"
+            >
+              <el-icon><Delete /></el-icon>
+              清空结果
+            </el-button>
+          </div>
+        </div>
+
+        <div class="result-list" v-if="codeList.length > 0">
+          <div 
+            v-for="(code, index) in codeList" 
+            :key="index"
+            class="result-item"
+            @click="copyCode(code)"
+            :title="`点击复制: ${code}`"
+          >
+            <span class="code-text">{{ code }}</span>
+            <span class="copy-hint">点击复制</span>
+          </div>
+        </div>
+        <div class="textarea-wrapper" v-else>
           <el-input
             type="textarea"
             v-model="resultText"
@@ -40,25 +79,6 @@
             placeholder=""
             readonly
           />
-          <!-- 悬浮操作按钮 -->
-          <div class="floating-actions" v-if="resultText">
-            <el-button
-              class="float-btn copy-btn"
-              circle
-              @click="copyResult"
-              title="复制结果"
-            >
-              <el-icon><CopyDocument /></el-icon>
-            </el-button>
-            <el-button
-              class="float-btn clear-btn"
-              circle
-              @click="clearContent"
-              title="清空结果"
-            >
-              <el-icon><Delete /></el-icon>
-            </el-button>
-          </div>
         </div>
       </div>
     </div>
@@ -72,9 +92,7 @@
           :closable="false"
           show-icon
         >
-          <template #title>
-            重要提示
-          </template>
+         
           <div class="disclaimer-content">
             <p>1. 本工具生成的统一社会信用代码均为虚拟数据，仅用于软件开发、功能测试等用途；</p>
             <p>2. 请勿将本工具用于生成或收集真实的统一社会信用代码；</p>
@@ -179,7 +197,6 @@ function generateCreditCode(): string {
 
 // 生成指定数量的统一社会信用代码
 const generateCodes = () => {
-  codeList.value = []
   for (let i = 0; i < options.count; i++) {
     const code = generateCreditCode()
     codeList.value.push(code)
@@ -262,31 +279,193 @@ const resultText = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  margin-bottom: 2rem;
 }
 
-.result-card {
-  .result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-  }
+.generate-section {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
 
-  .result-actions {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
+/* 暗色模式适配 */
+:root.dark .generate-section {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
 
-  .result-content {
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    padding: 1rem;
-  }
+.result-card .result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.result-card .result-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.result-card .result-content {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.result-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.actions-info {
+  display: flex;
+  align-items: center;
+}
+
+.result-count {
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.actions-buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.copy-all-btn {
+  background-color: #007aff;
+  color: white;
+  border: none;
+}
+
+.copy-all-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 122, 255, 0.3);
+}
+
+.clear-all-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.clear-all-btn:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* 暗色模式适配 */
+:root.dark .result-actions-bar {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark .result-count {
+  color: var(--text-primary);
 }
 
 .textarea-wrapper {
   position: relative;
+}
+
+.result-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  background: white;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #f8f9fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Microsoft YaHei", monospace;
+  font-size: 1.1rem;
+}
+
+.result-item:last-child {
+  border-bottom: none;
+}
+
+.result-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(4px);
+}
+
+.result-item:active {
+  background-color: #e9ecef;
+  transform: translateX(2px);
+}
+
+.code-text {
+  color: #2c3e50;
+  font-weight: 500;
+  flex: 1;
+}
+
+.copy-hint {
+  color: #6c757d;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  margin-left: 1rem;
+}
+
+.result-item:hover .copy-hint {
+  opacity: 1;
+}
+
+/* 暗色模式适配 */
+:root.dark .result-list {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:root.dark .result-item {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+:root.dark .result-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+:root.dark .result-item:active {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+:root.dark .code-text {
+  color: var(--text-primary);
+}
+
+:root.dark .copy-hint {
+  color: var(--text-secondary);
 }
 
 .floating-actions {
@@ -402,32 +581,30 @@ const resultText = computed(() => {
 }
 
 /* 免责声明样式 */
-.verify-card {
-  .verify-content {
-    padding: 1rem;
-  }
+.verify-card .verify-content {
+  padding: 1rem;
+}
 
-  :deep(.el-alert) {
-    margin: 0;
-    padding: 1rem;
-    
-    .el-alert__title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
+.verify-card :deep(.el-alert) {
+  margin: 0;
+  padding: 1rem;
+}
 
-    .disclaimer-content {
-      padding: 0.5rem 0;
-      
-      p {
-        margin: 0.75rem 0;
-        line-height: 1.6;
-        font-size: 1rem;
-        color: var(--el-text-color-primary);
-      }
-    }
-  }
+.verify-card :deep(.el-alert__title) {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.verify-card :deep(.disclaimer-content) {
+  padding: 0.5rem 0;
+}
+
+.verify-card :deep(.disclaimer-content p) {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+  font-size: 1rem;
+  color: var(--el-text-color-primary);
 }
 
 /* 移动端适配 */
@@ -446,9 +623,11 @@ const resultText = computed(() => {
     gap: 1rem;
   }
 
-  .result-actions {
-    flex-direction: column;
-    align-items: stretch;
+  .generate-section {
+    padding-top: 0.75rem;
+  }
+
+  .generate-btn {
     width: 100%;
   }
 
@@ -479,6 +658,34 @@ const resultText = computed(() => {
   
   .float-btn :deep(.el-icon) {
     font-size: 14px !important;
+  }
+
+  .result-item {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .copy-hint {
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+  }
+
+  .result-actions-bar {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+
+  .actions-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .action-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
   }
 }
 </style> 
