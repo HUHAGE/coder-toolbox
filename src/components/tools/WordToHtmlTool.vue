@@ -539,6 +539,14 @@ watch(previewMode, async (newMode) => {
       professionalLoading.value = false
     }
   }
+  
+  // 如果已经有转换结果，根据预览模式重新转换
+  if (convertedHtml.value && selectedFile.value) {
+    // 延迟一点时间，避免与专业预览渲染冲突
+    setTimeout(() => {
+      convertToHtml()
+    }, 500)
+  }
 })
 
 
@@ -597,61 +605,66 @@ const convertToHtml = async () => {
       reader.readAsArrayBuffer(selectedFile.value!)
     })
 
-    // 优先用 docx-preview 渲染
-    let docxHtml = ''
-    let docxStyle = `
-      <style>
-        .docx-renderer {
-          background: #ffffff;
-          padding: 24px;
-          border: 1px solid #e4e7ed;
-          border-radius: 8px;
-          min-height: 100%;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-          font-family: 'Times New Roman', serif;
-          line-height: 1.5;
-        }
-        .docx-renderer .docx {
-          background: #ffffff;
-          padding: 24px;
-          margin: 0;
-          font-family: 'Times New Roman', serif;
-          line-height: 1.5;
-        }
-        .docx-renderer .docx .page {
-          background: #ffffff;
-          margin: 12px 0;
-          padding: 24px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          border-radius: 8px;
-        }
-      </style>
-    `
-    try {
-      const container = document.createElement('div')
-      container.style.position = 'absolute'
-      container.style.left = '-9999px'
-      container.style.top = '-9999px'
-      document.body.appendChild(container)
-      await renderAsync(arrayBuffer, container, undefined, {
-        className: 'docx-renderer',
-        ignoreWidth: false,
-        ignoreHeight: false,
-        ignoreFonts: false,
-        ignoreLastRenderedPageBreak: false,
-        experimental: true
-      })
-      docxHtml = container.innerHTML
-      document.body.removeChild(container)
-      // 插入样式
-      convertedHtml.value = docxStyle + docxHtml
-      ElMessage.success('转换成功（专业预览样式）')
-      return
-    } catch (error) {
-      console.warn('docx-preview渲染失败，使用mammoth备用:', error)
+    // 根据当前预览模式选择转换方式
+    if (previewMode.value === 'professional') {
+      // 专业预览模式：使用 docx-preview 渲染
+      try {
+        const container = document.createElement('div')
+        container.style.position = 'absolute'
+        container.style.left = '-9999px'
+        container.style.top = '-9999px'
+        document.body.appendChild(container)
+        await renderAsync(arrayBuffer, container, undefined, {
+          className: 'docx-renderer',
+          ignoreWidth: false,
+          ignoreHeight: false,
+          ignoreFonts: false,
+          ignoreLastRenderedPageBreak: false,
+          experimental: true
+        })
+        const docxHtml = container.innerHTML
+        document.body.removeChild(container)
+        
+        // 专业预览样式
+        const docxStyle = `
+          <style>
+            .docx-renderer {
+              background: #ffffff;
+              padding: 24px;
+              border: 1px solid #e4e7ed;
+              border-radius: 8px;
+              min-height: 100%;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              font-family: 'Times New Roman', serif;
+              line-height: 1.5;
+            }
+            .docx-renderer .docx {
+              background: #ffffff;
+              padding: 24px;
+              margin: 0;
+              font-family: 'Times New Roman', serif;
+              line-height: 1.5;
+            }
+            .docx-renderer .docx .page {
+              background: #ffffff;
+              margin: 12px 0;
+              padding: 24px;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+              border-radius: 8px;
+            }
+          </style>
+        `
+        convertedHtml.value = docxStyle + docxHtml
+        ElMessage.success('转换成功（专业预览样式）')
+        return
+      } catch (error) {
+        console.warn('docx-preview渲染失败，回退到本地预览样式:', error)
+        // 如果专业预览失败，回退到本地预览样式
+        previewMode.value = 'local'
+      }
     }
 
-    // fallback: mammoth
+    // 本地预览模式：使用 mammoth 转换
     const mammothOptions = {
       arrayBuffer,
       styleMap: [
@@ -697,7 +710,8 @@ const convertToHtml = async () => {
       })
     }
     const mammothResult = await mammoth.convertToHtml(mammothOptions)
-    // 你原有的样式增强处理
+    
+    // 本地预览样式增强处理
     let processedHtml = enhanceStyleProcessing(mammothResult.value, '')
     const baseStyles = `
       <style>
@@ -747,7 +761,7 @@ const convertToHtml = async () => {
       </style>
     `
     convertedHtml.value = baseStyles + processedHtml
-    ElMessage.success('转换成功（mammoth备用）')
+    ElMessage.success('转换成功（本地预览样式）')
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : '未知错误'
     console.error('转换错误详情：', error)
@@ -990,8 +1004,10 @@ const finalizeStyles = (html: string): string => {
   // 1. 清理重复的样式属性
   processedHtml = processedHtml.replace(
     /style="([^"]*);\s*([^"]*);\s*\1[^"]*"/gi,
-    (match) => {
-      return match.replace(/;\s*\1/, '')
+    (match, style1, style2) => {
+      // 移除重复的样式部分
+      const uniqueStyles = style1 + '; ' + style2
+      return match.replace(/style="[^"]*"/, `style="${uniqueStyles}"`)
     }
   )
   
