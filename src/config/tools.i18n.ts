@@ -123,8 +123,8 @@ export const toolsTranslations: ToolsTranslations = {
       description: '智能解析SQL INSERT语句的字段与值'
     },
     'word-to-html': {
-      name: 'word转html',
-      description: 'word转html'
+      name: 'Word转HTML',
+      description: '完美保留原文样式，一键转换'
     },
     fun: {
       name: '今天吃什么',
