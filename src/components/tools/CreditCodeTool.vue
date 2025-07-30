@@ -1,99 +1,242 @@
 <template>
   <div class="credit-code-tool">
-    <!-- 生成选项卡片 -->
-    <div class="tool-card options-card">
-      <h3 class="card-title">生成选项</h3>
-      <div class="options-form">
-        <div class="form-group">
-          <div class="count-wrapper">
-            <label>生成数量</label>
-            <el-input-number 
-              v-model="options.count" 
-              :min="1" 
-              :max="100"
-              class="count-input"
-              controls-position="right"
-              size="large"
+    <!-- 顶部Tab导航 -->
+    <div class="tab-navigation">
+      <div class="tab-container">
+        <div 
+          v-for="tab in tabs" 
+          :key="tab.key"
+          class="tab-item"
+          :class="{ active: activeTab === tab.key }"
+          @click="activeTab = tab.key"
+        >
+          <el-icon class="tab-icon">
+            <component :is="tab.icon" />
+          </el-icon>
+          <span class="tab-text">{{ tab.label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 生成页面 -->
+    <div v-show="activeTab === 'generate'" class="tab-content">
+      <!-- 生成选项卡片 -->
+      <div class="tool-card options-card">
+        <h3 class="card-title">生成选项</h3>
+        <div class="options-form">
+          <div class="form-group">
+            <div class="count-wrapper">
+              <label>生成数量</label>
+              <el-input-number 
+                v-model="options.count" 
+                :min="1" 
+                :max="100"
+                class="count-input"
+                controls-position="right"
+                size="large"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="generate-section">
+          <el-button class="generate-btn" size="large" @click="generateCodes">
+            生 成
+          </el-button>
+        </div>
+      </div>
+
+      <!-- 生成结果卡片 -->
+      <div class="tool-card result-card">
+        <div class="result-header">
+          <h3 class="card-title">生成结果</h3>
+        </div>
+
+        <div class="result-content">
+          <!-- 操作按钮区域 -->
+          <div class="result-actions-bar" v-if="codeList.length > 0">
+            <div class="actions-info">
+              <span class="result-count">已生成 {{ codeList.length }} 个代码</span>
+            </div>
+            <div class="actions-buttons">
+              <el-button
+                class="action-btn copy-all-btn"
+                size="large"
+                @click="copyResult"
+                title="复制所有结果"
+              >
+                <el-icon><CopyDocument /></el-icon>
+                复制全部
+              </el-button>
+              <el-button
+                class="action-btn clear-all-btn"
+                size="large"
+                @click="clearContent"
+                title="清空结果"
+              >
+                <el-icon><Delete /></el-icon>
+                清空结果
+              </el-button>
+            </div>
+          </div>
+
+          <div class="result-list" v-if="codeList.length > 0">
+            <div 
+              v-for="(code, index) in codeList" 
+              :key="index"
+              class="result-item"
+              @click="copyCode(code)"
+              :title="`点击复制: ${code}`"
+            >
+              <span class="code-text">{{ code }}</span>
+              <span class="copy-hint">点击复制</span>
+            </div>
+          </div>
+          <div class="textarea-wrapper" v-else>
+            <el-input
+              type="textarea"
+              v-model="resultText"
+              :rows="8"
+              placeholder=""
+              readonly
             />
           </div>
         </div>
       </div>
-      <div class="generate-section">
-        <el-button class="generate-btn" size="large" @click="generateCodes">
-          生 成
-        </el-button>
+    </div>
+
+    <!-- 校验页面 -->
+    <div v-show="activeTab === 'verify'" class="tab-content">
+      <div class="tool-card verify-input-card">
+        <h3 class="card-title">统一社会信用代码校验</h3>
+        <div class="verify-form">
+          <div class="form-group">
+            <label>请输入统一社会信用代码</label>
+            <el-input
+              v-model="verifyCode"
+              placeholder="请输入18位统一社会信用代码"
+              size="large"
+              clearable
+              @keyup.enter="verifyCreditCode"
+            />
+          </div>
+          <div class="verify-section">
+            <el-button 
+              class="verify-btn" 
+              size="large" 
+              @click="verifyCreditCode"
+              :disabled="!verifyCode.trim()"
+            >
+              校 验
+            </el-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 校验结果卡片 -->
+      <div v-if="verifyResult" class="tool-card verify-result-card">
+        <h3 class="card-title">校验结果</h3>
+        <div class="verify-result-content">
+          <el-alert
+            :type="verifyResult.isValid ? 'success' : 'error'"
+            :closable="false"
+            show-icon
+          >
+            <template #title>
+              <span class="verify-result-title">
+                {{ verifyResult.isValid ? '校验通过' : '校验失败' }}
+              </span>
+            </template>
+            <div class="verify-result-details">
+              <p v-if="verifyResult.isValid" class="success-message">
+                该统一社会信用代码格式正确，校验位验证通过。
+              </p>
+              <p v-else class="error-message">
+                {{ verifyResult.message }}
+              </p>
+              <div v-if="verifyResult.details" class="code-details">
+                <h4>代码解析：</h4>
+                <ul>
+                  <li><strong>登记管理部门：</strong>{{ verifyResult.details.registrationDept }}</li>
+                  <li><strong>机构类别：</strong>{{ verifyResult.details.orgType }}</li>
+                  <li><strong>行政区划：</strong>{{ verifyResult.details.areaCode }}</li>
+                  <li><strong>组织机构代码：</strong>{{ verifyResult.details.orgCode }}</li>
+                </ul>
+              </div>
+            </div>
+          </el-alert>
+        </div>
       </div>
     </div>
 
-    <!-- 生成结果卡片 -->
-    <div class="tool-card result-card">
-      <div class="result-header">
-        <h3 class="card-title">生成结果</h3>
-      </div>
+    <!-- 说明页面 -->
+    <div v-show="activeTab === 'help'" class="tab-content">
+      <div class="tool-card help-card">
+        <h3 class="card-title">统一社会信用代码说明</h3>
+        <div class="help-content">
+          <div class="help-section">
+            <h4>什么是统一社会信用代码？</h4>
+            <p>统一社会信用代码是一组长度为18位的用于法人和其他组织身份识别的代码，由登记管理部门代码、机构类别代码、行政区划代码、主体标识码和校验码组成。</p>
+          </div>
+          
+          <div class="help-section">
+            <h4>代码结构</h4>
+            <div class="code-structure">
+              <div class="structure-item">
+                <span class="structure-label">第1位</span>
+                <span class="structure-desc">登记管理部门代码</span>
+              </div>
+              <div class="structure-item">
+                <span class="structure-label">第2位</span>
+                <span class="structure-desc">机构类别代码</span>
+              </div>
+              <div class="structure-item">
+                <span class="structure-label">第3-8位</span>
+                <span class="structure-desc">行政区划代码</span>
+              </div>
+              <div class="structure-item">
+                <span class="structure-label">第9-17位</span>
+                <span class="structure-desc">主体标识码</span>
+              </div>
+              <div class="structure-item">
+                <span class="structure-label">第18位</span>
+                <span class="structure-desc">校验码</span>
+              </div>
+            </div>
+          </div>
 
-      <div class="result-content">
-        <!-- 操作按钮区域 -->
-        <div class="result-actions-bar" v-if="codeList.length > 0">
-          <div class="actions-info">
-            <span class="result-count">已生成 {{ codeList.length }} 个代码</span>
+          <div class="help-section">
+            <h4>登记管理部门代码</h4>
+            <ul>
+              <li><strong>1-9：</strong>机构编制</li>
+              <li><strong>A：</strong>工商</li>
+              <li><strong>B：</strong>机构代码</li>
+              <li><strong>C：</strong>税务</li>
+              <li><strong>D：</strong>民政</li>
+              <li><strong>E：</strong>公安</li>
+              <li><strong>F：</strong>司法</li>
+              <li><strong>G：</strong>外交</li>
+              <li><strong>Y：</strong>其他</li>
+            </ul>
           </div>
-          <div class="actions-buttons">
-            <el-button
-              class="action-btn copy-all-btn"
-              size="large"
-              @click="copyResult"
-              title="复制所有结果"
-            >
-              <el-icon><CopyDocument /></el-icon>
-              复制全部
-            </el-button>
-            <el-button
-              class="action-btn clear-all-btn"
-              size="large"
-              @click="clearContent"
-              title="清空结果"
-            >
-              <el-icon><Delete /></el-icon>
-              清空结果
-            </el-button>
-          </div>
-        </div>
 
-        <div class="result-list" v-if="codeList.length > 0">
-          <div 
-            v-for="(code, index) in codeList" 
-            :key="index"
-            class="result-item"
-            @click="copyCode(code)"
-            :title="`点击复制: ${code}`"
-          >
-            <span class="code-text">{{ code }}</span>
-            <span class="copy-hint">点击复制</span>
+          <div class="help-section">
+            <h4>校验规则</h4>
+            <p>统一社会信用代码采用加权因子法计算校验位，确保代码的准确性和唯一性。校验位通过特定的算法计算得出，用于验证代码的完整性。</p>
           </div>
-        </div>
-        <div class="textarea-wrapper" v-else>
-          <el-input
-            type="textarea"
-            v-model="resultText"
-            :rows="8"
-            placeholder=""
-            readonly
-          />
         </div>
       </div>
     </div>
 
     <!-- 免责声明卡片 -->
-    <div class="tool-card verify-card">
+    <div class="tool-card disclaimer-card">
       <h3 class="card-title">免责声明</h3>
-      <div class="verify-content">
+      <div class="disclaimer-content">
         <el-alert
           type="warning"
           :closable="false"
           show-icon
         >
-         
-          <div class="disclaimer-content">
+          <div class="disclaimer-text">
             <p>1. 本工具生成的统一社会信用代码均为虚拟数据，仅用于软件开发、功能测试等用途；</p>
             <p>2. 请勿将本工具用于生成或收集真实的统一社会信用代码；</p>
             <p>3. 请遵守相关法律法规，不得将本工具用于任何非法用途。</p>
@@ -112,13 +255,28 @@ import {
   Document as CopyDocument,
   Delete,
   Setting,
-  List
+  List,
+  Check,
+  InfoFilled
 } from '@element-plus/icons-vue'
 
+// Tab相关
+const tabs = [
+  { key: 'generate', label: '生成', icon: Key },
+  { key: 'verify', label: '校验', icon: Check },
+  { key: 'help', label: '说明', icon: InfoFilled }
+]
+const activeTab = ref('generate')
+
+// 生成相关
 const codeList = ref<string[]>([])
 const options = reactive({
   count: 1
 })
+
+// 校验相关
+const verifyCode = ref('')
+const verifyResult = ref<any>(null)
 
 // 生成统一社会信用代码
 function generateCreditCode(): string {
@@ -257,6 +415,79 @@ const clearContent = () => {
   ElMessage.success('已清空')
 }
 
+// 校验统一社会信用代码
+const verifyCreditCode = () => {
+  const code = verifyCode.value.trim().toUpperCase()
+  
+  if (!code) {
+    ElMessage.warning('请输入统一社会信用代码')
+    return
+  }
+  
+  if (code.length !== 18) {
+    verifyResult.value = {
+      isValid: false,
+      message: '统一社会信用代码长度必须为18位'
+    }
+    return
+  }
+  
+  // 检查字符是否合法
+  const validChars = '0123456789ABCDEFGHJKLMNPQRTUWXY'
+  for (let i = 0; i < code.length; i++) {
+    if (!validChars.includes(code[i])) {
+      verifyResult.value = {
+        isValid: false,
+        message: `第${i + 1}位字符"${code[i]}"不在有效字符范围内`
+      }
+      return
+    }
+  }
+  
+  // 计算校验位
+  const code17 = code.substring(0, 17)
+  const checksum = code[17]
+  
+  const weightedSum = Array.from(code17).reduce((sum, char, index) => {
+    const weight = [1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28][index]
+    const value = validChars.indexOf(char)
+    return sum + value * weight
+  }, 0)
+  
+  const expectedChecksumIndex = 31 - (weightedSum % 31)
+  const expectedChecksum = validChars[expectedChecksumIndex]
+  
+  if (checksum === expectedChecksum) {
+    // 解析代码详情
+    const deptCode = code[0]
+    const typeCode = code[1]
+    const areaCode = code.substring(2, 8)
+    const orgCode = code.substring(8, 17)
+    
+    const deptNames: { [key: string]: string } = {
+      '1': '机构编制', '2': '机构编制', '3': '机构编制', '4': '机构编制', '5': '机构编制',
+      '6': '机构编制', '7': '机构编制', '8': '机构编制', '9': '机构编制',
+      'A': '工商', 'B': '机构代码', 'C': '税务', 'D': '民政', 'E': '公安', 'F': '司法', 'G': '外交', 'Y': '其他'
+    }
+    
+    verifyResult.value = {
+      isValid: true,
+      message: '校验通过',
+      details: {
+        registrationDept: `${deptCode} - ${deptNames[deptCode] || '未知'}`,
+        orgType: typeCode,
+        areaCode: areaCode,
+        orgCode: orgCode
+      }
+    }
+  } else {
+    verifyResult.value = {
+      isValid: false,
+      message: `校验位错误，期望为"${expectedChecksum}"，实际为"${checksum}"`
+    }
+  }
+}
+
 // 新增计算属性用于显示结果文本
 const resultText = computed(() => {
   return codeList.value.join('\n')
@@ -271,6 +502,71 @@ const resultText = computed(() => {
   flex-direction: column;
   gap: 1.5rem;
   min-height: 100vh;
+  align-items: center;
+}
+
+/* Tab导航样式 */
+.tab-navigation {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 1rem;
+}
+
+.tab-container {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 0.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05),
+              0 0 0 1px rgba(0, 0, 0, 0.03);
+}
+
+/* 暗色模式适配 */
+:root.dark .tab-container {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2),
+              0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.tab-item:hover {
+  background: rgba(0, 122, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.tab-item.active {
+  background: #007aff;
+  color: white;
+  box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3);
+}
+
+.tab-icon {
+  font-size: 1rem;
+}
+
+.tab-text {
+  font-size: 0.875rem;
+}
+
+.tab-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
   align-items: center;
 }
 
@@ -491,6 +787,202 @@ const resultText = computed(() => {
   color: var(--text-secondary);
 }
 
+/* 校验页面样式 */
+.verify-input-card .verify-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.verify-section {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+:root.dark .verify-section {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.verify-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  min-width: 120px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.verify-btn:hover:not(:disabled) {
+  background-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.verify-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.verify-result-content {
+  padding: 1rem;
+}
+
+.verify-result-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.verify-result-details {
+  padding: 0.5rem 0;
+}
+
+.success-message {
+  color: #28a745;
+  font-weight: 500;
+  margin: 0.5rem 0;
+}
+
+.error-message {
+  color: #dc3545;
+  font-weight: 500;
+  margin: 0.5rem 0;
+}
+
+.code-details {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(0, 122, 255, 0.05);
+  border-radius: 8px;
+}
+
+.code-details h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.code-details ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.code-details li {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+/* 说明页面样式 */
+.help-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.help-section {
+  padding: 1.5rem;
+  background: rgba(0, 122, 255, 0.02);
+  border-radius: 12px;
+  border-left: 4px solid #007aff;
+}
+
+.help-section h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.help-section p {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.help-section ul {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.help-section li {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.code-structure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.structure-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.structure-label {
+  background: #007aff;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-width: 60px;
+  text-align: center;
+}
+
+.structure-desc {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* 暗色模式适配 */
+:root.dark .help-section {
+  background: rgba(0, 122, 255, 0.05);
+}
+
+:root.dark .structure-item {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* 免责声明样式 */
+.disclaimer-card .disclaimer-content {
+  padding: 1rem;
+}
+
+.disclaimer-card :deep(.el-alert) {
+  margin: 0;
+  padding: 1rem;
+}
+
+.disclaimer-card :deep(.el-alert__title) {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.disclaimer-text {
+  padding: 0.5rem 0;
+}
+
+.disclaimer-text p {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+  font-size: 1rem;
+  color: var(--el-text-color-primary);
+}
+
 .floating-actions {
   position: absolute;
   right: 1rem;
@@ -603,37 +1095,25 @@ const resultText = computed(() => {
   background-color: #0056b3;
 }
 
-/* 免责声明样式 */
-.verify-card .verify-content {
-  padding: 1rem;
-}
-
-.verify-card :deep(.el-alert) {
-  margin: 0;
-  padding: 1rem;
-}
-
-.verify-card :deep(.el-alert__title) {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.verify-card :deep(.disclaimer-content) {
-  padding: 0.5rem 0;
-}
-
-.verify-card :deep(.disclaimer-content p) {
-  margin: 0.75rem 0;
-  line-height: 1.6;
-  font-size: 1rem;
-  color: var(--el-text-color-primary);
-}
-
 /* 移动端适配 */
 @media (max-width: 768px) {
   .credit-code-tool {
     padding: 1rem;
+  }
+
+  .tab-container {
+    border-radius: 10px;
+    padding: 0.2rem;
+  }
+
+  .tab-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    gap: 0.25rem;
+  }
+
+  .tab-icon {
+    font-size: 0.875rem;
   }
 
   .tool-card {
@@ -659,7 +1139,7 @@ const resultText = computed(() => {
     max-width: none;
   }
 
-  .generate-btn {
+  .verify-btn {
     width: 100%;
   }
 
@@ -709,6 +1189,23 @@ const resultText = computed(() => {
     justify-content: center;
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
+  }
+
+  .code-structure {
+    gap: 0.5rem;
+  }
+
+  .structure-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .structure-label {
+    min-width: auto;
+    width: 100%;
+    text-align: center;
   }
 }
 </style> 
