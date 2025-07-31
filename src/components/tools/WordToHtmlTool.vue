@@ -2084,8 +2084,8 @@ const applySeparateStyles = () => {
 }
 
 .content-container {
-  height: calc(100vh - 200px);
-  min-height: 500px;
+  height: calc(100vh - 370px);
+  min-height: 400px;
   overflow: hidden;
   background: #ffffff;
   position: relative;

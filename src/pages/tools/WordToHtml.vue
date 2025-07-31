@@ -17,7 +17,7 @@ import WordToHtmlTool from '@/components/tools/WordToHtmlTool.vue'
 onMounted(() => {
   const toolContent = document.querySelector('.tool-content') as HTMLElement
   if (toolContent) {
-    toolContent.style.maxWidth = '1500px'
+    toolContent.style.maxWidth = '1300px'
   }
 })
 
