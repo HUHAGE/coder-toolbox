@@ -185,23 +185,35 @@
                 <el-icon><CopyDocument /></el-icon>
                 复制
               </el-button>
-              <el-button
+              <el-dropdown
                 v-if="convertedHtml"
-                type="info"
-                size="small"
-                @click="downloadHtml"
-                class="action-btn"
+                @command="handleDownload"
+                trigger="hover"
+                placement="bottom"
               >
-                <el-icon><Download /></el-icon>
-                下载
-              </el-button>
-              <el-switch
-                v-if="convertedHtml"
-                v-model="separateStyles"
-                class="style-switch"
-                active-text="分离样式"
-                @change="applySeparateStyles"
-              />
+                <el-button
+                  type="info"
+                  size="small"
+                  class="action-btn"
+                >
+                  <el-icon><Download /></el-icon>
+                  下载
+                  <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="normal">
+                      <el-icon><Download /></el-icon>
+                      普通下载
+                    </el-dropdown-item>
+                    <el-dropdown-item command="separate">
+                      <el-icon><Document /></el-icon>
+                      分离样式下载
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+
               <el-button
                 v-if="convertedHtml"
                 class="action-btn"
@@ -240,7 +252,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Upload, Document, Download, Delete, Loading, ZoomIn, ZoomOut, Refresh, CopyDocument } from '@element-plus/icons-vue'
+import { Upload, Document, Download, Delete, Loading, ZoomIn, ZoomOut, Refresh, CopyDocument, ArrowDown } from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
 import mammoth from 'mammoth'
 import { renderAsync } from 'docx-preview'
@@ -305,7 +317,6 @@ const professionalLoading = ref(false)
 const professionalContent = ref('')
 const zoomLevel = ref(0.85)
 const showHtmlPreview = ref(false)
-const separateStyles = ref(false)
 
 // 处理文件选择
 const handleFileChange = async (file: UploadFile) => {
@@ -1316,6 +1327,15 @@ const copyHtml = async () => {
   }
 }
 
+// 处理下载选项
+const handleDownload = (command: string) => {
+  if (command === 'normal') {
+    downloadHtml()
+  } else if (command === 'separate') {
+    downloadHtmlWithSeparateStyles()
+  }
+}
+
 // 下载HTML文件
 const downloadHtml = () => {
   const blob = new Blob([convertedHtml.value], { type: 'text/html' })
@@ -1327,6 +1347,27 @@ const downloadHtml = () => {
   link.click()
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
+}
+
+// 下载分离样式的HTML文件
+const downloadHtmlWithSeparateStyles = () => {
+  if (!convertedHtml.value) return
+  
+  // 使用独立的样式分离函数，不影响预览
+  const separatedHtml = separateStylesForDownload(convertedHtml.value)
+  
+  // 下载文件
+  const blob = new Blob([separatedHtml], { type: 'text/html' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${selectedFile.value?.name.replace(/\.[^/.]+$/, '')}_分离样式.html`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+  
+  ElMessage.success('分离样式文件下载成功')
 }
 
 // 增强的颜色处理函数
@@ -1589,127 +1630,96 @@ const getBodyContent = (html: string): string => {
   }
 }
 
-// 分离样式函数
+// 分离样式函数（已废弃，保留用于兼容性）
 const applySeparateStyles = () => {
-  if (!convertedHtml.value) return
+  // 此函数已不再使用，样式分离现在只在下载时进行
+  console.log('applySeparateStyles 函数已废弃')
+}
+
+// 独立的样式分离函数，用于下载时不影响预览
+const separateStylesForDownload = (html: string): string => {
+  if (!html) return html
   
-  if (separateStyles.value) {
-    console.log('开始样式分离，转换后的HTML长度:', convertedHtml.value.length)
+  console.log('开始为下载分离样式，HTML长度:', html.length)
+  
+  // 分离样式
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(html, 'text/html')
+  
+  // 收集所有样式映射
+  const styleMap = new Map<string, string>()
+  let classCounter = 0
+  
+  // 处理所有内联样式
+  doc.querySelectorAll('[style]').forEach(element => {
+    const style = element.getAttribute('style')
+    if (!style) return
     
-    // 分离样式
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(convertedHtml.value, 'text/html')
+    // 清理和标准化样式
+    const cleanedStyle = cleanAndNormalizeStyle(style)
     
-    // 检查是否有内联样式
-    const elementsWithStyle = doc.querySelectorAll('[style]')
-    console.log('找到带有style属性的元素数量:', elementsWithStyle.length)
+    // 处理样式优先级和继承
+    const processedStyle = processStylePriority(cleanedStyle, element)
     
-    if (elementsWithStyle.length > 0) {
-      console.log('第一个带有style的元素:', elementsWithStyle[0].outerHTML)
+    // 为每个唯一的样式创建一个类名
+    let className = ''
+    if (styleMap.has(processedStyle)) {
+      className = styleMap.get(processedStyle)!
+    } else {
+      className = `extracted-style-${classCounter++}`
+      styleMap.set(processedStyle, className)
     }
     
-    // 收集所有样式映射
-    const styleMap = new Map<string, string>()
-    let classCounter = 0
-    
-    // 第一步：处理所有内联样式
-    doc.querySelectorAll('[style]').forEach(element => {
-      const style = element.getAttribute('style')
-      if (!style) return
+    // 添加类名并移除内联样式
+    element.classList.add(className)
+    element.removeAttribute('style')
+  })
+  
+  // 处理HTML属性样式
+  doc.querySelectorAll('*').forEach(element => {
+    const styleAttributes = extractStyleFromAttributes(element)
+    if (styleAttributes) {
+      const cleanedStyle = cleanAndNormalizeStyle(styleAttributes)
       
-      console.log('找到内联样式:', style, '元素:', element.tagName)
-      
-      // 清理和标准化样式
-      const cleanedStyle = cleanAndNormalizeStyle(style)
-      console.log('清理后的样式:', cleanedStyle)
-      
-      // 处理样式优先级和继承
-      const processedStyle = processStylePriority(cleanedStyle, element)
-      console.log('处理后的样式:', processedStyle)
-      
-      // 为每个唯一的样式创建一个类名
       let className = ''
-      if (styleMap.has(processedStyle)) {
-        className = styleMap.get(processedStyle)!
+      if (styleMap.has(cleanedStyle)) {
+        className = styleMap.get(cleanedStyle)!
       } else {
         className = `extracted-style-${classCounter++}`
-        styleMap.set(processedStyle, className)
+        styleMap.set(cleanedStyle, className)
       }
       
-      console.log('分配的类名:', className)
-      
-      // 添加类名并移除内联样式
       element.classList.add(className)
-      element.removeAttribute('style')
-    })
-    
-    console.log('第一步完成后的样式映射:', styleMap)
-    
-    // 第二步：处理HTML属性样式
-    doc.querySelectorAll('*').forEach(element => {
-      const styleAttributes = extractStyleFromAttributes(element)
-      if (styleAttributes) {
-        console.log('找到HTML属性样式:', styleAttributes, '元素:', element.tagName)
-        
-        const cleanedStyle = cleanAndNormalizeStyle(styleAttributes)
-        console.log('清理后的HTML属性样式:', cleanedStyle)
-        
-        let className = ''
-        if (styleMap.has(cleanedStyle)) {
-          className = styleMap.get(cleanedStyle)!
-        } else {
-          className = `extracted-style-${classCounter++}`
-          styleMap.set(cleanedStyle, className)
-        }
-        
-        console.log('HTML属性样式分配的类名:', className)
-        element.classList.add(className)
-      }
-    })
-    
-    console.log('第二步完成后的样式映射:', styleMap)
-    
-    // 第三步：处理Word文档特有样式
-    classCounter = processWordSpecificStyles(doc, styleMap, classCounter)
-    
-    // 第四步：处理表格和列表样式
-    classCounter = processTableAndListStyles(doc, styleMap, classCounter)
-    
-    // 第五步：处理段落和文本样式
-    classCounter = processParagraphAndTextStyles(doc, styleMap, classCounter)
-    
-    // 第六步：直接使用原始样式映射，跳过优化步骤
-    console.log('样式映射大小:', styleMap.size)
-    console.log('样式映射内容:', Array.from(styleMap.entries()))
-    
-    // 第七步：创建样式内容
-    let styleContent = ''
-    
-    if (styleMap.size === 0) {
-      console.warn('警告：没有找到任何样式需要分离！')
-      styleContent = '/* 没有找到需要分离的样式 */'
-    } else {
-      for (const [style, className] of styleMap.entries()) {
-        styleContent += `.${className} { ${style} }\n`
-      }
     }
-    
-    console.log('生成的样式内容:', styleContent)
-    
-    // 第八步：添加样式到文档
-    addStylesToDocument(doc, styleContent)
-    
-    // 第九步：确保HTML文档结构完整
-    ensureDocumentStructure(doc)
-    
-    // 第十步：更新转换后的HTML
-    convertedHtml.value = doc.documentElement.outerHTML
+  })
+  
+  // 处理Word文档特有样式
+  classCounter = processWordSpecificStyles(doc, styleMap, classCounter)
+  
+  // 处理表格和列表样式
+  classCounter = processTableAndListStyles(doc, styleMap, classCounter)
+  
+  // 处理段落和文本样式
+  classCounter = processParagraphAndTextStyles(doc, styleMap, classCounter)
+  
+  // 创建样式内容
+  let styleContent = ''
+  
+  if (styleMap.size === 0) {
+    styleContent = '/* 没有找到需要分离的样式 */'
   } else {
-    // 如果关闭分离样式，重新转换文档
-    if (selectedFile.value) {
-      convertToHtml()
+    for (const [style, className] of styleMap.entries()) {
+      styleContent += `.${className} { ${style} }\n`
     }
   }
+  
+  // 添加样式到文档
+  addStylesToDocument(doc, styleContent)
+  
+  // 确保HTML文档结构完整
+  ensureDocumentStructure(doc)
+  
+  return doc.documentElement.outerHTML
 }
 
 // 优化样式：合并相似的样式
@@ -3444,16 +3454,5 @@ const ensureDocumentStructure = (doc: Document) => {
   background: #fff !important;
 }
 
-/* 分离样式开关样式 */
-.style-switch {
-  margin: 0 8px;
-}
 
-.style-switch .el-switch__label {
-  font-size: 12px;
-}
-
-.dark .style-switch .el-switch__label {
-  color: #e0e0e0;
-}
 </style>
