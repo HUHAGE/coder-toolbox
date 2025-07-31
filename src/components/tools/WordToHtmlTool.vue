@@ -124,7 +124,7 @@
                 <!-- 本地预览模式 -->
                 <div v-if="previewMode === 'local'" class="file-preview">
                   <div class="preview-content">
-                    <div class="preview-text" v-html="originalHtml"></div>
+                    <div class="preview-text" v-html="getBodyContent(originalHtml)"></div>
                   </div>
                 </div>
                 
@@ -229,7 +229,7 @@
                 </pre>
               </div>
               <div v-else class="preview-frame render-mode" :style="previewMode === 'professional' ? `transform: scale(${zoomLevel}); transform-origin: top left; width: calc(100% / ${zoomLevel}); height: calc(100% / ${zoomLevel});` : ''">
-                <div v-html="convertedHtml"></div>
+                <div v-html="getBodyContent(convertedHtml)"></div>
               </div>
             </div>
           </div>
@@ -417,7 +417,21 @@ const handleFileChange = async (file: UploadFile) => {
         }
       </style>
     `
-    originalHtml.value = baseStyles + processedOriginalHtml
+    
+    // 构建完整的HTML文档结构用于原文预览
+    const originalFullHtml = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>${file.raw?.name.replace(/\.[^/.]+$/, '') || 'Word原文预览'}</title>
+    ${baseStyles}
+</head>
+<body>
+    ${processedOriginalHtml}
+</body>
+</html>`
+    
+    originalHtml.value = originalFullHtml
     
     ElMessage.success('文件选择成功，可以开始转换')
     // 上传后自动切换到专业预览并触发渲染
@@ -654,7 +668,21 @@ const convertToHtml = async () => {
             }
           </style>
         `
-        convertedHtml.value = docxStyle + docxHtml
+        
+        // 构建完整的HTML文档结构
+        const fullHtml = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>${selectedFile.value?.name.replace(/\.[^/.]+$/, '') || 'Word转HTML文档'}</title>
+    ${docxStyle}
+</head>
+<body>
+    ${docxHtml}
+</body>
+</html>`
+        
+        convertedHtml.value = fullHtml
         ElMessage.success('转换成功（专业预览样式）')
         return
       } catch (error) {
@@ -760,7 +788,21 @@ const convertToHtml = async () => {
         s { text-decoration: line-through; }
       </style>
     `
-    convertedHtml.value = baseStyles + processedHtml
+    
+    // 构建完整的HTML文档结构
+    const fullHtml = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>${selectedFile.value?.name.replace(/\.[^/.]+$/, '') || 'Word转HTML文档'}</title>
+    ${baseStyles}
+</head>
+<body>
+    ${processedHtml}
+</body>
+</html>`
+    
+    convertedHtml.value = fullHtml
     ElMessage.success('转换成功（本地预览样式）')
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : '未知错误'
@@ -1532,69 +1574,803 @@ const resetZoom = () => {
   zoomLevel.value = 0.95
 }
 
+// 提取HTML文档中的body内容用于预览
+const getBodyContent = (html: string): string => {
+  if (!html) return ''
+  
+  try {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(html, 'text/html')
+    const body = doc.querySelector('body')
+    return body ? body.innerHTML : html
+  } catch (error) {
+    console.warn('解析HTML失败，返回原始内容:', error)
+    return html
+  }
+}
+
 // 分离样式函数
 const applySeparateStyles = () => {
   if (!convertedHtml.value) return
   
   if (separateStyles.value) {
+    console.log('开始样式分离，转换后的HTML长度:', convertedHtml.value.length)
+    
     // 分离样式
     const parser = new DOMParser()
     const doc = parser.parseFromString(convertedHtml.value, 'text/html')
     
-    // 收集所有内联样式
-    const styleMap = new Map()
+    // 检查是否有内联样式
+    const elementsWithStyle = doc.querySelectorAll('[style]')
+    console.log('找到带有style属性的元素数量:', elementsWithStyle.length)
+    
+    if (elementsWithStyle.length > 0) {
+      console.log('第一个带有style的元素:', elementsWithStyle[0].outerHTML)
+    }
+    
+    // 收集所有样式映射
+    const styleMap = new Map<string, string>()
     let classCounter = 0
     
-    // 处理所有带有style属性的元素
+    // 第一步：处理所有内联样式
     doc.querySelectorAll('[style]').forEach(element => {
       const style = element.getAttribute('style')
       if (!style) return
       
+      console.log('找到内联样式:', style, '元素:', element.tagName)
+      
+      // 清理和标准化样式
+      const cleanedStyle = cleanAndNormalizeStyle(style)
+      console.log('清理后的样式:', cleanedStyle)
+      
+      // 处理样式优先级和继承
+      const processedStyle = processStylePriority(cleanedStyle, element)
+      console.log('处理后的样式:', processedStyle)
+      
       // 为每个唯一的样式创建一个类名
       let className = ''
-      if (styleMap.has(style)) {
-        className = styleMap.get(style)
+      if (styleMap.has(processedStyle)) {
+        className = styleMap.get(processedStyle)!
       } else {
         className = `extracted-style-${classCounter++}`
-        styleMap.set(style, className)
+        styleMap.set(processedStyle, className)
       }
+      
+      console.log('分配的类名:', className)
       
       // 添加类名并移除内联样式
       element.classList.add(className)
       element.removeAttribute('style')
     })
     
-    // 创建样式内容
-    let styleContent = ''
-    for (const [style, className] of styleMap.entries()) {
-      styleContent += `.${className} { ${style} }\n`
-    }
+    console.log('第一步完成后的样式映射:', styleMap)
     
-    // 查找现有的style标签
-    const existingStyle = doc.querySelector('style')
-    if (existingStyle) {
-      // 将新样式添加到现有样式中
-      existingStyle.innerHTML += '\n' + styleContent
+    // 第二步：处理HTML属性样式
+    doc.querySelectorAll('*').forEach(element => {
+      const styleAttributes = extractStyleFromAttributes(element)
+      if (styleAttributes) {
+        console.log('找到HTML属性样式:', styleAttributes, '元素:', element.tagName)
+        
+        const cleanedStyle = cleanAndNormalizeStyle(styleAttributes)
+        console.log('清理后的HTML属性样式:', cleanedStyle)
+        
+        let className = ''
+        if (styleMap.has(cleanedStyle)) {
+          className = styleMap.get(cleanedStyle)!
+        } else {
+          className = `extracted-style-${classCounter++}`
+          styleMap.set(cleanedStyle, className)
+        }
+        
+        console.log('HTML属性样式分配的类名:', className)
+        element.classList.add(className)
+      }
+    })
+    
+    console.log('第二步完成后的样式映射:', styleMap)
+    
+    // 第三步：处理Word文档特有样式
+    classCounter = processWordSpecificStyles(doc, styleMap, classCounter)
+    
+    // 第四步：处理表格和列表样式
+    classCounter = processTableAndListStyles(doc, styleMap, classCounter)
+    
+    // 第五步：处理段落和文本样式
+    classCounter = processParagraphAndTextStyles(doc, styleMap, classCounter)
+    
+    // 第六步：直接使用原始样式映射，跳过优化步骤
+    console.log('样式映射大小:', styleMap.size)
+    console.log('样式映射内容:', Array.from(styleMap.entries()))
+    
+    // 第七步：创建样式内容
+    let styleContent = ''
+    
+    if (styleMap.size === 0) {
+      console.warn('警告：没有找到任何样式需要分离！')
+      styleContent = '/* 没有找到需要分离的样式 */'
     } else {
-      // 创建新的style标签
-      const styleElement = doc.createElement('style')
-      styleElement.textContent = styleContent
-      
-      // 在文档头部添加新的style标签
-      const head = doc.querySelector('head') || doc.createElement('head')
-      head.appendChild(styleElement)
-      if (!doc.querySelector('head')) {
-        doc.documentElement.prepend(head)
+      for (const [style, className] of styleMap.entries()) {
+        styleContent += `.${className} { ${style} }\n`
       }
     }
     
-    // 更新转换后的HTML
+    console.log('生成的样式内容:', styleContent)
+    
+    // 第八步：添加样式到文档
+    addStylesToDocument(doc, styleContent)
+    
+    // 第九步：确保HTML文档结构完整
+    ensureDocumentStructure(doc)
+    
+    // 第十步：更新转换后的HTML
     convertedHtml.value = doc.documentElement.outerHTML
   } else {
     // 如果关闭分离样式，重新转换文档
     if (selectedFile.value) {
       convertToHtml()
     }
+  }
+}
+
+// 优化样式：合并相似的样式
+const optimizeStyles = (styleMap: Map<string, string>): Map<string, string> => {
+  const optimizedMap = new Map<string, string>()
+  const styleGroups = new Map<string, string[]>()
+  
+  // 按样式属性分组
+  for (const [style, className] of styleMap.entries()) {
+    const properties = style.split(';').filter(p => p.trim())
+    const sortedProperties = properties.sort().join(';')
+    
+    if (!styleGroups.has(sortedProperties)) {
+      styleGroups.set(sortedProperties, [])
+    }
+    styleGroups.get(sortedProperties)!.push(className)
+  }
+  
+  // 为每组样式创建一个优化的类名
+  let counter = 0
+  for (const [sortedStyle, classNames] of styleGroups.entries()) {
+    const optimizedClassName = `optimized-style-${counter++}`
+    optimizedMap.set(sortedStyle, optimizedClassName)
+    
+    // 更新所有使用这些样式的元素
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(convertedHtml.value, 'text/html')
+    
+    classNames.forEach(oldClassName => {
+      const elements = doc.querySelectorAll(`.${oldClassName}`)
+      elements.forEach(element => {
+        element.classList.remove(oldClassName)
+        element.classList.add(optimizedClassName)
+      })
+    })
+    
+    // 更新HTML内容
+    convertedHtml.value = doc.documentElement.outerHTML
+  }
+  
+  return optimizedMap
+}
+
+// 清理和标准化样式
+const cleanAndNormalizeStyle = (style: string): string => {
+  if (!style) return ''
+  
+  // 移除多余的空格和分号
+  let cleaned = style.trim()
+    .replace(/\s*;\s*/g, '; ')
+    .replace(/\s*:\s*/g, ': ')
+    .replace(/\s+/g, ' ')
+    .replace(/;\s*$/g, '')
+    .replace(/^\s*;\s*/g, '')
+  
+  // 标准化颜色值
+  cleaned = cleaned.replace(/color:\s*#([0-9A-Fa-f]{3})/gi, (match, color) => {
+    const expanded = color.split('').map((c: string) => c + c).join('')
+    return match.replace(color, expanded)
+  })
+  
+  // 标准化字体大小
+  cleaned = cleaned.replace(/font-size:\s*(\d+)px/gi, (match, size) => {
+    const ptSize = Math.round(parseInt(size) / 1.33)
+    return match.replace(`${size}px`, `${ptSize}pt`)
+  })
+  
+  // 标准化字体族
+  cleaned = cleaned.replace(/font-family:\s*([^;]+)/gi, (match, fontFamily) => {
+    const fonts = fontFamily.split(',').map((f: string) => f.trim().replace(/['"]/g, '')).join(', ')
+    return match.replace(fontFamily, fonts)
+  })
+  
+  // 标准化文本对齐
+  cleaned = cleaned.replace(/text-align:\s*([^;]+)/gi, (match, align) => {
+    const alignment = align.trim().toLowerCase()
+    const validAligns = ['left', 'center', 'right', 'justify']
+    if (validAligns.includes(alignment)) {
+      return match.replace(align, alignment)
+    }
+    return match
+  })
+  
+  // 标准化边框样式
+  cleaned = cleaned.replace(/border:\s*([^;]+)/gi, (match, border) => {
+    const borderValue = border.trim()
+    if (borderValue === 'none' || borderValue === '0') {
+      return match.replace(border, 'none')
+    }
+    return match
+  })
+  
+  // 确保每个样式属性都有分号结尾
+  if (cleaned && !cleaned.endsWith(';')) {
+    cleaned += ';'
+  }
+  
+  return cleaned
+}
+
+// 处理样式优先级和继承
+const processStylePriority = (style: string, element: Element): string => {
+  if (!style) return ''
+  
+  // 解析样式属性
+  const styleProperties = new Map<string, string>()
+  style.split(';').forEach(prop => {
+    const [key, value] = prop.split(':').map(s => s.trim())
+    if (key && value) {
+      styleProperties.set(key, value)
+    }
+  })
+  
+  // 处理字体样式优先级
+  const fontFamily = styleProperties.get('font-family')
+  const fontSize = styleProperties.get('font-size')
+  const fontWeight = styleProperties.get('font-weight')
+  const fontStyle = styleProperties.get('font-style')
+  
+  if (fontFamily || fontSize || fontWeight || fontStyle) {
+    let fontStyleStr = ''
+    if (fontFamily) fontStyleStr += `font-family: ${fontFamily}; `
+    if (fontSize) fontStyleStr += `font-size: ${fontSize}; `
+    if (fontWeight) fontStyleStr += `font-weight: ${fontWeight}; `
+    if (fontStyle) fontStyleStr += `font-style: ${fontStyle}; `
+    
+    // 移除单独的字体属性
+    styleProperties.delete('font-family')
+    styleProperties.delete('font-size')
+    styleProperties.delete('font-weight')
+    styleProperties.delete('font-style')
+    
+    // 重新构建样式字符串
+    let processedStyle = fontStyleStr
+    for (const [key, value] of styleProperties.entries()) {
+      processedStyle += `${key}: ${value}; `
+    }
+    
+    return processedStyle.trim()
+  }
+  
+  // 处理文本样式优先级
+  const textAlign = styleProperties.get('text-align')
+  const textDecoration = styleProperties.get('text-decoration')
+  const textTransform = styleProperties.get('text-transform')
+  
+  if (textAlign || textDecoration || textTransform) {
+    let textStyle = ''
+    if (textAlign) textStyle += `text-align: ${textAlign}; `
+    if (textDecoration) textStyle += `text-decoration: ${textDecoration}; `
+    if (textTransform) textStyle += `text-transform: ${textTransform}; `
+    
+    // 移除单独的文本属性
+    styleProperties.delete('text-align')
+    styleProperties.delete('text-decoration')
+    styleProperties.delete('text-transform')
+    
+    // 重新构建样式字符串
+    let processedStyle = textStyle
+    for (const [key, value] of styleProperties.entries()) {
+      processedStyle += `${key}: ${value}; `
+    }
+    
+    return processedStyle.trim()
+  }
+  
+  return style
+}
+
+// 提取表格特殊样式
+const extractTableStyles = (table: Element): string => {
+  let tableStyle = ''
+  
+  // 处理表格边框
+  const border = table.getAttribute('border')
+  if (border) {
+    if (border === '0' || border === 'none') {
+      tableStyle += 'border: none; '
+    } else {
+      tableStyle += `border: ${border}px solid #000; `
+    }
+  }
+  
+  // 处理表格宽度
+  const width = table.getAttribute('width')
+  if (width) {
+    tableStyle += `width: ${width}; `
+  }
+  
+  // 处理表格对齐
+  const align = table.getAttribute('align')
+  if (align) {
+    tableStyle += `margin: 0 auto; `
+  }
+  
+  // 处理表格背景色
+  const bgcolor = table.getAttribute('bgcolor')
+  if (bgcolor) {
+    tableStyle += `background-color: ${bgcolor}; `
+  }
+  
+  return tableStyle
+}
+
+// 从HTML属性中提取样式
+const extractStyleFromAttributes = (element: Element): string => {
+  const attributes = ['color', 'bgcolor', 'background', 'align', 'valign', 'width', 'height', 'border', 'face', 'size', 'cellpadding', 'cellspacing', 'valign', 'hspace', 'vspace', 'dir', 'lang', 'title']
+  let combinedStyle = ''
+  
+  attributes.forEach(attr => {
+    const value = element.getAttribute(attr)
+    if (value) {
+      switch (attr) {
+        case 'color':
+          combinedStyle += `color: ${value}; `
+          break
+        case 'bgcolor':
+        case 'background':
+          combinedStyle += `background-color: ${value}; `
+          break
+        case 'align':
+          combinedStyle += `text-align: ${value}; `
+          break
+        case 'valign':
+          combinedStyle += `vertical-align: ${value}; `
+          break
+        case 'width':
+          combinedStyle += `width: ${value}; `
+          break
+        case 'height':
+          combinedStyle += `height: ${value}; `
+          break
+        case 'border':
+          combinedStyle += `border: ${value}; `
+          break
+        case 'face':
+          combinedStyle += `font-family: "${value}", serif; `
+          break
+        case 'size':
+          // 将HTML字体大小转换为CSS字体大小
+          const sizeMap: { [key: string]: string } = {
+            '1': '8pt', '2': '10pt', '3': '12pt', '4': '14pt',
+            '5': '18pt', '6': '24pt', '7': '36pt'
+          }
+          const cssSize = sizeMap[value] || `${parseInt(value) * 2}pt`
+          combinedStyle += `font-size: ${cssSize}; `
+          break
+        case 'cellpadding':
+          combinedStyle += `padding: ${value}px; `
+          break
+        case 'cellspacing':
+          combinedStyle += `border-spacing: ${value}px; `
+          break
+        case 'hspace':
+          combinedStyle += `margin-left: ${value}px; margin-right: ${value}px; `
+          break
+        case 'vspace':
+          combinedStyle += `margin-top: ${value}px; margin-bottom: ${value}px; `
+          break
+        case 'dir':
+          combinedStyle += `direction: ${value}; `
+          break
+        case 'lang':
+          // 语言属性不转换为CSS样式，但保留在元素上
+          return
+        case 'title':
+          // 标题属性不转换为CSS样式，但保留在元素上
+          return
+      }
+      element.removeAttribute(attr)
+    }
+  })
+  
+  return combinedStyle
+}
+
+// 处理Word文档特有样式
+const processWordSpecificStyles = (doc: Document, styleMap: Map<string, string>, classCounter: number): number => {
+  // 处理Word文档中的特殊样式属性
+  doc.querySelectorAll('[data-original-color], [data-original-highlight]').forEach(element => {
+    let style = ''
+    
+    // 处理原始颜色
+    const originalColor = element.getAttribute('data-original-color')
+    if (originalColor && originalColor !== 'auto') {
+      style += `color: ${originalColor}; `
+    }
+    
+    // 处理原始高亮
+    const originalHighlight = element.getAttribute('data-original-highlight')
+    if (originalHighlight) {
+      style += `background-color: ${originalHighlight}; `
+    }
+    
+    if (style) {
+      const cleanedStyle = cleanAndNormalizeStyle(style)
+      let className = ''
+      if (styleMap.has(cleanedStyle)) {
+        className = styleMap.get(cleanedStyle)!
+      } else {
+        className = `extracted-style-${classCounter++}`
+        styleMap.set(cleanedStyle, className)
+      }
+      element.classList.add(className)
+      
+      // 移除原始属性
+      element.removeAttribute('data-original-color')
+      element.removeAttribute('data-original-highlight')
+    }
+  })
+  
+  return classCounter
+}
+
+// 处理表格和列表样式
+const processTableAndListStyles = (doc: Document, styleMap: Map<string, string>, classCounter: number): number => {
+  // 处理表格样式
+  doc.querySelectorAll('table').forEach(table => {
+    const tableStyle = extractTableStyles(table)
+    if (tableStyle) {
+      const cleanedStyle = cleanAndNormalizeStyle(tableStyle)
+      let className = ''
+      if (styleMap.has(cleanedStyle)) {
+        className = styleMap.get(cleanedStyle)!
+      } else {
+        className = `extracted-style-${classCounter++}`
+        styleMap.set(cleanedStyle, className)
+      }
+      table.classList.add(className)
+    }
+  })
+  
+  // 处理列表样式
+  doc.querySelectorAll('ul, ol').forEach(list => {
+    const listStyle = extractListStyles(list)
+    if (listStyle) {
+      const cleanedStyle = cleanAndNormalizeStyle(listStyle)
+      let className = ''
+      if (styleMap.has(cleanedStyle)) {
+        className = styleMap.get(cleanedStyle)!
+      } else {
+        className = `extracted-style-${classCounter++}`
+        styleMap.set(cleanedStyle, className)
+      }
+      list.classList.add(className)
+    }
+  })
+  
+  return classCounter
+}
+
+// 提取列表样式
+const extractListStyles = (list: Element): string => {
+  let listStyle = ''
+  
+  // 处理列表类型
+  const type = list.getAttribute('type')
+  if (type) {
+    listStyle += `list-style-type: ${type}; `
+  }
+  
+  // 处理列表缩进
+  const start = list.getAttribute('start')
+  if (start) {
+    listStyle += `counter-reset: list-counter ${parseInt(start) - 1}; `
+  }
+  
+  return listStyle
+}
+
+// 处理段落和文本样式
+const processParagraphAndTextStyles = (doc: Document, styleMap: Map<string, string>, classCounter: number): number => {
+  // 处理段落样式
+  doc.querySelectorAll('p').forEach(p => {
+    const paragraphStyle = extractParagraphStyles(p)
+    if (paragraphStyle) {
+      const cleanedStyle = cleanAndNormalizeStyle(paragraphStyle)
+      let className = ''
+      if (styleMap.has(cleanedStyle)) {
+        className = styleMap.get(cleanedStyle)!
+      } else {
+        className = `extracted-style-${classCounter++}`
+        styleMap.set(cleanedStyle, className)
+      }
+      p.classList.add(className)
+    }
+  })
+  
+  // 处理标题样式
+  doc.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
+    const headingStyle = extractHeadingStyles(heading)
+    if (headingStyle) {
+      const cleanedStyle = cleanAndNormalizeStyle(headingStyle)
+      let className = ''
+      if (styleMap.has(cleanedStyle)) {
+        className = styleMap.get(cleanedStyle)!
+      } else {
+        className = `extracted-style-${classCounter++}`
+        styleMap.set(cleanedStyle, className)
+      }
+      heading.classList.add(className)
+    }
+  })
+  
+  return classCounter
+}
+
+// 提取段落样式
+const extractParagraphStyles = (p: Element): string => {
+  let paragraphStyle = ''
+  
+  // 处理段落对齐
+  const align = p.getAttribute('align')
+  if (align) {
+    paragraphStyle += `text-align: ${align}; `
+  }
+  
+  // 处理段落缩进
+  const style = p.getAttribute('style')
+  if (style) {
+    const textIndentMatch = style.match(/text-indent:\s*([^;]+)/)
+    if (textIndentMatch) {
+      paragraphStyle += `text-indent: ${textIndentMatch[1]}; `
+    }
+  }
+  
+  return paragraphStyle
+}
+
+// 提取标题样式
+const extractHeadingStyles = (heading: Element): string => {
+  let headingStyle = ''
+  
+  // 处理标题对齐
+  const align = heading.getAttribute('align')
+  if (align) {
+    headingStyle += `text-align: ${align}; `
+  }
+  
+  // 处理标题颜色
+  const color = heading.getAttribute('color')
+  if (color) {
+    headingStyle += `color: ${color}; `
+  }
+  
+  return headingStyle
+}
+
+// 高级样式优化
+const optimizeStylesAdvanced = (styleMap: Map<string, string>): Map<string, string> => {
+  const optimizedMap = new Map<string, string>()
+  const styleGroups = new Map<string, string[]>()
+  
+  // 按样式属性分组
+  for (const [style, className] of styleMap.entries()) {
+    const properties = style.split(';').filter(p => p.trim())
+    const sortedProperties = properties.sort().join(';')
+    
+    if (!styleGroups.has(sortedProperties)) {
+      styleGroups.set(sortedProperties, [])
+    }
+    styleGroups.get(sortedProperties)!.push(className)
+  }
+  
+  // 为每组样式创建一个优化的类名
+  let counter = 0
+  for (const [sortedStyle, classNames] of styleGroups.entries()) {
+    const optimizedClassName = `optimized-style-${counter++}`
+    optimizedMap.set(sortedStyle, optimizedClassName)
+    
+    // 更新所有使用这些样式的元素
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(convertedHtml.value, 'text/html')
+    
+    classNames.forEach(oldClassName => {
+      const elements = doc.querySelectorAll(`.${oldClassName}`)
+      elements.forEach(element => {
+        element.classList.remove(oldClassName)
+        element.classList.add(optimizedClassName)
+      })
+    })
+    
+    // 更新HTML内容
+    convertedHtml.value = doc.documentElement.outerHTML
+  }
+  
+  return optimizedMap
+}
+
+// 合并相似的样式
+const mergeSimilarStyles = (styleMap: Map<string, string>): Map<string, string> => {
+  const finalMap = new Map<string, string>()
+  const styleCategories = new Map<string, Map<string, string>>()
+  
+  // 按样式类型分类
+  for (const [style, className] of styleMap.entries()) {
+    const category = getStyleCategory(style)
+    if (!styleCategories.has(category)) {
+      styleCategories.set(category, new Map())
+    }
+    styleCategories.get(category)!.set(style, className)
+  }
+  
+  // 在每个类别内合并相似样式
+  let finalCounter = 0
+  for (const [category, categoryStyles] of styleCategories.entries()) {
+    const mergedStyles = mergeStylesInCategory(categoryStyles)
+    
+    for (const [style, className] of mergedStyles.entries()) {
+      const finalClassName = `final-style-${finalCounter++}`
+      finalMap.set(style, finalClassName)
+      
+      // 更新元素类名
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(convertedHtml.value, 'text/html')
+      
+      const elements = doc.querySelectorAll(`.${className}`)
+      elements.forEach(element => {
+        element.classList.remove(className)
+        element.classList.add(finalClassName)
+      })
+      
+      // 更新HTML内容
+      convertedHtml.value = doc.documentElement.outerHTML
+    }
+  }
+  
+  return finalMap
+}
+
+// 获取样式类别
+const getStyleCategory = (style: string): string => {
+  if (style.includes('font-family') || style.includes('font-size') || style.includes('font-weight')) {
+    return 'font'
+  }
+  if (style.includes('color') || style.includes('background')) {
+    return 'color'
+  }
+  if (style.includes('text-align') || style.includes('text-decoration')) {
+    return 'text'
+  }
+  if (style.includes('border') || style.includes('padding') || style.includes('margin')) {
+    return 'layout'
+  }
+  if (style.includes('width') || style.includes('height')) {
+    return 'size'
+  }
+  return 'other'
+}
+
+// 在类别内合并样式
+const mergeStylesInCategory = (categoryStyles: Map<string, string>): Map<string, string> => {
+  const mergedMap = new Map<string, string>()
+  const styleGroups = new Map<string, string[]>()
+  
+  // 按样式属性分组
+  for (const [style, className] of categoryStyles.entries()) {
+    const properties = style.split(';').filter(p => p.trim())
+    const sortedProperties = properties.sort().join(';')
+    
+    if (!styleGroups.has(sortedProperties)) {
+      styleGroups.set(sortedProperties, [])
+    }
+    styleGroups.get(sortedProperties)!.push(className)
+  }
+  
+  // 为每组样式创建一个合并的类名
+  let counter = 0
+  for (const [sortedStyle, classNames] of styleGroups.entries()) {
+    const mergedClassName = `merged-style-${counter++}`
+    mergedMap.set(sortedStyle, mergedClassName)
+  }
+  
+  return mergedMap
+}
+
+// 添加样式到文档
+const addStylesToDocument = (doc: Document, styleContent: string) => {
+  // 查找现有的style标签
+  const existingStyle = doc.querySelector('style')
+  if (existingStyle) {
+    // 将新样式添加到现有样式中
+    existingStyle.innerHTML += '\n' + styleContent
+  } else {
+    // 创建新的style标签
+    const styleElement = doc.createElement('style')
+    styleElement.textContent = styleContent
+    
+    // 在文档头部添加新的style标签
+    const head = doc.querySelector('head') || doc.createElement('head')
+    head.appendChild(styleElement)
+    if (!doc.querySelector('head')) {
+      doc.documentElement.prepend(head)
+    }
+  }
+  
+  // 验证样式是否正确应用
+  validateStyleApplication(doc, styleContent)
+  
+  // 调试输出
+  console.log('添加的样式内容:', styleContent)
+  console.log('文档中的style标签:', doc.querySelector('style')?.innerHTML)
+}
+
+// 验证样式应用
+const validateStyleApplication = (doc: Document, styleContent: string) => {
+  // 提取所有类名
+  const classNames = styleContent.match(/\.([a-zA-Z0-9_-]+)\s*{/g)
+  if (!classNames) return
+  
+  const classNameList = classNames.map(cls => cls.replace(/\.([a-zA-Z0-9_-]+)\s*{/, '$1'))
+  
+  // 检查每个类名是否在文档中有对应的元素
+  classNameList.forEach(className => {
+    const elements = doc.querySelectorAll(`.${className}`)
+    if (elements.length === 0) {
+      console.warn(`样式类 ${className} 在文档中没有找到对应的元素`)
+    }
+  })
+  
+  // 检查是否有元素没有对应的样式
+  const allElements = doc.querySelectorAll('*')
+  allElements.forEach(element => {
+    const elementClasses = element.classList
+    if (elementClasses.length > 0) {
+      let hasStyle = false
+      elementClasses.forEach(cls => {
+        if (classNameList.includes(cls)) {
+          hasStyle = true
+        }
+      })
+      if (!hasStyle) {
+        console.warn(`元素 ${element.tagName} 有类名但没有找到对应的样式`)
+      }
+    }
+  })
+}
+
+// 确保HTML文档结构完整
+const ensureDocumentStructure = (doc: Document) => {
+  // 确保有DOCTYPE
+  if (!doc.doctype) {
+    const doctype = doc.implementation.createDocumentType('html', '', '')
+    doc.insertBefore(doctype, doc.firstChild)
+  }
+  
+  // 确保html元素有lang属性
+  if (!doc.documentElement.hasAttribute('lang')) {
+    doc.documentElement.setAttribute('lang', 'zh-CN')
+  }
+  
+  // 确保有head元素
+  if (!doc.querySelector('head')) {
+    const head = doc.createElement('head')
+    doc.documentElement.prepend(head)
+  }
+  
+  // 确保有body元素
+  if (!doc.querySelector('body')) {
+    const body = doc.createElement('body')
+    doc.documentElement.appendChild(body)
   }
 }
 </script>

@@ -1194,10 +1194,24 @@ const checkMobileView = () => {
   background: transparent;
   color: var(--text-secondary);
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 
   &:hover {
     color: var(--text-primary);
     background: var(--bg-tertiary);
+  }
+
+  .el-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 }
 
@@ -1247,6 +1261,20 @@ const checkMobileView = () => {
     background: var(--bg-overlay);
     color: var(--text-secondary);
     border: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    .el-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
   }
 
   :deep(.el-radio-button__inner:hover) {
@@ -1802,6 +1830,20 @@ const checkMobileView = () => {
   background-color: rgba(35, 35, 38, 0.6);
   color: var(--text-secondary);
   border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  .el-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
 }
 
 /* 暗色模式下未选中按钮的悬停状态 */
@@ -2879,6 +2921,20 @@ const checkMobileView = () => {
     padding: 0 0.75rem;
     font-size: 0.8rem;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    .el-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
   }
 
   /* 调整内容区域的上边距 */
@@ -2905,6 +2961,24 @@ const checkMobileView = () => {
   .engine-label {
     font-size: 14px;
   }
+
+  /* 暗色模式下的移动端样式 */
+  :root.dark :deep(.el-radio-button__inner) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    .el-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+  }
 }
 
 /* 更小屏幕的优化 */
@@ -2929,6 +3003,38 @@ const checkMobileView = () => {
   :deep(.el-radio-button__inner) {
     padding: 0 0.5rem;
     font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    .el-icon {
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+  }
+
+  /* 暗色模式下的更小屏幕样式 */
+  :root.dark :deep(.el-radio-button__inner) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    .el-icon {
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
   }
 }
 

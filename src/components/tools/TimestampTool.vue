@@ -1,5 +1,28 @@
 <template>
   <div class="timestamp-tool">
+    <!-- 操作按钮卡片 -->
+    <div class="tool-card actions-card">
+      <div class="actions-wrapper">
+        <el-button-group class="action-group">
+          <el-button type="primary" @click="toTimestamp" class="action-button">
+            <el-icon><Timer /></el-icon>转时间戳
+          </el-button>
+          <el-button type="primary" @click="toDate" class="action-button">
+            <el-icon><Calendar /></el-icon>转日期
+          </el-button>
+          <el-button @click="getCurrentTime" class="action-button blue-border">
+            <el-icon><Clock /></el-icon>当前时间
+          </el-button>
+          <el-button @click="copyResult" class="action-button blue-border">
+            <el-icon><CopyDocument /></el-icon>复制
+          </el-button>
+          <el-button @click="clearContent" class="action-button clear-button">
+            <el-icon><Delete /></el-icon>清空
+          </el-button>
+        </el-button-group>
+      </div>
+    </div>
+
     <!-- 工具卡片 -->
     <div class="tool-card options-card">
       <div class="editor-container">
@@ -73,29 +96,6 @@
             </div>
           </el-col>
         </el-row>
-      </div>
-    </div>
-
-    <!-- 操作按钮卡片 -->
-    <div class="tool-card actions-card">
-      <div class="actions-wrapper">
-        <el-button-group class="action-group">
-          <el-button type="primary" @click="toTimestamp" class="action-button">
-            <el-icon><Timer /></el-icon>转时间戳
-          </el-button>
-          <el-button type="primary" @click="toDate" class="action-button">
-            <el-icon><Calendar /></el-icon>转日期
-          </el-button>
-          <el-button @click="getCurrentTime" class="action-button blue-border">
-            <el-icon><Clock /></el-icon>当前时间
-          </el-button>
-          <el-button @click="copyResult" class="action-button blue-border">
-            <el-icon><CopyDocument /></el-icon>复制
-          </el-button>
-          <el-button @click="clearContent" class="action-button clear-button">
-            <el-icon><Delete /></el-icon>清空
-          </el-button>
-        </el-button-group>
       </div>
     </div>
   </div>
