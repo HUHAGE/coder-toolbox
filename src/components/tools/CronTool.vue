@@ -1,420 +1,414 @@
 <template>
   <div class="cron-tool">
-    <!-- 主操作区 -->
+    <!-- 顶部自定义Tab导航 -->
+    <div class="tab-navigation">
+      <div class="tab-container">
+        <div 
+          v-for="tab in tabs" 
+          :key="tab.key"
+          class="tab-item"
+          :class="{ active: activeTab === tab.key }"
+          @click="activeTab = tab.key"
+        >
+          <el-icon class="tab-icon">
+            <component :is="tab.icon" />
+          </el-icon>
+          <span class="tab-text">{{ tab.label }}</span>
+        </div>
+      </div>
+    </div>
+    <!-- 内容区 -->
     <div class="main-content">
-      <!-- 功能选项卡 -->
-      <el-tabs v-model="activeTab" class="function-tabs">
-        <!-- 生成器标签页 -->
-        <el-tab-pane label="生成表达式" name="generator">
-          <div class="tab-content">
-            <!-- 快速场景选择 -->
-            <el-card class="section-card">
-              <template #header>
-                <div class="section-header">
-                  <h3>常用场景</h3>
-                  <el-button-group>
-                    <el-button @click="clearSelection">
-                      <el-icon><Delete /></el-icon>清除选择
-                    </el-button>
-                  </el-button-group>
-                </div>
-              </template>
-              <div class="scenario-grid">
-                <el-card 
-                  v-for="scenario in commonScenarios" 
-                  :key="scenario.name"
-                  class="scenario-card"
-                  :class="{ active: currentScenario === scenario.expression }"
-                  @click="selectScenario(scenario)"
-                >
-                  <div class="scenario-content">
-                    <el-icon class="scenario-icon" :size="24">
-                      <component :is="scenario.icon" />
-                    </el-icon>
-                    <div class="scenario-info">
-                      <h4>{{ scenario.name }}</h4>
-                      <p>{{ scenario.description }}</p>
-                      <code>{{ scenario.expression }}</code>
-                    </div>
-                  </div>
-                </el-card>
-              </div>
-            </el-card>
-
-            <!-- 自定义配置区域 -->
-            <el-card class="section-card">
-              <template #header>
-                <div class="section-header">
-                  <h3>自定义配置</h3>
-                </div>
-              </template>
-              <div class="config-grid">
-                <div class="config-section">
-                  <h4>执行频率</h4>
-                  <el-radio-group v-model="frequency" @change="updateExpression" size="large">
-                    <el-radio-button label="once">一次</el-radio-button>
-                    <el-radio-button label="minutely">每分钟</el-radio-button>
-                    <el-radio-button label="hourly">每小时</el-radio-button>
-                    <el-radio-button label="daily">每天</el-radio-button>
-                    <el-radio-button label="weekly">每周</el-radio-button>
-                    <el-radio-button label="monthly">每月</el-radio-button>
-                    <el-radio-button label="yearly">每年</el-radio-button>
-                    <el-radio-button label="custom">自定义</el-radio-button>
-                  </el-radio-group>
-                </div>
-
-                <!-- 时间选择 -->
-                <div v-if="showTimeSelect" class="config-section">
-                  <h4>执行时间</h4>
-                  <el-time-picker 
-                    v-model="executionTime"
-                    format="HH:mm:ss"
-                    placeholder="选择时间"
-                    @change="updateExpression"
-                  />
-                </div>
-
-                <!-- 日期选择 -->
-                <div v-if="showDateSelect" class="config-section">
-                  <h4>执行日期</h4>
-                  <el-date-picker
-                    v-model="executionDate"
-                    type="date"
-                    placeholder="选择日期"
-                    @change="updateExpression"
-                  />
-                </div>
-
-                <!-- 周几选择 -->
-                <div v-if="frequency === 'weekly'" class="config-section">
-                  <h4>选择星期</h4>
-                  <el-checkbox-group v-model="selectedDays" @change="updateExpression">
-                    <el-checkbox-button 
-                      v-for="day in weekDays" 
-                      :key="day.value" 
-                      :label="day.value"
-                    >
-                      {{ day.label }}
-                    </el-checkbox-button>
-                  </el-checkbox-group>
-                </div>
-
-                <!-- 月份日期选择 -->
-                <div v-if="frequency === 'monthly'" class="config-section">
-                  <h4>选择日期</h4>
-                  <el-select v-model="selectedMonthDay" @change="updateExpression">
-                    <el-option
-                      v-for="i in 31"
-                      :key="i"
-                      :label="`每月${i}号`"
-                      :value="i"
-                    />
-                    <el-option label="每月最后一天" value="L" />
-                    <el-option label="每月最后一个工作日" value="LW" />
-                  </el-select>
-                </div>
-              </div>
-            </el-card>
-
-            <!-- 表达式结果展示 -->
-            <el-card class="section-card">
-              <template #header>
-                <div class="section-header">
-                  <h3>Cron 表达式</h3>
-                  <el-button-group>
-                    <el-button type="primary" @click="copyCron">
-                      <el-icon><CopyDocument /></el-icon>复制
-                    </el-button>
-                    <el-button @click="validateExpression">
-                      <el-icon><Check /></el-icon>验证
-                    </el-button>
-                  </el-button-group>
-                </div>
-              </template>
-              <div class="expression-content">
-                <el-input v-model="cronExpression" readonly>
-                  <template #prepend>
-                    <el-tooltip 
-                      content="秒 分 时 日 月 周" 
-                      placement="top"
-                    >
-                      <el-icon><InfoFilled /></el-icon>
-                    </el-tooltip>
-                  </template>
-                </el-input>
-                <div class="expression-description">
-                  {{ expressionDescription }}
-                </div>
-              </div>
-
-              <div class="preview-section">
-                <h4>执行预览</h4>
-                <div class="next-runs">
-                  <div class="next-run-item" v-for="(time, index) in nextRunTimes" :key="index">
-                    <el-icon><Timer /></el-icon>
-                    <span>{{ formatDateTime(time) }}</span>
-                  </div>
+      <div v-show="activeTab === 'generator'">
+        <!-- 生成表达式内容，原 el-tab-pane name="generator" 的内容 -->
+        <!-- 快速场景选择 -->
+        <el-card class="section-card">
+          <template #header>
+            <div class="section-header">
+              <h3>常用场景</h3>
+              <el-button-group>
+                <el-button @click="clearSelection">
+                  <el-icon><Delete /></el-icon>清除选择
+                </el-button>
+              </el-button-group>
+            </div>
+          </template>
+          <div class="scenario-grid">
+            <el-card 
+              v-for="scenario in commonScenarios" 
+              :key="scenario.name"
+              class="scenario-card"
+              :class="{ active: currentScenario === scenario.expression }"
+              @click="selectScenario(scenario)"
+            >
+              <div class="scenario-content">
+                <el-icon class="scenario-icon" :size="24">
+                  <component :is="scenario.icon" />
+                </el-icon>
+                <div class="scenario-info">
+                  <h4>{{ scenario.name }}</h4>
+                  <p>{{ scenario.description }}</p>
+                  <code>{{ scenario.expression }}</code>
                 </div>
               </div>
             </el-card>
           </div>
-        </el-tab-pane>
-
-        <!-- 解析器标签页 -->
-        <el-tab-pane label="解析表达式" name="parser">
-          <div class="parser-section">
-            <el-row :gutter="20">
-              <el-col :span="24">
-                <el-card class="parser-input-card">
-                  <template #header>
-                    <div class="card-header">
-                      <h3>输入 Cron 表达式</h3>
-                      <el-button-group>
-                        <el-button type="primary" @click="parseExpression">
-                          <el-icon><Connection /></el-icon>解析
-                        </el-button>
-                        <el-button @click="clearParser">
-                          <el-icon><Delete /></el-icon>清空
-                        </el-button>
-                      </el-button-group>
-                    </div>
-                  </template>
-
-                  <div class="input-section">
-                    <el-input
-                      v-model="inputExpression"
-                      placeholder="例如: 0 0 12 * * ?"
-                      size="large"
-                      clearable
-                    >
-                      <template #prepend>
-                        <el-tooltip content="秒 分 时 日 月 周" placement="top">
-                          <el-icon><InfoFilled /></el-icon>
-                        </el-tooltip>
-                      </template>
-                      <template #append>
-                        <el-popover
-                          placement="bottom"
-                          title="格式说明"
-                          :width="300"
-                          trigger="hover"
-                        >
-                          <template #reference>
-                            <el-button><el-icon><QuestionFilled /></el-icon></el-button>
-                          </template>
-                          <div class="format-help">
-                            <div class="format-visual">
-                              <pre>* * * * * *</pre>
-                              <div class="format-labels">
-                                <span>秒</span>
-                                <span>分</span>
-                                <span>时</span>
-                                <span>日</span>
-                                <span>月</span>
-                                <span>周</span>
-                              </div>
+        </el-card>
+        <!-- 自定义配置区域 -->
+        <el-card class="section-card">
+          <template #header>
+            <div class="section-header">
+              <h3>自定义配置</h3>
+            </div>
+          </template>
+          <div class="config-grid">
+            <div class="config-section">
+              <h4>执行频率</h4>
+              <el-radio-group v-model="frequency" @change="updateExpression" size="large">
+                <el-radio-button label="once">一次</el-radio-button>
+                <el-radio-button label="minutely">每分钟</el-radio-button>
+                <el-radio-button label="hourly">每小时</el-radio-button>
+                <el-radio-button label="daily">每天</el-radio-button>
+                <el-radio-button label="weekly">每周</el-radio-button>
+                <el-radio-button label="monthly">每月</el-radio-button>
+                <el-radio-button label="yearly">每年</el-radio-button>
+                <el-radio-button label="custom">自定义</el-radio-button>
+              </el-radio-group>
+            </div>
+            <!-- 时间选择 -->
+            <div v-if="showTimeSelect" class="config-section">
+              <h4>执行时间</h4>
+              <el-time-picker 
+                v-model="executionTime"
+                format="HH:mm:ss"
+                placeholder="选择时间"
+                @change="updateExpression"
+              />
+            </div>
+            <!-- 日期选择 -->
+            <div v-if="showDateSelect" class="config-section">
+              <h4>执行日期</h4>
+              <el-date-picker
+                v-model="executionDate"
+                type="date"
+                placeholder="选择日期"
+                @change="updateExpression"
+              />
+            </div>
+            <!-- 周几选择 -->
+            <div v-if="frequency === 'weekly'" class="config-section">
+              <h4>选择星期</h4>
+              <el-checkbox-group v-model="selectedDays" @change="updateExpression">
+                <el-checkbox-button 
+                  v-for="day in weekDays" 
+                  :key="day.value" 
+                  :label="day.value"
+                >
+                  {{ day.label }}
+                </el-checkbox-button>
+              </el-checkbox-group>
+            </div>
+            <!-- 月份日期选择 -->
+            <div v-if="frequency === 'monthly'" class="config-section">
+              <h4>选择日期</h4>
+              <el-select v-model="selectedMonthDay" @change="updateExpression">
+                <el-option
+                  v-for="i in 31"
+                  :key="i"
+                  :label="`每月${i}号`"
+                  :value="i"
+                />
+                <el-option label="每月最后一天" value="L" />
+                <el-option label="每月最后一个工作日" value="LW" />
+              </el-select>
+            </div>
+          </div>
+        </el-card>
+        <!-- 表达式结果展示 -->
+        <el-card class="section-card">
+          <template #header>
+            <div class="section-header">
+              <h3>Cron 表达式</h3>
+              <el-button-group>
+                <el-button type="primary" @click="copyCron">
+                  <el-icon><CopyDocument /></el-icon>复制
+                </el-button>
+                <el-button @click="validateExpression">
+                  <el-icon><Check /></el-icon>验证
+                </el-button>
+              </el-button-group>
+            </div>
+          </template>
+          <div class="expression-content">
+            <el-input v-model="cronExpression" readonly>
+              <template #prepend>
+                <el-tooltip 
+                  content="秒 分 时 日 月 周" 
+                  placement="top"
+                >
+                  <el-icon><InfoFilled /></el-icon>
+                </el-tooltip>
+              </template>
+            </el-input>
+            <div class="expression-description">
+              {{ expressionDescription }}
+            </div>
+          </div>
+          <div class="preview-section">
+            <h4>执行预览</h4>
+            <div class="next-runs">
+              <div class="next-run-item" v-for="(time, index) in nextRunTimes" :key="index">
+                <el-icon><Timer /></el-icon>
+                <span>{{ formatDateTime(time) }}</span>
+              </div>
+            </div>
+          </div>
+        </el-card>
+      </div>
+      <div v-show="activeTab === 'parser'">
+        <!-- 解析表达式内容，原 el-tab-pane name="parser" 的内容 -->
+        <div class="parser-section">
+          <el-row :gutter="20">
+            <el-col :span="24">
+              <el-card class="parser-input-card">
+                <template #header>
+                  <div class="card-header">
+                    <h3>输入 Cron 表达式</h3>
+                    <el-button-group>
+                      <el-button type="primary" @click="parseExpression">
+                        <el-icon><Connection /></el-icon>解析
+                      </el-button>
+                      <el-button @click="clearParser">
+                        <el-icon><Delete /></el-icon>清空
+                      </el-button>
+                    </el-button-group>
+                  </div>
+                </template>
+                <div class="input-section">
+                  <el-input
+                    v-model="inputExpression"
+                    placeholder="例如: 0 0 12 * * ?"
+                    size="large"
+                    clearable
+                  >
+                    <template #prepend>
+                      <el-tooltip content="秒 分 时 日 月 周" placement="top">
+                        <el-icon><InfoFilled /></el-icon>
+                      </el-tooltip>
+                    </template>
+                    <template #append>
+                      <el-popover
+                        placement="bottom"
+                        title="格式说明"
+                        :width="300"
+                        trigger="hover"
+                      >
+                        <template #reference>
+                          <el-button><el-icon><QuestionFilled /></el-icon></el-button>
+                        </template>
+                        <div class="format-help">
+                          <div class="format-visual">
+                            <pre>* * * * * *</pre>
+                            <div class="format-labels">
+                              <span>秒</span>
+                              <span>分</span>
+                              <span>时</span>
+                              <span>日</span>
+                              <span>月</span>
+                              <span>周</span>
                             </div>
                           </div>
-                        </el-popover>
-                      </template>
-                    </el-input>
-                  </div>
-                </el-card>
-              </el-col>
-            </el-row>
-
-            <!-- 解析结果展示 -->
-            <el-row :gutter="20" v-if="parseResult" class="result-row">
-              <el-col :span="24">
-                <el-card class="result-card" :class="{ 'error': !parseResult.isValid }">
-                  <template #header>
-                    <div class="card-header">
-                      <h3>解析结果</h3>
-                      <el-tag :type="parseResult.isValid ? 'success' : 'danger'">
-                        {{ parseResult.isValid ? '有效表达式' : '无效表达式' }}
-                      </el-tag>
-                    </div>
-                  </template>
-
-                  <template v-if="parseResult.isValid">
-                    <div class="result-description">
-                      <el-alert
-                        :title="parseResult.description"
-                        type="success"
-                        :closable="false"
-                        show-icon
-                      />
-                    </div>
-
-                    <div class="parts-grid">
-                      <el-descriptions :column="3" border>
-                        <el-descriptions-item label="秒">
-                          <el-tag size="small">{{ parseResult.parts.seconds }}</el-tag>
-                        </el-descriptions-item>
-                        <el-descriptions-item label="分">
-                          <el-tag size="small">{{ parseResult.parts.minutes }}</el-tag>
-                        </el-descriptions-item>
-                        <el-descriptions-item label="时">
-                          <el-tag size="small">{{ parseResult.parts.hours }}</el-tag>
-                        </el-descriptions-item>
-                        <el-descriptions-item label="日">
-                          <el-tag size="small">{{ parseResult.parts.dayOfMonth }}</el-tag>
-                        </el-descriptions-item>
-                        <el-descriptions-item label="月">
-                          <el-tag size="small">{{ parseResult.parts.month }}</el-tag>
-                        </el-descriptions-item>
-                        <el-descriptions-item label="周">
-                          <el-tag size="small">{{ parseResult.parts.dayOfWeek }}</el-tag>
-                        </el-descriptions-item>
-                      </el-descriptions>
-                    </div>
-
-                    <div class="next-executions">
-                      <h4>
-                        <el-icon><Timer /></el-icon>
-                        未来执行时间预览
-                      </h4>
-                      <div class="time-preview">
-                        <div 
-                          v-for="(time, index) in parseResult.nextRuns" 
-                          :key="index"
-                          class="time-item"
-                        >
-                          <span class="time-index">#{{ index + 1 }}</span>
-                          <span class="time-value">{{ formatDateTime(time) }}</span>
                         </div>
-                      </div>
-                    </div>
-                  </template>
-
-                  <template v-else>
+                      </el-popover>
+                    </template>
+                  </el-input>
+                </div>
+              </el-card>
+            </el-col>
+          </el-row>
+          <!-- 解析结果展示 -->
+          <el-row :gutter="20" v-if="parseResult" class="result-row">
+            <el-col :span="24">
+              <el-card class="result-card" :class="{ 'error': !parseResult.isValid }">
+                <template #header>
+                  <div class="card-header">
+                    <h3>解析结果</h3>
+                    <el-tag :type="parseResult.isValid ? 'success' : 'danger'">
+                      {{ parseResult.isValid ? '有效表达式' : '无效表达式' }}
+                    </el-tag>
+                  </div>
+                </template>
+                <template v-if="parseResult.isValid">
+                  <div class="result-description">
                     <el-alert
-                      :title="parseResult.error"
-                      type="error"
+                      :title="parseResult.description"
+                      type="success"
                       :closable="false"
                       show-icon
                     />
-                  </template>
-                </el-card>
-              </el-col>
-            </el-row>
-          </div>
-        </el-tab-pane>
-
-        <!-- 帮助说明标签页 -->
-        <el-tab-pane label="使用帮助" name="help">
-          <div class="help-section">
-            <!-- 概述卡片 -->
-            <el-card class="help-card">
-              <template #header>
-                <div class="help-card-header">
-                  <el-icon><InfoFilled /></el-icon>
-                  <span>Cron 表达式简介</span>
-                </div>
-              </template>
-              <div class="help-content">
-                <p class="help-desc">Cron 表达式是一种时间表达式，用于设置任务的执行时间。它由6个字段组成，每个字段代表不同的时间单位。</p>
-                
-                <div class="cron-format-box">
-                  <div class="format-header">
-                    <el-icon><Timer /></el-icon>
-                    <span>表达式格式</span>
                   </div>
-                  <div class="format-content">
-                    <div class="format-visual">
-                      <div class="format-example">* * * * * *</div>
-                      <div class="format-labels">
-                        <span>秒</span>
-                        <span>分</span>
-                        <span>时</span>
-                        <span>日</span>
-                        <span>月</span>
-                        <span>周</span>
-                      </div>
-                    </div>
-                    <div class="format-ranges">
-                      <div class="range-item">
-                        <div class="range-label">秒</div>
-                        <div class="range-value">0-59</div>
-                      </div>
-                      <div class="range-item">
-                        <div class="range-label">分钟</div>
-                        <div class="range-value">0-59</div>
-                      </div>
-                      <div class="range-item">
-                        <div class="range-label">小时</div>
-                        <div class="range-value">0-23</div>
-                      </div>
-                      <div class="range-item">
-                        <div class="range-label">日期</div>
-                        <div class="range-value">1-31</div>
-                      </div>
-                      <div class="range-item">
-                        <div class="range-label">月份</div>
-                        <div class="range-value">1-12</div>
-                      </div>
-                      <div class="range-item">
-                        <div class="range-label">星期</div>
-                        <div class="range-value">0-7</div>
+                  <div class="parts-grid">
+                    <el-descriptions :column="3" border>
+                      <el-descriptions-item label="秒">
+                        <el-tag size="small">{{ parseResult.parts.seconds }}</el-tag>
+                      </el-descriptions-item>
+                      <el-descriptions-item label="分">
+                        <el-tag size="small">{{ parseResult.parts.minutes }}</el-tag>
+                      </el-descriptions-item>
+                      <el-descriptions-item label="时">
+                        <el-tag size="small">{{ parseResult.parts.hours }}</el-tag>
+                      </el-descriptions-item>
+                      <el-descriptions-item label="日">
+                        <el-tag size="small">{{ parseResult.parts.dayOfMonth }}</el-tag>
+                      </el-descriptions-item>
+                      <el-descriptions-item label="月">
+                        <el-tag size="small">{{ parseResult.parts.month }}</el-tag>
+                      </el-descriptions-item>
+                      <el-descriptions-item label="周">
+                        <el-tag size="small">{{ parseResult.parts.dayOfWeek }}</el-tag>
+                      </el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                  <div class="next-executions">
+                    <h4>
+                      <el-icon><Timer /></el-icon>
+                      未来执行时间预览
+                    </h4>
+                    <div class="time-preview">
+                      <div 
+                        v-for="(time, index) in parseResult.nextRuns" 
+                        :key="index"
+                        class="time-item"
+                      >
+                        <span class="time-index">#{{ index + 1 }}</span>
+                        <span class="time-value">{{ formatDateTime(time) }}</span>
                       </div>
                     </div>
                   </div>
-                </div>
+                </template>
+                <template v-else>
+                  <el-alert
+                    :title="parseResult.error"
+                    type="error"
+                    :closable="false"
+                    show-icon
+                  />
+                </template>
+              </el-card>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+      <div v-show="activeTab === 'help'">
+        <!-- 使用帮助内容，原 el-tab-pane name="help" 的内容 -->
+        <div class="help-section">
+          <!-- 概述卡片 -->
+          <el-card class="help-card">
+            <template #header>
+              <div class="help-card-header">
+                <el-icon><InfoFilled /></el-icon>
+                <span>Cron 表达式简介</span>
               </div>
-            </el-card>
-
-            <!-- 特殊字符说明卡片 -->
-            <el-card class="help-card">
-              <template #header>
-                <div class="help-card-header">
-                  <el-icon><Edit /></el-icon>
-                  <span>特殊字符说明</span>
+            </template>
+            <div class="help-content">
+              <p class="help-desc">Cron 表达式是一种时间表达式，用于设置任务的执行时间。它由6个字段组成，每个字段代表不同的时间单位。</p>
+              <div class="cron-format-box">
+                <div class="format-header">
+                  <el-icon><Timer /></el-icon>
+                  <span>表达式格式</span>
                 </div>
-              </template>
-              <div class="special-chars-grid">
-                <div v-for="char in specialChars" :key="char.symbol" class="special-char-item">
-                  <div class="char-symbol">{{ char.symbol }}</div>
-                  <div class="char-content">
-                    <div class="char-name">{{ char.name }}</div>
-                    <div class="char-desc">{{ char.description }}</div>
-                    <code v-if="char.example" class="char-example">{{ char.example }}</code>
+                <div class="format-content">
+                  <div class="format-visual">
+                    <div class="format-example">* * * * * *</div>
+                    <div class="format-labels">
+                      <span>秒</span>
+                      <span>分</span>
+                      <span>时</span>
+                      <span>日</span>
+                      <span>月</span>
+                      <span>周</span>
+                    </div>
+                  </div>
+                  <div class="format-ranges">
+                    <div class="range-item">
+                      <div class="range-label">秒</div>
+                      <div class="range-value">0-59</div>
+                    </div>
+                    <div class="range-item">
+                      <div class="range-label">分钟</div>
+                      <div class="range-value">0-59</div>
+                    </div>
+                    <div class="range-item">
+                      <div class="range-label">小时</div>
+                      <div class="range-value">0-23</div>
+                    </div>
+                    <div class="range-item">
+                      <div class="range-label">日期</div>
+                      <div class="range-value">1-31</div>
+                    </div>
+                    <div class="range-item">
+                      <div class="range-label">月份</div>
+                      <div class="range-value">1-12</div>
+                    </div>
+                    <div class="range-item">
+                      <div class="range-label">星期</div>
+                      <div class="range-value">0-7</div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </el-card>
-
-            <!-- 常见示例卡片 -->
-            <el-card class="help-card">
-              <template #header>
-                <div class="help-card-header">
-                  <el-icon><Document /></el-icon>
-                  <span>常见示例</span>
-                </div>
-              </template>
-              <div class="examples-grid">
-                <el-card 
-                  v-for="example in commonExamples" 
-                  :key="example.expression" 
-                  class="example-card"
-                  shadow="hover"
-                >
-                  <div class="example-content">
-                    <code class="example-expression">{{ example.expression }}</code>
-                    <p class="example-desc">{{ example.description }}</p>
-                    <el-button 
-                      type="primary" 
-                      link 
-                      @click="useExample(example.expression)"
-                    >
-                      使用此表达式
-                    </el-button>
-                  </div>
-                </el-card>
+            </div>
+          </el-card>
+          <!-- 特殊字符说明卡片 -->
+          <el-card class="help-card">
+            <template #header>
+              <div class="help-card-header">
+                <el-icon><Edit /></el-icon>
+                <span>特殊字符说明</span>
               </div>
-            </el-card>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
+            </template>
+            <div class="special-chars-grid">
+              <div v-for="char in specialChars" :key="char.symbol" class="special-char-item">
+                <div class="char-symbol">{{ char.symbol }}</div>
+                <div class="char-content">
+                  <div class="char-name">{{ char.name }}</div>
+                  <div class="char-desc">{{ char.description }}</div>
+                  <code v-if="char.example" class="char-example">{{ char.example }}</code>
+                </div>
+              </div>
+            </div>
+          </el-card>
+          <!-- 常见示例卡片 -->
+          <el-card class="help-card">
+            <template #header>
+              <div class="help-card-header">
+                <el-icon><Document /></el-icon>
+                <span>常见示例</span>
+              </div>
+            </template>
+            <div class="examples-grid">
+              <el-card 
+                v-for="example in commonExamples" 
+                :key="example.expression" 
+                class="example-card"
+                shadow="hover"
+              >
+                <div class="example-content">
+                  <code class="example-expression">{{ example.expression }}</code>
+                  <p class="example-desc">{{ example.description }}</p>
+                  <el-button 
+                    type="primary" 
+                    link 
+                    @click="useExample(example.expression)"
+                  >
+                    使用此表达式
+                  </el-button>
+                </div>
+              </el-card>
+            </div>
+          </el-card>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -611,6 +605,13 @@ const commonExamples = [
   }
 ]
 
+// 新增 tab 配置
+const tabs = [
+  { key: 'generator', label: '生成表达式', icon: Edit },
+  { key: 'parser', label: '解析表达式', icon: Connection },
+  { key: 'help', label: '使用帮助', icon: InfoFilled }
+]
+
 const activeTab = ref('generator')
 const frequency = ref('daily')
 const executionTime = ref(new Date())
@@ -782,13 +783,15 @@ const clearSelection = () => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  background-color: #f5f7fa;
+  background-color: #f1f1f4;
+  /* 移除 height 和 overflow 限制，保证内容可滚动 */
 }
 
 .main-content {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  /* 移除 height 和 overflow 限制 */
 }
 
 .function-tabs {
@@ -801,6 +804,7 @@ const clearSelection = () => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  /* 移除 height 和 overflow 限制 */
 }
 
 .section-card {
@@ -808,19 +812,10 @@ const clearSelection = () => {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  }
-
-  :deep(.el-card__header) {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid #ebeef5;
-  }
-
-  :deep(.el-card__body) {
-    padding: 1.25rem;
-  }
+  margin-bottom: 1.5rem;
+}
+.section-card:last-child {
+  margin-bottom: 0;
 }
 
 .section-header {
@@ -1331,5 +1326,57 @@ const clearSelection = () => {
 :root.dark .special-char-item:hover,
 :root.dark .range-item:hover {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+// 复制身份证工具的 tab 样式
+.tab-navigation {
+  width: 100%;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+.tab-container {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 0.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05),
+              0 0 0 1px rgba(0, 0, 0, 0.03);
+  max-width: 900px;
+  width: 100%;
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+.tab-item:hover {
+  background: rgba(0, 122, 255, 0.05);
+  color: var(--text-primary);
+}
+.tab-item.active {
+  background: #007aff;
+  color: white;
+  box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3);
+}
+.tab-icon {
+  font-size: 1rem;
+}
+.tab-text {
+  font-size: 0.875rem;
+}
+:root.dark .tab-container {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2),
+              0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 </style>
