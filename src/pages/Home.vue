@@ -550,6 +550,7 @@ const openGitHub = () => {
   }
 }
 
+// 关于作者
 const openBlog = (e: MouseEvent) => {
   e.preventDefault()
   const url = 'https://huhage.github.io/huhawebsite'
@@ -715,11 +716,12 @@ const openSourceLink = () => {
   }
 }
 
+// 页面底部的关于作者
 const openAuthorBlog = () => {
   if (window.utools) {
-    window.utools.shellOpenExternal('https://huhage.github.io/huhawebsite')
+    window.utools.shellOpenExternal('https://tech-style-portfolio.vercel.app/')
   } else {
-    window.open('https://huhage.github.io/huhawebsite', '_blank')
+    window.open('https://tech-style-portfolio.vercel.app/', '_blank')
   }
 }
 
