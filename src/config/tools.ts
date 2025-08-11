@@ -44,7 +44,7 @@ export const tools = [
     name: '留言墙',
     description: '在线留言墙，分享你的想法',
     icon: messageWallIcon,
-    path: 'https://www.huhawall.fun/',
+    path: 'https://mswall.huhage.fun/',
     category: 'fun'
   },
   {
