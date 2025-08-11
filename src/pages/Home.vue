@@ -719,9 +719,9 @@ const openSourceLink = () => {
 // 页面底部的关于作者
 const openAuthorBlog = () => {
   if (window.utools) {
-    window.utools.shellOpenExternal('https://tech-style-portfolio.vercel.app/')
+    window.utools.shellOpenExternal('https://huha.huhage.fun/')
   } else {
-    window.open('https://tech-style-portfolio.vercel.app/', '_blank')
+    window.open('https://huha.huhage.fun/', '_blank')
   }
 }
 
