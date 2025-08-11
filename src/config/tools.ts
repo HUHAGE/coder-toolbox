@@ -24,6 +24,7 @@ import sqlZHIcon from '@/assets/icons/sql-zh.svg'
 import sqlTruncateIcon from '@/assets/icons/sql-truncate.svg'
 import sqlAddIcon from '@/assets/icons/sql-add.svg'
 import wordToHtmlIcon from '@/assets/icons/word-to-html.svg'
+import htmlIcon from '@/assets/icons/html.svg'
 import hanBao from '@/assets/icons/汉堡.svg'
 import lanQiu from '@/assets/icons/篮球.svg'
 import lotteryIcon from '@/assets/icons/抽奖.svg'
@@ -45,6 +46,14 @@ export const tools = [
     icon: messageWallIcon,
     path: 'https://www.huhawall.fun/',
     category: 'fun'
+  },
+  {
+    code: 'html-share',
+    name: 'HTML分享',
+    description: '安全、便捷地分享您的HTML内容',
+    icon: htmlIcon,
+    path: 'https://html.huhage.fun/',
+    category: 'other'
   },
   {
     code: 'invoice',
@@ -298,7 +307,7 @@ export const tools = [
     code: 'lottery',
     name: '年会抽奖工具',
     description: '公平公正的随机抽奖工具',
-    icon: lotteryIcon, 
+    icon: lotteryIcon,
     path: 'https://lucky.huhage.fun/', // 直接使用部署好的网站链接
     category: 'fun'
   },
@@ -321,7 +330,7 @@ export const tools = [
   {
     code: 'fanyinli',
     name: '反应力测试',
-    description: '测试你的反应力', 
+    description: '测试你的反应力',
     icon: fanyinliIcon,
     path: '/games/fanyingli',
     category: 'fun'

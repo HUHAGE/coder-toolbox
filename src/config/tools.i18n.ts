@@ -14,6 +14,10 @@ export const toolsTranslations: ToolsTranslations = {
       name: '留言墙',
       description: '在线留言墙，分享你的想法'
     },
+    'html-share': {
+      name: 'HTML分享',
+      description: '安全、便捷地分享您的HTML内容'
+    },
     invoice: {
       name: '发票打印助手',
       description: '专业的发票打印工具'
@@ -175,6 +179,10 @@ export const toolsTranslations: ToolsTranslations = {
     'message-wall': {
       name: 'Message Wall',
       description: 'Online message wall, share your thoughts'
+    },
+    'html-share': {
+      name: 'HTML Share',
+      description: 'Safely and conveniently share your HTML content'
     },
     invoice: {
       name: 'Invoice Printer Assistant',
