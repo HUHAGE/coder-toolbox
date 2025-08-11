@@ -51,7 +51,7 @@ export const tools = [
     name: '发票打印助手',
     description: '专业的发票打印工具',
     icon: invoiceIcon,
-    path: 'https://invoice-artisan-print.vercel.app/',
+    path: 'https://invoice.huhage.fun/',
     category: 'other'
   },
   {
@@ -299,7 +299,7 @@ export const tools = [
     name: '年会抽奖工具',
     description: '公平公正的随机抽奖工具',
     icon: lotteryIcon, 
-    path: 'https://lucky-draw-lottery-alpha.vercel.app/', // 直接使用部署好的网站链接
+    path: 'https://lucky.huhage.fun/', // 直接使用部署好的网站链接
     category: 'fun'
   },
   {
