@@ -11,14 +11,8 @@
         
         <!-- 添加操作按钮组 -->
         <div class="header-actions">
-          <el-tooltip :content="t.tooltips.aboutProject" placement="bottom">
-            <el-button class="action-btn" @click="showAboutProject">
-              <el-icon><InfoFilled /></el-icon>
-            </el-button>
-          </el-tooltip>
-          
           <el-tooltip :content="t.tooltips.aboutAuthor" placement="bottom">
-            <el-button class="action-btn" @click="showAboutAuthor">
+            <el-button class="action-btn" @click="openAuthorWebsite">
               <el-icon><User /></el-icon>
             </el-button>
           </el-tooltip>
@@ -204,10 +198,6 @@
               {{ t.links.aboutAuthor }}
             </a>
             <span class="dot">·</span>
-            <a href="#" @click.prevent="showAboutProject">
-              {{ t.links.aboutProject }}
-            </a>
-            <span class="dot">·</span>
             <a href="#" @click.prevent="openFeedback">
               {{ t.links.feedback }}
             </a>
@@ -216,29 +206,7 @@
       </div>
     </div>
 
-    <!-- 添加对话框组件 -->
-    <el-dialog
-      v-model="showProjectDialog"
-      title="关于项目"
-      width="500px"
-      class="about-dialog"
-    >
-      <div class="about-content">
-        <h3>呼哈开发者工具箱</h3>
-        <p>一个集成了常用开发工具的在线工具箱，包含以下特性：</p>
-        <ul>
-          <li>🛠️ 丰富的工具集合</li>
-          <li>🎨 优雅的用户界面</li>
-          <li>🌙 支持深色模式</li>
-          <li>📱 响应式设计</li>
-          <li>⚡ 快速的本地运行</li>
-        </ul>
-        <p class="version">当前版本：v1.0.0</p>
-        <p>
-          本工具由Cursor AI辅助开发。
-        </p>
-      </div>
-    </el-dialog>
+
 
 
     <el-dialog
@@ -325,7 +293,7 @@ import {
   Check,
   Sunny,
   Moon,
-  InfoFilled,
+
   User,
   Message,
   Link,
@@ -526,13 +494,7 @@ onUnmounted(() => {
 })
 
 // 对话框控制
-const showProjectDialog = ref(false)
 const showAuthorDialog = ref(false)
-
-// 按钮事件处理
-const showAboutProject = () => {
-  showProjectDialog.value = true
-}
 
 const showAboutAuthor = () => {
   showAuthorDialog.value = true
@@ -554,6 +516,17 @@ const openGitHub = () => {
 const openBlog = (e: MouseEvent) => {
   e.preventDefault()
   const url = 'https://huhage.github.io/huhawebsite'
+  
+  if (window.utools) {
+    window.utools.shellOpenExternal(url)
+  } else {
+    window.open(url, '_blank')
+  }
+}
+
+// 打开作者网站
+const openAuthorWebsite = () => {
+  const url = 'https://huha.huhage.fun/'
   
   if (window.utools) {
     window.utools.shellOpenExternal(url)
